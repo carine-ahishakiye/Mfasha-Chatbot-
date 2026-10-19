@@ -151,7 +151,7 @@ Mfasha chatbot/
 You need Python 3.10 or newer. Retrieval runs on a CPU. Training and fast speech recognition need a GPU (I used Google Colab).
 
 ```
-git clone [repository link]
+git clone https://github.com/carine-ahishakiye/Mfasha-Chatbot-.git
 cd "Mfasha chatbot"
 python -m venv .venv
 .venv\Scripts\activate
