@@ -1,0 +1,9 @@
+﻿.venv/
+__pycache__/
+.ipynb_checkpoints/
+.env
+models/
+data/triplets_*.csv
+data/*.pkl
+results/trainer_tmp/
+*.safetensors

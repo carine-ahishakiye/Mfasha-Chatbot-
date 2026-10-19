@@ -1,0 +1,72 @@
+﻿time,question,refused,tier,confidence,passage_id,seconds
+2026-10-13T23:22:57,nigute natera ibitoki,False,low,0.547,A434T243,8.27
+2026-10-13T23:23:28,uburima burangwa niki muri pome ?,False,low,0.582,A363T794,1.88
+2026-10-13T23:25:45,guhunika ibishyimbo,False,high,0.932,A228T210,2.35
+2026-10-13T23:26:23,ibigori byange byafashwe na cyumya niki nakora,False,low,0.561,A103T084,0.59
+2026-10-13T23:26:40,kurwanya cyumya,False,low,0.571,A117T095,0.4
+2026-10-13T23:28:41,ni gute nahinga muri girinihawuzi,False,high,0.713,A939T983,0.54
+2026-10-13T23:29:06,Ni ibiki ukwiye gusuzuma mu gihe ugiye kugura kurujete ?,False,medium,0.65,A349T780,0.6
+2026-10-13T23:41:58,nigute natera ibigori,False,high,0.71,A106T087,0.87
+2026-10-13T23:43:37,uko nakwita ku nkoko zikivuka,True,none,0.469,None,0.67
+2026-10-13T23:43:51,uko wakwita ku nkoko,True,none,0.457,None,0.24
+2026-10-13T23:44:01,ibitoki bihingwa gute,False,low,0.561,A434T243,0.25
+2026-10-13T23:44:14,gusarura ibishyimbo,False,high,0.891,A224T206,0.24
+2026-10-13T23:44:34,uko watera intoryi,False,high,0.758,A315T746,0.22
+2026-10-13T23:44:45,uko nakwita ku nkwavu,False,low,0.6,A898T941,0.21
+2026-10-13T23:44:56,uko bahinga ikawa,False,medium,0.6,A606T418,0.24
+2026-10-13T23:45:09,kwita kuri kawa,False,medium,0.66,A604T416,0.2
+2026-10-13T23:45:27,aho najinga umuceri,False,medium,0.661,A035T009,0.21
+2026-10-13T23:46:03,gute nakwita ku mbuto yibishyimbo,False,high,0.709,A199T180,0.25
+2026-10-13T23:46:19,guhunika ibishyimbo,False,high,0.932,A228T210,0.21
+2026-10-13T23:53:21,uko nakwita ku nkwavu,False,low,0.6,A898T941,0.55
+2026-10-13T23:53:47,uko nahinga ikawa,False,medium,0.613,A611T423,0.23
+2026-10-13T23:53:59,kurwanya kirabiranya,False,high,0.763,A460T269,0.2
+2026-10-13T23:54:18,kirabiranya yo mu bitoki gute nayirwanya,False,high,0.796,A435T245,0.28
+2026-10-13T23:54:35,nshaka gutera intoryi ni gute nabikora,False,high,0.756,A316T747,0.23
+2026-10-13T23:55:03,inka yabyaye yitabwaho gute,False,low,0.527,A650T464,0.28
+2026-10-13T23:56:48,guhinga pome bikorwa bite,False,medium,0.635,A351T782,0.42
+2026-10-14T00:02:32,muraho,True,none,0.297,None,0.84
+2026-10-14T00:02:46,nigute nahinga ibinyomoro,False,high,0.735,A819T857,0.27
+2026-10-14T00:03:27,uko nakorora inkwavu,False,high,0.749,A720T534,0.22
+2026-10-14T00:04:20,uko nahinga intoryi,False,medium,0.622,A308T739,0.37
+2026-10-14T00:04:47,umurima utegurwa gute,False,medium,0.676,A474T283,0.27
+2026-10-14T00:05:06,umurima uterwamo ibishyimbo utegurwa ute,False,high,0.809,A197T178,0.28
+2026-10-14T00:05:43,nabona gute ifumbire ya NPK,False,medium,0.653,A588T400,0.29
+2026-10-14T00:06:12,IFUMBIRE MVARUGANDA IKORESHWA ITE,False,low,0.557,A588T400,0.31
+2026-10-14T03:24:59,how can we prepare yard,True,none,0.341,,0.44
+2026-10-14T03:25:16,gute twategura aho guhinga intoryi,False,high,0.733,A314T745,0.22
+2026-10-14T03:26:45,gukingira inka,False,medium,0.627,A650T464,0.27
+2026-10-14T03:27:05,uko nakwita ku nkoko,True,none,0.432,,0.87
+2026-10-14T03:27:10,inkoko,False,medium,0.639,A746T564,0.17
+2026-10-14T03:27:21,inkoko zororoka gute,False,high,0.764,A746T564,0.2
+2026-10-14T03:32:37,kurwanya cyumya mu birayi,False,high,0.701,A462T271,0.74
+2026-10-14T03:33:12,gutera pome,False,high,0.813,A356T787,0.17
+2026-10-14T09:21:53,uko bafumbira insina,False,high,0.825,A431T240,4.57
+2026-10-14T09:22:32,UKO NAKUBAKA IKIBUTI KINKWAVU,False,low,0.504,A719T533,2.59
+2026-10-14T10:31:37,niyihe miti naha ihene ikivuka,False,low,0.585,A705T518,3.42
+2026-10-14T10:31:48,nigute ihene zororoka,False,high,0.882,A705T518,0.36
+2026-10-14T10:32:13,nuwuhe musaruro wihene,False,high,0.756,A707T520,0.34
+2026-10-14T10:32:31,inka ifatwa gute iyo ihaka,False,medium,0.61,A650T464,0.28
+2026-10-14T10:32:47,umukamo winka za kijyamber,True,none,0.447,,0.29
+2026-10-14T10:33:01,umukamo winka za kijyambere,False,low,0.518,A951T996,0.2
+2026-10-14T10:33:31,imiti yamatungo,False,low,0.525,A702T506,0.24
+2026-10-14T10:33:48,nayahe matunda ahingwa mu rwanda,False,high,0.774,A270T701,0.3
+2026-10-14T23:30:49,nigute nakwita ku nkoko,True,none,0.409,,4.82
+2026-10-14T23:31:00,inkoko zitabwaho gute,True,none,0.482,,0.34
+2026-10-14T23:31:09,ibinyomoro,False,high,0.788,A819T857,0.26
+2026-10-14T23:31:22,ibinyomoro byitabwaho gute,False,high,0.712,A819T857,0.26
+2026-10-14T23:31:40,nigute nahinga intoryi,False,medium,0.611,A308T739,0.23
+2026-10-14T23:31:51,ibitoki bihingwa gute,False,low,0.561,A434T243,0.29
+2026-10-14T23:31:59,nigute nategura umurima,False,low,0.557,A115T093,0.25
+2026-10-14T23:32:13,kurwanya indwara mu birayi,False,high,0.761,A462T271,0.29
+2026-10-14T23:32:40,kurwanya indwara yurunyo rwibirayi bikorwa gute,False,high,0.862,A462T271,0.24
+2026-10-15T02:35:00,imiti yinkoko irwaye umuraramo,False,low,0.598,A792T570,0.53
+2026-10-15T02:35:23,ibimenyetso byinkoko irwaye umuraramo,False,high,0.766,A794T567,0.19
+2026-10-15T05:18:20,intoryi zihingwa gute,False,high,0.779,A308T739,4.71
+2026-10-15T05:18:33,nigute nahinga muri girinihawuzi,False,medium,0.697,A939T983,0.69
+2026-10-15T05:18:50,gutegura umurima bikorwa bite,False,medium,0.681,A602T414,0.82
+2026-10-15T05:19:06,imirimo ikorwa mugutegura umurima,False,high,0.731,A602T414,0.42
+2026-10-15T05:19:28,igihingwa cya pome,False,medium,0.697,A351T782,0.88
+2026-10-15T05:19:40,pome zisarurwa ryari,False,high,0.834,A368T799,0.42
+2026-10-15T06:05:10,nigute nategura aho guhinga,True,none,0.428,,4.81
+2026-10-15T06:05:24,nigute bahinga pome,False,medium,0.603,A351T782,0.42
