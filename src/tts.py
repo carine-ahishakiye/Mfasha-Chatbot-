@@ -7,16 +7,21 @@ import sys
 import threading
 import time
 import wave
+from collections import OrderedDict
 from pathlib import Path
 
 TTS_ID = "facebook/mms-tts-kin"   # change with the TTS_MODEL_ID environment variable
 SEED = 0                          # same text -> same voice every time
-MAX_CHARS = 600                   # cap on how much one answer is read aloud (keeps it fast)
+MAX_CHARS = 300                   # cap on how much one answer is read aloud (was 600: shorter = faster)
+MAX_SENTENCES = 2                 # read only the first sentences of an answer (biggest speed gain)
 PIECE_MAX = 220                   # longest piece sent to the voice at once
 PAUSE_SECONDS = 0.30
+CACHE_SIZE = 64                   # how many finished answers are kept in memory
 
 _lock = threading.Lock()
 _infer_lock = threading.Lock()
+_cache_lock = threading.Lock()
+_cache: "OrderedDict[tuple, dict]" = OrderedDict()
 _state: dict = {}
 
 
@@ -30,6 +35,9 @@ def load(model_id: str | None = None, device: str | None = None) -> dict:
 
         model_id = model_id or os.environ.get("TTS_MODEL_ID", TTS_ID)
         device = device or ("cuda" if torch.cuda.is_available() else "cpu")
+        threads = os.environ.get("TTS_THREADS")
+        if threads and threads.isdigit():
+            torch.set_num_threads(int(threads))
         print(f"[tts] loading {model_id} on {device} ...", file=sys.stderr)
         t0 = time.time()
         tokenizer = AutoTokenizer.from_pretrained(model_id)
@@ -42,11 +50,12 @@ def load(model_id: str | None = None, device: str | None = None) -> dict:
 
 
 def status() -> dict:
-    return {"loaded": bool(_state), "model": _state.get("model_id"), "device": _state.get("device")}
+    return {"loaded": bool(_state), "model": _state.get("model_id"), "device": _state.get("device"),
+            "cached_answers": len(_cache)}
 
 
 # ----------------------------------------------------------------- text preparation
-def prepare(text: str, max_chars: int = MAX_CHARS):
+def prepare(text: str, max_chars: int = MAX_CHARS, max_sentences: int | None = MAX_SENTENCES):
     """Text -> (pieces to speak, notes). Pure text work: no model needed."""
     notes: list[str] = []
     t = re.sub(r"\([^)]*\)|\[[^\]]*\]", " ", text or "")           # drop bracketed parts
@@ -66,6 +75,10 @@ def prepare(text: str, max_chars: int = MAX_CHARS):
             kept.append(s)
     if skipped:
         notes.append(f"{skipped} sentence(s) with numbers are not read aloud: read the text")
+
+    if max_sentences and len(kept) > max_sentences:
+        kept = kept[:max_sentences]
+        notes.append(f"only the first {max_sentences} sentences are read aloud")
 
     pieces, cur, used, truncated = [], "", 0, False
     for s in kept:
@@ -138,14 +151,38 @@ def _synth(piece: str):
     return wave_[0].float().cpu().numpy()
 
 
-def speak(text: str, max_chars: int = MAX_CHARS) -> dict:
-    """Text -> {"wav": bytes or None, "sample_rate", "seconds", "spoken_chars", "notes"}."""
+def _cache_get(key: tuple):
+    with _cache_lock:
+        hit = _cache.get(key)
+        if hit is not None:
+            _cache.move_to_end(key)
+        return hit
+
+
+def _cache_put(key: tuple, value: dict) -> None:
+    with _cache_lock:
+        _cache[key] = value
+        _cache.move_to_end(key)
+        while len(_cache) > CACHE_SIZE:
+            _cache.popitem(last=False)
+
+
+def speak(text: str, max_chars: int = MAX_CHARS, max_sentences: int | None = MAX_SENTENCES) -> dict:
+    """Text -> {"wav": bytes or None, "sample_rate", "seconds", "spoken_chars", "notes"}.
+
+    Repeated answers come from a small in-memory cache, so they play instantly."""
     import numpy as np
 
-    pieces, notes = prepare(text, max_chars)
+    pieces, notes = prepare(text, max_chars, max_sentences)
     if not pieces:
         return {"wav": None, "sample_rate": None, "seconds": 0.0, "spoken_chars": 0,
                 "notes": notes + ["nothing to read aloud"]}
+
+    key = (os.environ.get("TTS_MODEL_ID", TTS_ID), tuple(pieces))
+    cached = _cache_get(key)
+    if cached is not None:
+        return {**cached, "notes": list(notes), "synthesis_time": 0.0, "cached": True}
+
     t0 = time.time()
     sr = load()["sample_rate"]
     pause = np.zeros(int(PAUSE_SECONDS * sr), dtype=np.float32)
@@ -158,9 +195,10 @@ def speak(text: str, max_chars: int = MAX_CHARS) -> dict:
         return {"wav": None, "sample_rate": sr, "seconds": 0.0, "spoken_chars": 0,
                 "notes": notes + ["the voice could not read this text"]}
     audio = np.concatenate(chunks[:-1])
-    return {"wav": to_wav_bytes(audio, sr), "sample_rate": sr, "seconds": round(len(audio) / sr, 1),
-            "spoken_chars": sum(len(p) for p in pieces), "notes": notes,
-            "synthesis_time": round(time.time() - t0, 1)}
+    result = {"wav": to_wav_bytes(audio, sr), "sample_rate": sr, "seconds": round(len(audio) / sr, 1),
+              "spoken_chars": sum(len(p) for p in pieces)}
+    _cache_put(key, result)
+    return {**result, "notes": notes, "synthesis_time": round(time.time() - t0, 1), "cached": False}
 
 
 def warmup() -> float:
