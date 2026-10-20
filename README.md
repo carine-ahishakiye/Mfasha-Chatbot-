@@ -199,4 +199,4 @@ The bot retrieves existing advice and does not replace an extension officer. It 
 - Speech model: Pratap et al. (2023), Scaling Speech Technology to 1,000+ Languages (Meta MMS)
 - Embedding model: `sentence-transformers/paraphrase-multilingual-mpnet-base-v2`
 - Libraries: Sentence-Transformers, Qdrant, rank_bm25, Hugging Face Transformers, jiwer
-- Retrieval data: [add source]
+- Retrieval data: C4IR Rwanda,'C4IR-RW/kinya-ag-tts'

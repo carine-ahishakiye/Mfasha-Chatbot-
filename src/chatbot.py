@@ -1,11 +1,4 @@
-"""
-chatbot.py - Kinyarwanda agriculture chatbot (retrieval only, no language model).
 
-Put this file in your project's  src/  folder.
-
-Flow:  question -> fine-tuned retriever (Qdrant) + BM25 -> best chunk -> answer
-       If the best match is too weak, the bot says it has no answer.
-"""
 import json
 import os
 import re

@@ -1,0 +1,4 @@
+,Recall@1,Recall@5,would refuse
+perfect text,0.5758,0.798,0.1818
+"speech, before training",0.4343,0.596,0.2222
+"speech, after training",0.4444,0.6465,0.202

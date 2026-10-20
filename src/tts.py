@@ -1,0 +1,160 @@
+from __future__ import annotations
+
+import io
+import os
+import re
+import sys
+import threading
+import time
+import wave
+from pathlib import Path
+
+TTS_ID = "facebook/mms-tts-kin"   # change with the TTS_MODEL_ID environment variable
+SEED = 0                          # same text -> same voice every time
+MAX_CHARS = 600                   # cap on how much one answer is read aloud (keeps it fast)
+PIECE_MAX = 220                   # longest piece sent to the voice at once
+PAUSE_SECONDS = 0.30
+
+_lock = threading.Lock()
+_infer_lock = threading.Lock()
+_state: dict = {}
+
+
+def load(model_id: str | None = None, device: str | None = None) -> dict:
+    """Load the voice model (once). Safe to call many times."""
+    with _lock:
+        if _state:
+            return _state
+        import torch
+        from transformers import AutoTokenizer, VitsModel
+
+        model_id = model_id or os.environ.get("TTS_MODEL_ID", TTS_ID)
+        device = device or ("cuda" if torch.cuda.is_available() else "cpu")
+        print(f"[tts] loading {model_id} on {device} ...", file=sys.stderr)
+        t0 = time.time()
+        tokenizer = AutoTokenizer.from_pretrained(model_id)
+        model = VitsModel.from_pretrained(model_id).to(device)
+        model.eval()
+        _state.update(tokenizer=tokenizer, model=model, device=device, model_id=model_id,
+                      sample_rate=int(model.config.sampling_rate))
+        print(f"[tts] ready in {time.time() - t0:.0f} s (sample rate {_state['sample_rate']} Hz)", file=sys.stderr)
+        return _state
+
+
+def status() -> dict:
+    return {"loaded": bool(_state), "model": _state.get("model_id"), "device": _state.get("device")}
+
+
+# ----------------------------------------------------------------- text preparation
+def prepare(text: str, max_chars: int = MAX_CHARS):
+    """Text -> (pieces to speak, notes). Pure text work: no model needed."""
+    notes: list[str] = []
+    t = re.sub(r"\([^)]*\)|\[[^\]]*\]", " ", text or "")           # drop bracketed parts
+    if t != (text or ""):
+        notes.append("text in brackets is not read aloud")
+    t = t.replace("\u2019", "'").replace("\u2018", "'")
+    t = re.sub(r"\s+([,.;:!?])", r"\1", t)                  # no space before punctuation
+    t = re.sub(r"([,.;:!?])(\s*[,;])+", r"\1", t)           # ": ," left behind by a dropped bracket
+    t = re.sub(r"\s+", " ", t).strip()
+
+    sentences = [s.strip() for s in re.split(r"(?<=[.?!;:])\s+", t) if s.strip()]
+    kept, skipped = [], 0
+    for s in sentences:
+        if any(ch.isdigit() for ch in s):
+            skipped += 1
+        else:
+            kept.append(s)
+    if skipped:
+        notes.append(f"{skipped} sentence(s) with numbers are not read aloud: read the text")
+
+    pieces, cur, used, truncated = [], "", 0, False
+    for s in kept:
+        if used + len(s) > max_chars and used > 0:
+            truncated = True
+            break
+        if cur and len(cur) + 1 + len(s) > PIECE_MAX:
+            pieces.append(cur)
+            cur = s
+        else:
+            cur = (cur + " " + s).strip()
+        used += len(s) + 1
+    if cur:
+        pieces.append(cur)
+    if truncated:
+        notes.append("only the first part is read aloud")
+    return pieces, notes
+
+
+# ----------------------------------------------------------------- speech
+def to_wav_bytes(samples, sample_rate: int) -> bytes:
+    """float samples in [-1, 1] -> 16-bit mono WAV file as bytes."""
+    import numpy as np
+    pcm = (np.clip(np.asarray(samples, dtype=np.float32), -1.0, 1.0) * 32767).astype(np.int16)
+    buf = io.BytesIO()
+    with wave.open(buf, "wb") as w:
+        w.setnchannels(1)
+        w.setsampwidth(2)
+        w.setframerate(sample_rate)
+        w.writeframes(pcm.tobytes())
+    return buf.getvalue()
+
+
+def _synth(piece: str):
+    """One short piece of text -> float32 numpy samples (or None if nothing can be spoken)."""
+    import torch
+    st = load()
+    inputs = st["tokenizer"](piece, return_tensors="pt")
+    if inputs["input_ids"].shape[-1] == 0:      # only characters the voice does not know
+        return None
+    inputs = inputs.to(st["device"])
+    with _infer_lock:
+        torch.manual_seed(SEED)
+        with torch.inference_mode():
+            out = st["model"](**inputs)
+    wave_ = getattr(out, "waveform", None)
+    if wave_ is None:
+        wave_ = out.audio
+    return wave_[0].float().cpu().numpy()
+
+
+def speak(text: str, max_chars: int = MAX_CHARS) -> dict:
+    """Text -> {"wav": bytes or None, "sample_rate", "seconds", "spoken_chars", "notes"}."""
+    import numpy as np
+
+    pieces, notes = prepare(text, max_chars)
+    if not pieces:
+        return {"wav": None, "sample_rate": None, "seconds": 0.0, "spoken_chars": 0,
+                "notes": notes + ["nothing to read aloud"]}
+    t0 = time.time()
+    sr = load()["sample_rate"]
+    pause = np.zeros(int(PAUSE_SECONDS * sr), dtype=np.float32)
+    chunks = []
+    for p in pieces:
+        y = _synth(p)
+        if y is not None:
+            chunks += [y, pause]
+    if not chunks:
+        return {"wav": None, "sample_rate": sr, "seconds": 0.0, "spoken_chars": 0,
+                "notes": notes + ["the voice could not read this text"]}
+    audio = np.concatenate(chunks[:-1])
+    return {"wav": to_wav_bytes(audio, sr), "sample_rate": sr, "seconds": round(len(audio) / sr, 1),
+            "spoken_chars": sum(len(p) for p in pieces), "notes": notes,
+            "synthesis_time": round(time.time() - t0, 1)}
+
+
+def warmup() -> float:
+    t0 = time.time()
+    _synth("Muraho")
+    return time.time() - t0
+
+
+if __name__ == "__main__":
+    if len(sys.argv) < 2:
+        sys.exit('usage: python src/tts.py "text to read" [out.wav]')
+    res = speak(sys.argv[1])
+    print("notes:", res["notes"] or "none")
+    if res["wav"] is None:
+        sys.exit("nothing was spoken")
+    out = Path(sys.argv[2] if len(sys.argv) > 2 else "tts_test.wav")
+    out.write_bytes(res["wav"])
+    print(f"saved {out} | {res['seconds']} s of audio | made in {res['synthesis_time']} s")
