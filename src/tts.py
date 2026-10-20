@@ -69,15 +69,36 @@ def prepare(text: str, max_chars: int = MAX_CHARS):
 
     pieces, cur, used, truncated = [], "", 0, False
     for s in kept:
-        if used + len(s) > max_chars and used > 0:
+        separator = 1 if used else 0
+        available = max_chars - used - separator
+        if available <= 0:
             truncated = True
             break
-        if cur and len(cur) + 1 + len(s) > PIECE_MAX:
-            pieces.append(cur)
-            cur = s
+        if len(s) > available:
+            clipped = s[:available].rstrip()
+            if " " in clipped:
+                clipped = clipped.rsplit(" ", 1)[0]
+            if not clipped:
+                clipped = s[:available]
+            truncated = True
         else:
-            cur = (cur + " " + s).strip()
-        used += len(s) + 1
+            clipped = s
+
+        for word in clipped.split():
+            while len(word) > PIECE_MAX:
+                part, word = word[:PIECE_MAX], word[PIECE_MAX:]
+                if cur:
+                    pieces.append(cur)
+                    cur = ""
+                pieces.append(part)
+            if cur and len(cur) + 1 + len(word) > PIECE_MAX:
+                pieces.append(cur)
+                cur = word
+            else:
+                cur = (cur + " " + word).strip()
+        used += separator + len(clipped)
+        if truncated:
+            break
     if cur:
         pieces.append(cur)
     if truncated:

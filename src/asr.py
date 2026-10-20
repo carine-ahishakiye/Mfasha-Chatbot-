@@ -1,8 +1,8 @@
 from __future__ import annotations
 
-import io
 import os
 import sys
+import tempfile
 import threading
 import time
 from pathlib import Path
@@ -58,7 +58,8 @@ def load(adapter_path=None, device: str | None = None, use_finetuned: bool = Tru
         from transformers import AutoProcessor, Wav2Vec2ForCTC
 
         device = device or ("cuda" if torch.cuda.is_available() else "cpu")
-        print(f"[asr] loading {ASR_ID} ({ASR_LANG}) on {device} ...", file=sys.stderr)
+        model_id = os.environ.get("ASR_MODEL_ID", ASR_ID)
+        print(f"[asr] loading {model_id} ({ASR_LANG}) on {device} ...", file=sys.stderr)
         t0 = time.time()
 
         path = None
@@ -69,9 +70,9 @@ def load(adapter_path=None, device: str | None = None, use_finetuned: bool = Tru
                     f"{ADAPTER_NAME} was not found in data/, models/ or models/asr/. "
                     "Copy it there, or set ASR_ALLOW_ORIGINAL=1 to run the original (not fine-tuned) adapter.")
 
-        processor = AutoProcessor.from_pretrained(ASR_ID, target_lang=ASR_LANG)
+        processor = AutoProcessor.from_pretrained(model_id, target_lang=ASR_LANG)
         model = Wav2Vec2ForCTC.from_pretrained(
-            ASR_ID, target_lang=ASR_LANG, ignore_mismatched_sizes=True
+            model_id, target_lang=ASR_LANG, ignore_mismatched_sizes=True
         ).to(device)
         model.eval()
 
@@ -111,7 +112,32 @@ def status() -> dict:
     return {"loaded": bool(_state), "adapter": _state.get("adapter"), "device": _state.get("device")}
 
 
-def to_audio(source, sr: int = SAMPLE_RATE):
+def _audio_suffix(content_type: str | None, raw: bytes) -> str:
+    """Choose a temporary-file suffix so ffmpeg can decode browser recordings."""
+    mime = (content_type or "").split(";", 1)[0].strip().lower()
+    suffixes = {
+        "audio/wav": ".wav", "audio/wave": ".wav", "audio/x-wav": ".wav",
+        "audio/webm": ".webm", "video/webm": ".webm",
+        "audio/ogg": ".ogg", "application/ogg": ".ogg",
+        "audio/mp4": ".m4a", "video/mp4": ".mp4", "audio/x-m4a": ".m4a",
+        "audio/mpeg": ".mp3", "audio/mp3": ".mp3", "audio/flac": ".flac",
+    }
+    if mime in suffixes:
+        return suffixes[mime]
+    if raw.startswith((b"RIFF", b"RIFX")):
+        return ".wav"
+    if raw.startswith(b"OggS"):
+        return ".ogg"
+    if raw.startswith(b"fLaC"):
+        return ".flac"
+    if len(raw) > 12 and raw[4:8] == b"ftyp":
+        return ".m4a"
+    if raw.startswith(b"ID3"):
+        return ".mp3"
+    return ".wav"
+
+
+def to_audio(source, sr: int = SAMPLE_RATE, content_type: str | None = None):
     """File path, raw bytes, or numpy array -> mono float32 array at 16 kHz."""
     import numpy as np
 
@@ -125,23 +151,42 @@ def to_audio(source, sr: int = SAMPLE_RATE):
         if sr != SAMPLE_RATE:
             import librosa
             y = librosa.resample(y, orig_sr=sr, target_sr=SAMPLE_RATE)
-    else:
+    elif isinstance(source, (bytes, bytearray)):
         import librosa
-        src = io.BytesIO(source) if isinstance(source, (bytes, bytearray)) else str(source)
+        raw = bytes(source)
+        temp_path = None
         try:
-            y, _ = librosa.load(src, sr=SAMPLE_RATE, mono=True)
+            # A real filename lets librosa/audioread hand compressed browser
+            # formats (WebM/Opus, Ogg, MP4) to ffmpeg when it is installed.
+            with tempfile.NamedTemporaryFile(suffix=_audio_suffix(content_type, raw),
+                                             delete=False) as tmp:
+                tmp.write(raw)
+                temp_path = tmp.name
+            y, _ = librosa.load(temp_path, sr=SAMPLE_RATE, mono=True,
+                                duration=MAX_SECONDS)
         except Exception as e:
             raise ValueError("could not read this audio. Send a WAV file (16-bit, mono is best). "
-                             f"Compressed browser formats such as webm need ffmpeg. ({type(e).__name__})") from e
+                             "Compressed browser formats such as WebM/Opus need ffmpeg installed. "
+                             f"({type(e).__name__}: {e})") from e
+        finally:
+            if temp_path:
+                try:
+                    os.unlink(temp_path)
+                except OSError:
+                    pass
+    else:
+        import librosa
+        y, _ = librosa.load(str(source), sr=SAMPLE_RATE, mono=True,
+                            duration=MAX_SECONDS)
     return y[: MAX_SECONDS * SAMPLE_RATE]
 
 
-def transcribe(source, sr: int = SAMPLE_RATE) -> str:
+def transcribe(source, sr: int = SAMPLE_RATE, content_type: str | None = None) -> str:
     """Speech -> text. `source` can be a file path, bytes, or a float array."""
     import torch
 
     st = load()
-    audio = to_audio(source, sr)
+    audio = to_audio(source, sr, content_type=content_type)
     if len(audio) < 1600:  # under 0.1 s: nothing to recognise
         return ""
     with _infer_lock:
