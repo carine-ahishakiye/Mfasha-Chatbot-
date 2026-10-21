@@ -12,8 +12,8 @@ from pathlib import Path
 
 TTS_ID = "facebook/mms-tts-kin"   # change with the TTS_MODEL_ID environment variable
 SEED = 0                          # same text -> same voice every time
-MAX_CHARS = 300                   # cap on how much one answer is read aloud (was 600: shorter = faster)
-MAX_SENTENCES = 2                 # read only the first sentences of an answer (biggest speed gain)
+MAX_CHARS = 600                  # cap on how much one answer is read aloud (was 600: shorter = faster)
+MAX_SENTENCES = 5                # read only the first sentences of an answer (biggest speed gain)
 PIECE_MAX = 220                   # longest piece sent to the voice at once
 PAUSE_SECONDS = 0.30
 CACHE_SIZE = 64                   # how many finished answers are kept in memory
