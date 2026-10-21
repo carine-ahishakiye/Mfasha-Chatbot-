@@ -8,3 +8,6 @@ data/*.pkl
 results/trainer_tmp/
 *.safetensors
 static/config.js
+
+src/key
+test/
