@@ -223,10 +223,9 @@ button:active:not(:disabled){transform:scale(.97)}
   </defs>
 </svg>
 
-<script>
-(function(){
+<script src="/static/config.js"></script><script>(function(){
   'use strict';
-  var STORAGE_KEY='mfasha-conversations-v1';
+  var STORAGE_KEY='mfasha-conversations-v1';var ASR_URL=window.MFASHA_ASR_URL||'';var TTS_URL=window.MFASHA_TTS_URL||'';
   var $=function(id){return document.getElementById(id);};
   var app=$('app'),chatForm=$('chat-form'),questionBox=$('question'),sendButton=$('send-button'),microphoneButton=$('microphone'),micIcon=$('mic-icon'),micLabel=$('mic-label'),statusLine=$('status-line'),thread=$('thread'),emptyState=$('empty-state'),historyList=$('history-list'),chatScroll=$('chat-scroll');
   var conversations=[],activeConversationId=null,isBusy=false,recorder=null,micStream=null,recordTimer=null,audioPlayer=null,audioUrl=null,activeSpeakButton=null,speechRequestId=0;
@@ -284,7 +283,7 @@ button:active:not(:disabled){transform:scale(.97)}
     if(button&&activeSpeakButton===button){stopSpeech();setStatus('');return;}
     stopSpeech();var requestId=speechRequestId;activeSpeakButton=button||null;if(button){button.classList.add('selected');button.textContent='Hagarika gusoma';}setStatus('Ndimo gutegura amajwi…');
     try{
-      var response=await fetch('/api/speak',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({text:(text||'').slice(0,5000)})});
+      var response=await fetch(TTS_URL||'/api/speak',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({text:(text||'').slice(0,5000)})});
       if(!response.ok){var info=await response.json().catch(function(){return{};});throw new Error(info.detail||'Ijwi ntiryakunze.');}
       var note=speechNote(response.headers.get('X-Notes'));var blob=await response.blob();if(requestId!==speechRequestId)return;
       audioUrl=URL.createObjectURL(blob);audioPlayer=new Audio(audioUrl);setStatus(note?'Ndimo gusoma. '+note:'Ndimo gusoma igisubizo…');
@@ -319,11 +318,11 @@ button:active:not(:disabled){transform:scale(.97)}
         if(blob.size>20*1024*1024){microphoneButton.disabled=false;sendButton.disabled=false;setStatus('Amajwi ni manini cyane. Vuga igihe gito.');return;}
         setStatus('Ndimo kumva ibyo wavuze…');
         try{
-          var response=await fetch('/api/transcribe',{method:'POST',headers:{'Content-Type':contentType},body:blob});
+          var response=await fetch(ASR_URL||'/api/transcribe',{method:'POST',headers:{'Content-Type':contentType},body:blob});
           if(!response.ok){var info=await response.json().catch(function(){return{};});throw new Error(info.detail||'Ntabwo amajwi yahinduwe inyandiko.');}
           var data=await response.json();var transcript=(data.text||'').trim();
           if(!transcript){microphoneButton.disabled=false;sendButton.disabled=false;setStatus('Nta magambo numvise. Ongera ugerageze.');return;}
-          questionBox.value=transcript;resizeQuestion();setStatus('');askQuestion(transcript,true);
+          questionBox.value=transcript;resizeQuestion();setStatus('');askQuestion(transcript,false);
         }catch(error){microphoneButton.disabled=false;sendButton.disabled=false;setStatus(error.message||'Ntabwo amajwi yahinduwe inyandiko.');}
       };
       recorder.start();sendButton.disabled=true;setMicIcon(true);setStatus('Ndakumva. Kanda “Rangiza” nurangiza kuvuga.');
