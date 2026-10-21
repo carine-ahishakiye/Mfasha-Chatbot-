@@ -27,7 +27,7 @@ def tier_of(confidence):
     return "low"
 
 
-# ----------------------------------------------------------------- text helpers
+#  text helpers
 def tok(text):
     return re.findall(r"\w+", text.lower())
 
@@ -63,7 +63,7 @@ def segments(text, min_len=60):
     return segs
 
 
-# ----------------------------------------------------------------- file finding
+#  file finding
 def locate(root, name, want_dir=False):
     """Find a file or folder by name anywhere under root (skips .venv etc.)."""
     skip = {".venv", "venv", ".git", "__pycache__", ".ipynb_checkpoints", "node_modules"}
@@ -77,7 +77,7 @@ def locate(root, name, want_dir=False):
     return None
 
 
-# ----------------------------------------------------------------- the chatbot
+#  the chatbot
 class Chatbot:
     COLLECTION = "kinya_agri_docs"
 
