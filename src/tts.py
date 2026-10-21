@@ -12,7 +12,7 @@ from pathlib import Path
 
 TTS_ID = "facebook/mms-tts-kin"   # change with the TTS_MODEL_ID environment variable
 SEED = 0                          # same text -> same voice every time
-MAX_CHARS = 600                  # cap on how much one answer is read aloud (was 600: shorter = faster)
+MAX_CHARS = 600                  # cap on how much one answer is read aloud (shorter = faster)
 MAX_SENTENCES = 5                # read only the first sentences of an answer (biggest speed gain)
 PIECE_MAX = 220                   # longest piece sent to the voice at once
 PAUSE_SECONDS = 0.30
@@ -25,6 +25,14 @@ _cache: "OrderedDict[tuple, dict]" = OrderedDict()
 _state: dict = {}
 
 
+def _local_model() -> str | None:
+    """models/mms-tts-kin next to the project, if it was saved there."""
+    here = Path(__file__).resolve().parent
+    root = next((p for p in [here, *here.parents] if (p / "src").exists()), here.parent)
+    folder = root / "models" / "mms-tts-kin"
+    return str(folder) if (folder / "config.json").exists() else None
+
+
 def load(model_id: str | None = None, device: str | None = None) -> dict:
     """Load the voice model (once). Safe to call many times."""
     with _lock:
@@ -33,7 +41,7 @@ def load(model_id: str | None = None, device: str | None = None) -> dict:
         import torch
         from transformers import AutoTokenizer, VitsModel
 
-        model_id = model_id or os.environ.get("TTS_MODEL_ID", TTS_ID)
+        model_id = model_id or os.environ.get("TTS_MODEL_ID") or _local_model() or TTS_ID
         device = device or ("cuda" if torch.cuda.is_available() else "cpu")
         threads = os.environ.get("TTS_THREADS")
         if threads and threads.isdigit():

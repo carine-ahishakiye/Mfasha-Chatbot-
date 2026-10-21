@@ -26,7 +26,7 @@ from starlette.concurrency import run_in_threadpool  # noqa: E402
 
 
 STATIC_DIR = HERE / "static"
-# The page lives in static/index.html (a copy next to server.py also works).
+# The page lives in static/index.html
 INDEX_FILE = (
     STATIC_DIR / "index.html"
     if (STATIC_DIR / "index.html").exists()
@@ -45,7 +45,7 @@ _voice_modules = {}
 _voice_lock = threading.Lock()   # warm-up thread and requests must not import a module twice
 
 
-# ------------------------------------------------------------------ loading
+# loading
 def _is_sentence_transformer_model(path):
     """Return whether path looks like a saved SentenceTransformers model."""
     path = Path(path)
@@ -56,8 +56,7 @@ def _is_sentence_transformer_model(path):
         "model.safetensors.index.json",
     }
 
-    # SentenceTransformers.save() commonly stores transformer weights in
-    # 0_Transformer/, while older/manual layouts put them at the model root.
+
     has_weights = path.is_dir() and any(
         item.is_file() and item.name in weight_names
         for item in path.rglob("*")
@@ -93,8 +92,6 @@ def _model_ref(data_dir):
         if _is_sentence_transformer_model(path):
             return str(path.resolve())
 
-    # Optional deployment fallback. This is the retrieval model, not the
-    # source of answer text; answers still come from chunks.jsonl.
     return os.getenv("MODEL_ID", "").strip()
 
 
@@ -173,7 +170,7 @@ def load_bot():
     )
 
 
-# ------------------------------------------------------------------ helpers
+#  helpers
 def append_row(path, header, row):
     with _file_lock:
         path.parent.mkdir(parents=True, exist_ok=True)
@@ -276,7 +273,7 @@ def _voice_status(name):
         }
 
 
-# ------------------------------------------------------------------ request models
+# request models
 class AskIn(BaseModel):
     question: str = Field(..., min_length=1, max_length=500)
 
@@ -291,7 +288,7 @@ class VoteIn(BaseModel):
     vote: Literal["helpful", "not_helpful"]
 
 
-# ------------------------------------------------------------------ the app
+#  the app
 def create_app(bot=None):
     @asynccontextmanager
     async def lifespan(app):

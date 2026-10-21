@@ -11,3 +11,5 @@ static/config.js
 
 src/key
 test/
+
+data/_cache_*.npy

@@ -7,7 +7,7 @@ Most agricultural advice online is in English or French, and most language tools
 
 The bot does not generate text. It only returns passages that already exist in the data. I chose this because a wrong dose or treatment in farming advice can cost a farmer a harvest, and a generated answer can be wrong in ways that are hard to spot.
 
-The work has two parts that I built and tested separately: a retriever (fine-tuned embeddings plus BM25) and a speech recogniser (MMS-1B with its Kinyarwanda adapter fine-tuned on agricultural speech). Text-to-speech and a user interface are not built yet.
+The project includes a retriever (fine-tuned embeddings plus BM25), a speech recogniser (MMS-1B with its Kinyarwanda adapter fine-tuned on agricultural speech), text-to-speech, and a web interface.
 
 Main results on data the models never saw:
 
@@ -132,10 +132,12 @@ About three quarters of the remaining word errors are substitutions. Many of the
 ```
 Mfasha chatbot/
   src/chatbot.py                    the chatbot
+  scripts/
+    chunking_and_chatbot_test.py     chunking and retrieval evaluation
+    voice_diagnose.py                voice model timing diagnostics
   notebook/
     data_and_baselines.ipynb        data, splits, baselines
     finetune_retriever.ipynb        retriever training, hybrid, test results, figures
-    chunking_and_chatbot_test.ipynb chunking, Qdrant, threshold, confidence
     speech.ipynb                    speech model training and evaluation
   models/
     kinya-retriever/                fine-tuned embedding model
@@ -158,7 +160,9 @@ python -m venv .venv
 pip install -r requirements.txt
 ```
 
-Main libraries: sentence-transformers, qdrant-client, rank_bm25, transformers, torch, jiwer, librosa, pandas, numpy.
+Main libraries: sentence-transformers, qdrant-client, rank_bm25, transformers, torch, jiwer, librosa, imageio-ffmpeg, pandas, numpy.
+
+The web microphone records compressed audio (usually WebM/Opus); `imageio-ffmpeg`, installed above, decodes it for speech recognition. The speech models are loaded when the server starts and may be downloaded from Hugging Face on first use. Start the app with `python server.py` and check `/api/health` for ASR/TTS loading errors.
 
 ## Running it
 
@@ -186,7 +190,7 @@ use_adapter("finetuned")
 heard, r = voice_ask(audio_16khz)
 ```
 
-To repeat the experiments, run the notebooks in this order: data_and_baselines, finetune_retriever (GPU), chunking_and_chatbot_test, speech (GPU). The random seed is 42 everywhere.
+To repeat the experiments, run the notebooks in this order: data_and_baselines, finetune_retriever (GPU), the chunking and retrieval evaluation in `scripts/chunking_and_chatbot_test.py`, then speech (GPU). The random seed is 42 everywhere.
 
 
 ## Notes on use

@@ -49,6 +49,12 @@ def _unwrap(weights) -> dict:
     return {(k[7:] if k.startswith("module.") else k): v for k, v in weights.items()}
 
 
+def _local_model() -> str | None:
+    """models/mms-1b-all next to the project, if it was downloaded there."""
+    folder = _find_root() / "models" / "mms-1b-all"
+    return str(folder) if (folder / "config.json").exists() and (folder / "model.safetensors").exists() else None
+
+
 def load(adapter_path=None, device: str | None = None, use_finetuned: bool = True) -> dict:
     """Load the speech model (once). Safe to call many times."""
     with _lock:
@@ -58,7 +64,7 @@ def load(adapter_path=None, device: str | None = None, use_finetuned: bool = Tru
         from transformers import AutoProcessor, Wav2Vec2ForCTC
 
         device = device or ("cuda" if torch.cuda.is_available() else "cpu")
-        model_id = os.environ.get("ASR_MODEL_ID", ASR_ID)
+        model_id = os.environ.get("ASR_MODEL_ID") or _local_model() or ASR_ID
         print(f"[asr] loading {model_id} ({ASR_LANG}) on {device} ...", file=sys.stderr)
         t0 = time.time()
 
@@ -113,7 +119,7 @@ def status() -> dict:
 
 
 def _audio_suffix(content_type: str | None, raw: bytes) -> str:
-    """Choose a temporary-file suffix so ffmpeg can decode browser recordings."""
+    """Choose a file suffix from the content type or the first bytes."""
     mime = (content_type or "").split(";", 1)[0].strip().lower()
     suffixes = {
         "audio/wav": ".wav", "audio/wave": ".wav", "audio/x-wav": ".wav",
@@ -137,6 +143,52 @@ def _audio_suffix(content_type: str | None, raw: bytes) -> str:
     return ".wav"
 
 
+def _ffmpeg_exe() -> str | None:
+    """A system ffmpeg if there is one, else the copy bundled with `pip install imageio-ffmpeg`."""
+    import shutil
+    exe = shutil.which("ffmpeg")
+    if exe:
+        return exe
+    try:
+        import imageio_ffmpeg
+        return imageio_ffmpeg.get_ffmpeg_exe()
+    except Exception:
+        return None
+
+
+def _decode_ffmpeg(raw: bytes):
+    """Any audio/video bytes (WebM/Opus, Ogg, MP4 ...) -> mono float32 at 16 kHz, or None if no ffmpeg."""
+    import subprocess
+    import numpy as np
+
+    exe = _ffmpeg_exe()
+    if exe is None:
+        return None
+    cmd = [exe, "-v", "error", "-i", "pipe:0", "-t", str(MAX_SECONDS),
+           "-f", "f32le", "-ac", "1", "-ar", str(SAMPLE_RATE), "pipe:1"]
+    proc = subprocess.run(cmd, input=raw, capture_output=True, timeout=60)
+    if proc.returncode != 0 or not proc.stdout:
+        raise RuntimeError(proc.stderr.decode("utf-8", "ignore").strip() or "ffmpeg could not decode the audio")
+    return np.frombuffer(proc.stdout, dtype=np.float32).copy()
+
+
+def _load_with_librosa(raw: bytes, suffix: str):
+    import librosa
+    temp_path = None
+    try:
+        with tempfile.NamedTemporaryFile(suffix=suffix, delete=False) as tmp:
+            tmp.write(raw)
+            temp_path = tmp.name
+        y, _ = librosa.load(temp_path, sr=SAMPLE_RATE, mono=True, duration=MAX_SECONDS)
+        return y
+    finally:
+        if temp_path:
+            try:
+                os.unlink(temp_path)
+            except OSError:
+                pass
+
+
 def to_audio(source, sr: int = SAMPLE_RATE, content_type: str | None = None):
     """File path, raw bytes, or numpy array -> mono float32 array at 16 kHz."""
     import numpy as np
@@ -152,28 +204,32 @@ def to_audio(source, sr: int = SAMPLE_RATE, content_type: str | None = None):
             import librosa
             y = librosa.resample(y, orig_sr=sr, target_sr=SAMPLE_RATE)
     elif isinstance(source, (bytes, bytearray)):
-        import librosa
         raw = bytes(source)
-        temp_path = None
-        try:
-            # A real filename lets librosa/audioread hand compressed browser
-            # formats (WebM/Opus, Ogg, MP4) to ffmpeg when it is installed.
-            with tempfile.NamedTemporaryFile(suffix=_audio_suffix(content_type, raw),
-                                             delete=False) as tmp:
-                tmp.write(raw)
-                temp_path = tmp.name
-            y, _ = librosa.load(temp_path, sr=SAMPLE_RATE, mono=True,
-                                duration=MAX_SECONDS)
-        except Exception as e:
-            raise ValueError("could not read this audio. Send a WAV file (16-bit, mono is best). "
-                             "Compressed browser formats such as WebM/Opus need ffmpeg installed. "
-                             f"({type(e).__name__}: {e})") from e
-        finally:
-            if temp_path:
-                try:
-                    os.unlink(temp_path)
-                except OSError:
-                    pass
+        suffix = _audio_suffix(content_type, raw)
+        y, errors = None, []
+        # 1) WAV needs no ffmpeg at all
+        if suffix == ".wav":
+            try:
+                y = _load_with_librosa(raw, suffix)
+            except Exception as e:
+                errors.append(e)
+        # 2) compressed browser formats (WebM/Opus, Ogg, MP4): ffmpeg, system or pip-bundled
+        if y is None:
+            try:
+                y = _decode_ffmpeg(raw)
+            except Exception as e:
+                errors.append(e)
+        # 3) last try: let librosa/soundfile read it (works for Ogg, FLAC, newer MP3)
+        if y is None and suffix != ".wav":
+            try:
+                y = _load_with_librosa(raw, suffix)
+            except Exception as e:
+                errors.append(e)
+        if y is None:
+            detail = f" ({type(errors[-1]).__name__}: {errors[-1]})" if errors else ""
+            raise ValueError("could not read this audio. WAV (16-bit, mono) always works. "
+                             "For WebM/Opus recordings from the browser run: pip install imageio-ffmpeg"
+                             + detail)
     else:
         import librosa
         y, _ = librosa.load(str(source), sr=SAMPLE_RATE, mono=True,
@@ -205,7 +261,7 @@ def warmup() -> float:
 
 
 def ask_any(bot, text: str | None = None, audio=None, sr: int = SAMPLE_RATE):
-   
+    """Question as text or audio -> (text, answer)."""
     if audio is not None:
         text = transcribe(audio, sr)
     text = (text or "").strip()
