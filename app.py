@@ -213,6 +213,15 @@ def create_app(bot=None, speaker=None) -> FastAPI:
         if holder["speaker"] is None:
             from mfasha.tts import Speaker
             holder["speaker"] = Speaker()
+        if os.getenv("MFASHA_FAST_ASR") == "1":    # optional: int8 speech recognition, faster on CPU
+            try:
+                import torch
+                asr_obj = getattr(holder["bot"], "transcriber", None)
+                if asr_obj is not None and getattr(asr_obj, "device", "cpu") == "cpu":
+                    asr_obj.model = torch.quantization.quantize_dynamic(asr_obj.model, {torch.nn.Linear}, dtype=torch.qint8)
+                    print("ASR: int8 speed mode on")
+            except Exception as e:
+                print("ASR speed mode skipped:", e)
         try:                                       # first calls are slow, so do one of each now
             t0 = time.time()
             holder["speaker"].speak("Muraho.")
@@ -334,8 +343,7 @@ def create_app(bot=None, speaker=None) -> FastAPI:
 
 app = create_app()
 
-# THE UI PAGE
-
+#THE UI PAGE
 PAGE = r"""
 <!doctype html>
 <html lang="rw">
@@ -502,6 +510,10 @@ body{background:#F6F4EC}:root{--bg:#F6F4EC;--side:#EFEBDD;--border:#E3DFD0;--hov
 .history-row .history-item:hover{background:none}.history-del{flex:none;width:30px;height:30px;margin-right:4px;border:0;border-radius:7px;background:none;color:var(--faint);opacity:0;display:grid;place-items:center}
 .history-del svg{width:16px;height:16px}.history-row:hover .history-del,.history-del:focus-visible{opacity:1}.history-del:hover{background:var(--red-tint);color:var(--red)}
 @media(hover:none){.history-del{opacity:.7}}
+.composer{border-radius:12px;box-shadow:none}.composer:focus-within{box-shadow:0 0 0 3px rgba(46,125,50,.14)}
+.answer{border-radius:4px 12px 12px 12px;box-shadow:none}.question div{border-radius:12px 12px 3px 12px}
+.card{border-radius:8px;box-shadow:none}.card:hover{transform:none;box-shadow:inset 0 -3px 0 var(--primary)}
+.btn-new,.tool{border-radius:7px}.send,.mic{border-radius:10px}.brand{cursor:pointer}.welcome .lead{font-family:Fraunces,Georgia,serif;font-style:italic}
 .alternatives summary{padding:8px 0}.alternative{border-left:3px solid #BFD7B3;border-radius:4px 10px 10px 4px;background:#F6F4EC;line-height:1.65}
 </style>
 </head>
@@ -714,6 +726,7 @@ body{background:#F6F4EC}:root{--bg:#F6F4EC;--side:#EFEBDD;--border:#E3DFD0;--hov
   $('clear-history').addEventListener('click',function(){if(!conversations.length){setStatus('Nta biganiro bihari byo gusiba.');return;}if(!window.confirm('Urashaka gusiba ibiganiro byose?'))return;conversations=[];activeConversationId=null;saveConversations();beginNewChat();renderHistory();});
   document.querySelectorAll('[data-close]').forEach(function(b){b.addEventListener('click',function(){app.classList.remove('open');$('toggle-history').focus();});});
   document.addEventListener('keydown',function(e){if(e.key==='Escape'&&app.classList.contains('open')){app.classList.remove('open');$('toggle-history').focus();}});
+  var brandLink=document.querySelector('.brand');if(brandLink)brandLink.addEventListener('click',function(){location.href='/';});
   loadConversations();
 }());
 </script>
@@ -727,75 +740,82 @@ LANDING = r"""
 <html lang="rw"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Mfasha – Umufasha wawe mu buhinzi n’ubworozi</title>
 <meta name="description" content="Mfasha igufasha gushaka amakuru ku buhinzi n’ubworozi mu Kinyarwanda.">
-<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600;9..144,700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600;9..144,700&family=Source+Sans+3:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
-:root{--g9:#0C3320;--g7:#1F6B35;--g5:#2E7D32;--lime:#A4C42B;--cream:#F6F4EC;--ink:#14201A;--mut:#56635B;--line:#E3DFD0;--e:cubic-bezier(.2,.7,.2,1);font-family:Inter,system-ui,sans-serif}
-*{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;background:var(--cream);color:var(--ink);line-height:1.6;-webkit-font-smoothing:antialiased}
-h1,h2,h3{font-family:Fraunces,Georgia,serif;margin:0;letter-spacing:-.02em}a{color:inherit;text-decoration:none}
-.nav{position:fixed;inset:0 0 auto;z-index:10;display:flex;align-items:center;gap:28px;padding:14px 5vw;transition:background .3s,box-shadow .3s}
-.nav.solid{background:rgba(246,244,236,.94);box-shadow:0 1px 0 var(--line);color:var(--ink)}.nav{color:#fff}
-.logo{display:flex;align-items:center;gap:9px;font:700 1.35rem Fraunces,serif}.logo i{width:30px;height:30px;border-radius:9px;background:var(--lime);display:grid;place-items:center;color:var(--g9);font:700 1rem Fraunces}
-.nav nav{display:flex;gap:24px;margin-left:12px;font-weight:500;font-size:.95rem}.nav nav a{opacity:.85;transition:opacity .2s}.nav nav a:hover{opacity:1}
-.btn{display:inline-flex;align-items:center;gap:8px;padding:12px 24px;border-radius:10px;font-weight:600;transition:transform .2s var(--e),box-shadow .2s var(--e),background .2s}
-.btn:hover{transform:translateY(-2px)}.btn:active{transform:none}
-.go{background:var(--lime);color:var(--g9)}.go:hover{box-shadow:0 8px 22px rgba(164,196,43,.45)}
-.ghost{color:#fff;border:1.5px solid rgba(255,255,255,.55)}.ghost:hover{background:rgba(255,255,255,.12)}
-.nav .btn{margin-left:auto;padding:9px 20px}
-.hero{position:relative;color:#fff;padding:150px 5vw 170px;background:linear-gradient(125deg,var(--g9),var(--g7) 55%,#6E9A1E);overflow:hidden}
-.hero:before{content:"";position:absolute;width:620px;height:620px;right:-140px;top:-180px;border-radius:50%;background:radial-gradient(circle,rgba(164,196,43,.35),transparent 68%);animation:drift 14s ease-in-out infinite alternate}
-.wrap{position:relative;max-width:1180px;margin:auto;display:grid;grid-template-columns:1.05fr 1fr;gap:56px;align-items:center}
-.hero h1{font-size:clamp(3rem,7vw,5.2rem);line-height:1}.hero h2{font-size:clamp(1.4rem,3vw,2rem);font-weight:600;margin-top:12px;color:#E3F0B8}
-.hero p{max-width:480px;margin:20px 0 32px;font-size:1.1rem;opacity:.92}.row{display:flex;gap:12px;flex-wrap:wrap}
-.wave{position:absolute;left:0;bottom:-1px;width:100%;height:90px;display:block}
-.mock{position:relative;height:430px}.card{position:absolute;background:#fff;color:var(--ink);border-radius:16px;box-shadow:0 18px 50px rgba(5,30,15,.3)}
-.m1{inset:30px 0 auto 40px;padding:20px;animation:float 7s ease-in-out infinite}.m1 b{font:700 .95rem Fraunces}
-.q{margin:12px 0 0 auto;width:fit-content;max-width:85%;background:#E0EDE1;border-radius:14px 14px 3px 14px;padding:9px 14px;font-size:.92rem}
-.a{margin-top:12px;border:1px solid var(--line);border-left:4px solid var(--g5);border-radius:3px 14px 14px 14px;padding:12px 14px;font-size:.88rem}
-.bd{display:inline-block;background:#E8F5E9;color:var(--g5);font-weight:600;font-size:.74rem;border-radius:99px;padding:1px 10px;margin-bottom:6px}
-.m2{left:0;bottom:60px;padding:12px 18px;display:flex;align-items:center;gap:10px;font-weight:600;font-size:.9rem;animation:float 6s 1s ease-in-out infinite}
-.m2 i{width:36px;height:36px;border-radius:50%;background:var(--g5);display:grid;place-items:center;color:#fff;font-style:normal}
-.m3{right:10px;bottom:20px;padding:10px 16px;font-weight:600;font-size:.85rem;background:var(--lime);color:var(--g9);animation:float 8s .5s ease-in-out infinite}
-section{padding:96px 5vw}.in{max-width:1100px;margin:auto}.kick{color:var(--g5);font-weight:600;font-size:.85rem;letter-spacing:.06em;text-transform:uppercase}
-.in>h2{font-size:clamp(2rem,4.5vw,3rem);margin:8px 0 14px}.in>p{max-width:560px;color:var(--mut)}
-.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:18px;margin-top:44px}
-.f{background:#fff;border:1px solid var(--line);border-radius:16px;padding:26px;transition:transform .3s var(--e),box-shadow .3s var(--e),border-color .3s}
-.f:hover{transform:translateY(-6px);box-shadow:0 16px 36px rgba(31,107,53,.14);border-color:#BFD7B3}
-.f i{width:46px;height:46px;border-radius:12px;background:#E8F5E9;color:var(--g5);display:grid;place-items:center;font:700 1.2rem Fraunces;font-style:normal;transition:.3s}
-.f:hover i{background:var(--g5);color:#fff;transform:rotate(-6deg) scale(1.08)}.f h3{font-size:1.2rem;margin:18px 0 6px}.f p{margin:0;color:var(--mut);font-size:.95rem}
-.how{background:#fff;border-block:1px solid var(--line)}.steps{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:30px;margin-top:48px;counter-reset:s}
-.s{position:relative;padding-top:64px}.s:before{counter-increment:s;content:counter(s);position:absolute;top:0;left:0;width:48px;height:48px;border-radius:50%;background:var(--g5);color:#fff;display:grid;place-items:center;font:700 1.25rem Fraunces;transition:transform .3s var(--e),background .3s}
-.s:hover:before{transform:scale(1.12);background:var(--lime);color:var(--g9)}.s:after{content:"";position:absolute;top:24px;left:60px;right:-14px;border-top:2px dashed #BFD7B3}.s:last-child:after{display:none}
-.s h3{font-size:1.15rem;margin-bottom:4px}.s p{margin:0;color:var(--mut);font-size:.95rem}
-.cta{text-align:center;color:#fff;background:linear-gradient(125deg,var(--g9),var(--g7));position:relative;overflow:hidden}.cta h2{font-size:clamp(2rem,4.5vw,3rem)}.cta p{opacity:.9;margin:12px 0 28px}
-footer{padding:26px 5vw;text-align:center;color:var(--mut);font-size:.88rem}
+:root{--deep:#0F3B26;--g:#1F6B35;--g2:#2E7D32;--lime:#A4C42B;--paper:#F6F3EA;--ink:#1B2620;--mut:#5C685F;--rule:#DDD8C7;--e:cubic-bezier(.2,.7,.2,1);font-family:"Source Sans 3",system-ui,sans-serif}
+*{box-sizing:border-box;margin:0}html{scroll-behavior:smooth}body{background:var(--paper);color:var(--ink);font-size:17px;line-height:1.6}
+h1,h2,h3{font-family:Fraunces,Georgia,serif;font-weight:700;letter-spacing:-.015em;line-height:1.12}a{color:inherit;text-decoration:none}
+.c{max-width:1120px;margin:0 auto;padding:0 28px}
+.nav{position:sticky;top:0;z-index:10;background:rgba(246,243,234,.92);backdrop-filter:blur(8px);border-bottom:1px solid var(--rule)}
+.nav .c{display:flex;align-items:center;height:68px;gap:36px}
+.brand{display:flex;align-items:center;gap:10px;font:700 1.4rem Fraunces,serif}.brand svg{width:36px;height:36px}
+.links{display:flex;gap:28px;margin-left:auto}.links a{color:var(--mut);font-weight:500;padding:4px 0;background:linear-gradient(var(--g2),var(--g2)) 0 100%/0 2px no-repeat;transition:background-size .3s var(--e),color .2s}.links a:hover{color:var(--ink);background-size:100% 2px}
+.btn{display:inline-flex;align-items:center;gap:10px;padding:12px 24px;border-radius:8px;font-weight:600;background:var(--g2);color:#fff;transition:background .2s,transform .2s var(--e),box-shadow .2s}
+.btn i{font-style:normal;transition:transform .25s var(--e)}.btn:hover{background:var(--deep);box-shadow:0 8px 20px rgba(15,59,38,.25)}.btn:hover i{transform:translateX(5px)}.btn:active{transform:scale(.98)}
+.btn.sm{padding:9px 20px}.btn.lime{background:var(--lime);color:var(--deep)}.btn.lime:hover{background:#B9DA3C;box-shadow:0 8px 20px rgba(164,196,43,.4)}
+.btn.out{background:none;color:#fff;box-shadow:inset 0 0 0 1.5px rgba(255,255,255,.5)}.btn.out:hover{background:rgba(255,255,255,.1);box-shadow:inset 0 0 0 1.5px #fff}
+.hero{position:relative;color:#fff;background:linear-gradient(135deg,var(--deep) 0%,#17583a 60%,#3C7F24 100%);padding:96px 0 150px;overflow:hidden}
+.hero:before{content:"";position:absolute;right:-120px;top:-160px;width:560px;height:560px;border-radius:50%;background:radial-gradient(circle,rgba(164,196,43,.28),transparent 66%);animation:drift 16s ease-in-out infinite alternate}
+.hero .c{position:relative;display:grid;grid-template-columns:1fr 1fr;gap:64px;align-items:center}
+.hero h1{font-size:clamp(3.4rem,7.5vw,5.6rem);line-height:1}.hero h2{font:600 clamp(1.35rem,2.4vw,1.7rem) Fraunces,serif;color:#D8E89A;margin:16px 0 20px}
+.hero p{max-width:460px;font-size:1.1rem;color:#DCE5D6;margin-bottom:34px}.row{display:flex;gap:14px;flex-wrap:wrap}
+.hero .t>*{animation:up .8s var(--e) both}.hero .t>:nth-child(2){animation-delay:.1s}.hero .t>:nth-child(3){animation-delay:.2s}.hero .t>:nth-child(4){animation-delay:.3s}
+.mock{background:#fff;color:var(--ink);border-radius:16px;padding:22px;box-shadow:0 30px 60px rgba(4,28,16,.4);animation:up .9s var(--e) .2s both,float 7s ease-in-out 1.2s infinite}
+.mh{display:flex;align-items:center;gap:10px;padding-bottom:14px;margin-bottom:16px;border-bottom:1px solid var(--rule);font:700 1rem Fraunces,serif}.mh svg{width:28px;height:28px}
+.q{margin-left:auto;width:fit-content;max-width:80%;background:#E1EEDD;border-radius:14px 14px 3px 14px;padding:9px 15px;font-size:.95rem}
+.a{margin-top:14px;border:1px solid var(--rule);border-left:4px solid var(--g2);border-radius:3px 14px 14px 14px;padding:14px 16px;font-size:.95rem;line-height:1.55}
+.bd{display:inline-block;margin-bottom:8px;background:#E4F1DF;color:var(--g);font-size:.76rem;font-weight:600;border-radius:99px;padding:2px 11px}
+.tl{display:flex;gap:8px;margin-top:12px;padding-top:12px;border-top:1px solid var(--rule)}.tl span{font-size:.8rem;color:var(--mut);border:1px solid var(--rule);border-radius:7px;padding:4px 11px}
+.edge{position:absolute;left:0;bottom:-1px;width:100%;height:84px;display:block}
+section{padding:92px 0}.lab{display:block;color:var(--g2);font-weight:600;font-size:.82rem;letter-spacing:.08em;text-transform:uppercase;margin-bottom:12px}
+.head{max-width:640px;margin-bottom:48px}.head h2{font-size:clamp(1.9rem,3.8vw,2.6rem)}.head p{margin-top:14px;color:var(--mut)}
+.grid{display:grid;grid-template-columns:repeat(4,1fr);gap:20px}
+.f{background:#fff;border:1px solid var(--rule);border-radius:14px;padding:28px 24px;transition:transform .3s var(--e),box-shadow .3s var(--e),border-color .3s}
+.f:hover{transform:translateY(-6px);border-color:#B6D2A8;box-shadow:0 18px 36px rgba(31,107,53,.13)}
+.f .ic{width:50px;height:50px;border-radius:12px;background:#E4F1DF;display:grid;place-items:center;margin-bottom:20px;transition:background .3s,transform .3s var(--e)}
+.f .ic svg{width:24px;height:24px;stroke:var(--g2);fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;transition:stroke .3s}
+.f:hover .ic{background:var(--g2);transform:rotate(-5deg)}.f:hover .ic svg{stroke:#fff}
+.f h3{font-size:1.2rem;margin-bottom:8px}.f p{color:var(--mut);font-size:.97rem}
+.band{background:#fff;border-block:1px solid var(--rule)}.nums{display:grid;grid-template-columns:repeat(3,1fr);border:1px solid var(--rule);border-radius:14px;background:var(--paper)}
+.n{padding:34px 32px}.n+.n{border-left:1px solid var(--rule)}.n b{display:block;font:700 clamp(2.6rem,5vw,3.6rem) Fraunces,serif;color:var(--g);line-height:1}.n span{display:block;margin-top:10px;color:var(--mut)}
+.note{margin-top:16px;color:var(--mut);font-size:.9rem}
+.cta{background:linear-gradient(135deg,var(--deep),#17583a);color:#fff;text-align:center}.cta h2{font-size:clamp(1.9rem,4vw,2.6rem);margin-bottom:28px}
+.foot{padding:26px 0;color:var(--mut);font-size:.92rem}.foot .c{display:flex;align-items:center;gap:10px}.foot svg{width:24px;height:24px}
 .rv{opacity:0;transform:translateY(24px);transition:opacity .7s var(--e),transform .7s var(--e);transition-delay:var(--d,0s)}.rv.on{opacity:1;transform:none}
-@keyframes float{50%{transform:translateY(-12px)}}@keyframes drift{to{transform:translate(-60px,40px) scale(1.15)}}
-@media(max-width:860px){.wrap{grid-template-columns:1fr}.mock{height:380px}.nav nav{display:none}.s:after{display:none}.hero{padding-top:120px}}
+@keyframes up{from{opacity:0;transform:translateY(20px)}}@keyframes float{50%{transform:translateY(-10px)}}@keyframes drift{to{transform:translate(-60px,40px) scale(1.12)}}
+@media(max-width:940px){.grid{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:820px){.hero .c{grid-template-columns:1fr;gap:56px}.links{display:none}.nav .btn{margin-left:auto}.nums{grid-template-columns:1fr}.n+.n{border-left:0;border-top:1px solid var(--rule)}.hero{padding:64px 0 120px}}
+@media(max-width:520px){.grid{grid-template-columns:1fr}}
 @media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}.rv{opacity:1;transform:none}}
 </style></head><body>
-<header class="nav" id="nav"><a class="logo" href="/"><i>M</i>Mfasha</a><nav><a href="#ikora">Ibyo ikora</a><a href="#uko">Uko ikora</a></nav><a class="btn go" href="/chat">Tangira</a></header>
-<div class="hero"><div class="wrap"><div>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs><symbol id="logo-mark" viewBox="0 0 120 120">
+<clipPath id="lg-clip"><circle cx="58" cy="72" r="34"/></clipPath>
+<path d="M31 56a34 34 0 1 0 54 -10" fill="none" stroke="#1F6B35" stroke-width="7" stroke-linecap="round"/>
+<g clip-path="url(#lg-clip)"><path d="M24 70q22-14 70-8v10q-40-6-70 8z" fill="#A4C42B"/><path d="M24 82q26-14 70-6v10q-42-8-70 8z" fill="#A4C42B"/><path d="M30 98q24-22 64-14v26H30z" fill="#7FA51F"/></g>
+<path d="M52 62C44 56 44 42 54 32c9 9 8 24-2 30z" fill="#1F6B35"/><path d="M62 60C58 44 68 26 88 18c4 22-8 38-26 42z" fill="#1F6B35"/></symbol></defs></svg>
+<header class="nav"><div class="c"><a class="brand" href="/"><svg><use href="#logo-mark"/></svg>Mfasha</a>
+<nav class="links"><a href="#ikora">Ibyo ikora</a><a href="#imibare">Imibare</a></nav><a class="btn sm" href="/chat">Tangira <i>→</i></a></div></header>
+<div class="hero"><div class="c"><div class="t">
 <h1>Mfasha</h1><h2>Umufasha wawe mu buhinzi n’ubworozi</h2>
-<p>Baza ikibazo mu Kinyarwanda, wandike cyangwa uvuge, maze ubone igisubizo gikomoka ku nyandiko z’ubuhinzi, gisomwe n’ijwi.</p>
-<div class="row"><a class="btn go" href="/chat">Tangira →</a><a class="btn ghost" href="#uko">Reba uko ikora</a></div></div>
-<div class="mock"><div class="card m1"><b>Ikiganiro</b><div class="q">Intama zororoka gute?</div><div class="a"><span class="bd">Icyizere: kinshi</span><br>Intama ihaka iminsi 149-152 (amezi 5). Yonsa amezi atatu, ishobora kubyara buri mezi 9.</div></div>
-<div class="card m2"><i>●</i>Vuga ikibazo cyawe</div><div class="card m3">Soma igisubizo ▸</div></div></div>
-<svg class="wave" viewBox="0 0 1440 90" preserveAspectRatio="none"><path d="M0 60C240 100 480 10 760 40s460 30 680-10v60H0z" fill="#F6F4EC"/></svg></div>
-<section id="ikora"><div class="in"><span class="kick rv">Mfasha ikora iki?</span><h2 class="rv">Ibisubizo ku buhinzi n’ubworozi, mu rurimi rwawe</h2><p class="rv">Mfasha ishakira igisubizo mu nyandiko z’ubuhinzi, ikakigaragariza aho cyakomotse.</p>
+<p>Baza ikibazo mu Kinyarwanda, ukivuge cyangwa ukyandike, ubone igisubizo gikomoka ku nyandiko z’ubuhinzi, gisomwe n’ijwi.</p>
+<div class="row"><a class="btn lime" href="/chat">Tangira <i>→</i></a><a class="btn out" href="#ikora">Reba ibyo ikora</a></div></div>
+<div class="mock"><div class="mh"><svg><use href="#logo-mark"/></svg>Mfasha</div><div class="q">Intama zororoka gute?</div>
+<div class="a"><span class="bd">Icyizere: kinshi</span><br>Intama zororoka mu buryo bukurikira: Ku ntama 100 zimye, habyara 85; Ku ntama zibyara, havuka abana 140 ku nyarwanda, 180 ku za kijyambere.<div class="tl"><span>Soma igisubizo</span><span>Byamfashije</span><span>Koporora</span></div></div></div></div>
+<svg class="edge" viewBox="0 0 1440 84" preserveAspectRatio="none"><path d="M0 52C260 92 520 8 800 36s460 28 640-8v56H0z" fill="#F6F3EA"/></svg></div>
+<section id="ikora"><div class="c"><div class="head rv"><span class="lab">Mfasha ikora iki</span><h2>Isubiza ibibazo by’ubuhinzi n’ubworozi mu rurimi rwawe</h2><p>Wandika cyangwa ukavuga ikibazo, Mfasha ikashakira igisubizo mu nyandiko z’ubuhinzi, ikagisoma n’ijwi.</p></div>
 <div class="grid">
-<div class="f rv"><i>K</i><h3>Mu Kinyarwanda</h3><p>Baza ku bihingwa, amatungo, ifumbire n’ubutaka mu rurimi rwawe.</p></div>
-<div class="f rv" style="--d:.08s"><i>V</i><h3>Andika cyangwa uvuge</h3><p>Koresha inyandiko cyangwa mikoro, Mfasha irakumva.</p></div>
-<div class="f rv" style="--d:.16s"><i>I</i><h3>Ibisubizo byizewe</h3><p>Igisubizo gikomoka ku nyandiko, kandi iyo nta cyo ifite irabivuga.</p></div>
-<div class="f rv" style="--d:.24s"><i>S</i><h3>Umva igisubizo</h3><p>Kanda “Soma igisubizo” wumve igisubizo gisomwa n’ijwi.</p></div></div></div></section>
-<section class="how" id="uko"><div class="in"><span class="kick rv">Uko ikora</span><h2 class="rv">Intambwe enye gusa</h2>
-<div class="steps"><div class="s rv"><h3>Baza</h3><p>Andika cyangwa uvuge ikibazo cyawe.</p></div>
-<div class="s rv" style="--d:.1s"><h3>Mfasha irashakisha</h3><p>Ishakisha mu nyandiko z’ubuhinzi igice gikwiye.</p></div>
-<div class="s rv" style="--d:.2s"><h3>Wakira igisubizo</h3><p>Ubona igisubizo, icyizere cyacyo n’andi makuru.</p></div>
-<div class="s rv" style="--d:.3s"><h3>Umva</h3><p>Igisubizo gisomwa n’ijwi mu Kinyarwanda.</p></div></div></div></section>
-<section class="cta"><div class="in"><h2 class="rv">Witeguye gutangira?</h2><p class="rv">Baza ikibazo cya mbere cyawe none.</p><a class="btn go rv" href="/chat">Tangira none →</a></div></section>
-<footer>Mfasha · Umufasha wawe mu buhinzi n’ubworozi</footer>
-<script>var n=document.getElementById('nav');function t(){n.classList.toggle('solid',scrollY>40)}t();addEventListener('scroll',t,{passive:true});
-var io=new IntersectionObserver(function(e){e.forEach(function(x){if(x.isIntersecting){x.target.classList.add('on');io.unobserve(x.target)}})},{threshold:.15});document.querySelectorAll('.rv').forEach(function(x){io.observe(x)});</script>
+<div class="f rv"><div class="ic"><svg viewBox="0 0 24 24"><rect x="9" y="3" width="6" height="12" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/></svg></div><h3>Yumva Kinyarwanda</h3><p>Vuga ikibazo cyawe, Mfasha ikagihindura inyandiko.</p></div>
+<div class="f rv" style="--d:.08s"><div class="ic"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg></div><h3>Ishakisha mu nyandiko</h3><p>Isubiza gusa ibiri mu nyandiko z’ubuhinzi, ntiyihimbira.</p></div>
+<div class="f rv" style="--d:.16s"><div class="ic"><svg viewBox="0 0 24 24"><path d="M12 3 4 6v6c0 5 3.5 8 8 9 4.5-1 8-4 8-9V6z"/><path d="m9 12 2 2 4-4"/></svg></div><h3>Ivuga ko nta cyo izi</h3><p>Iyo nta gisubizo gihari, irabikubwira aho kuguha ibitari byo.</p></div>
+<div class="f rv" style="--d:.24s"><div class="ic"><svg viewBox="0 0 24 24"><path d="M4 9v6h4l5 4V5L8 9z"/><path d="M16.5 8.5a5 5 0 0 1 0 7M19 6a8.5 8.5 0 0 1 0 12"/></svg></div><h3>Isoma igisubizo</h3><p>Igisubizo kirasomwa n’ijwi, imibare igasomwa mu magambo.</p></div></div></div></section>
+<section class="band" id="imibare"><div class="c"><div class="head rv"><span class="lab">Imibare</span><h2>Uko yagenze mu igeragezwa</h2></div>
+<div class="nums rv"><div class="n"><b><span data-n="86.6">0</span>%</b><span>Inyandiko ikwiye iboneka ku mwanya wa mbere</span></div>
+<div class="n"><b><span data-n="99.4">0</span>%</b><span>Inyandiko ikwiye iri mu 10 za mbere</span></div>
+<div class="n"><b><span data-n="27.7">0</span>%</b><span>Amakosa mu magambo mu kumva ijwi</span></div></div>
+<p class="note rv">Byapimwe ku nyandiko n’umuvugizi bitigeze bigaragara mu myitozo.</p></div></section>
+<section class="cta"><div class="c"><h2 class="rv">Tangira kubaza ikibazo cyawe.</h2><a class="btn lime rv" href="/chat">Tangira <i>→</i></a></div></section>
+<footer class="foot"><div class="c"><svg><use href="#logo-mark"/></svg>Mfasha · Umufasha wawe mu buhinzi n’ubworozi</div></footer>
+<script>var io=new IntersectionObserver(function(es){es.forEach(function(e){if(!e.isIntersecting)return;var t=e.target;t.classList.add('on');io.unobserve(t);t.querySelectorAll('[data-n]').forEach(function(s){var end=+s.dataset.n,t0=performance.now();(function f(n){var p=Math.min((n-t0)/1200,1);s.textContent=(end*(1-Math.pow(1-p,3))).toFixed(1);if(p<1)requestAnimationFrame(f)})(t0)})})},{threshold:.25});document.querySelectorAll('.rv').forEach(function(x){io.observe(x)});</script>
 </body></html>
 """
 
