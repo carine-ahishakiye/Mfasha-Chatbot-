@@ -1,83 +1,115 @@
-# From your PC to a public link
+# Deploying Mfasha
 
-Total work: about 1 hour, plus upload and build time. Do the steps in order.
+This is how I get the project from my laptop to a public link. It takes about an hour, plus waiting for uploads and the first build.
 
 ## What you need
-- A Hugging Face account (huggingface.co) and a **Write** token (Settings > Access Tokens)
-- Your Groq API key
-- Git installed (`git --version` in PowerShell)
 
-## Step 1. Move the trained files from Drive to Hugging Face (in Colab)
-Your trained models are on Google Drive. Send them straight to a private Hugging Face repo from Colab, so the 2+ GB never goes through your own internet.
+- A Hugging Face account and a token with **Write** access (Settings > Access Tokens)
+- A Groq API key
+- Git (check with `git --version`)
 
-1. In Colab, open the left key icon, add a secret named `HF_TOKEN` (your Write token) and switch on Notebook access.
-2. Open a new cell, paste `scripts/colab_push_assets.py`, change `HF_USER` to your username, run it.
-3. It creates `YOUR_USER/mfasha-assets` (private) and uploads 4 things: the fine-tuned e5 folder, the ASR adapter `best.pt`, `passages.jsonl`, and the saved passage embeddings.
+## 1. Move the trained files to Hugging Face
 
-## Step 2. Put the project in your folder (PowerShell)
-Copy everything from this zip into `C:\Users\PC\Desktop\Mfasha agri bot`, next to your `data`, `models`, `notebook` and `results` folders. Then:
+The trained models live on Google Drive. I send them straight from Colab to a private Hugging Face repo, so the 2+ GB never goes through my own connection.
+
+1. In Colab, click the key icon on the left, add a secret called `HF_TOKEN` with the Write token, and turn on notebook access.
+2. Paste `scripts/colab_push_assets.py` into a new cell, set `HF_USER` to your username and run it.
+3. It creates a private repo `YOUR_USER/mfasha-assets` and uploads four things: the fine-tuned e5 folder, the ASR adapter `best.pt`, `passages.jsonl`, and the saved passage embeddings.
+
+## 2. Set up the project locally
+
+Put the project files in `C:\Users\PC\Desktop\Mfasha agri bot`, next to the `data`, `models`, `notebook` and `results` folders. Then in PowerShell:
 
 ```powershell
 cd "C:\Users\PC\Desktop\Mfasha agri bot"
 python -m venv .venv
 .\.venv\Scripts\Activate.ps1
 pip install -r requirements-dev.txt
-python -m pytest tests          # 13 tests should pass
+python -m pytest tests
 ```
 
-Create your `.env` file from the example and fill in the three values:
+All 13 tests should pass.
+
+Next, create the `.env` file:
 
 ```powershell
 copy .env.example .env
-notepad .env        # GROQ_API_KEY, HF_TOKEN (a Read token is enough), HF_ASSETS_REPO=YOUR_USER/mfasha-assets
+notepad .env
 ```
 
-## Step 3. Run it on your PC
+Fill in `GROQ_API_KEY`, `HF_TOKEN` (a Read token is enough) and `HF_ASSETS_REPO=YOUR_USER/mfasha-assets`.
+
+## 3. Run it on the PC
+
 ```powershell
 python app.py
 ```
-The first run downloads the trained files into your `models`, `data` and `results` folders, plus about 4 GB of MMS weights. Then open the link it prints (http://127.0.0.1:7860). Test both tabs: **Andika** (type) and **Vuga** (speak).
-Without a GPU the voice question takes a while to be understood. That is normal on CPU.
 
-## Step 4. Measure the answer step properly (for your report)
-Copy `data/clean/splits/test_unseen.csv` and `data/clean/queries.jsonl` from Drive into the same folders on your PC, then:
+The first run downloads the trained files into `models`, `data` and `results`, plus about 4 GB of MMS weights, so be patient. Then open http://127.0.0.1:7860 and try both tabs: **Andika** (type) and **Vuga** (speak).
+
+Without a GPU, voice questions take a long time to be understood. Typed questions are much quicker.
+
+## 4. Measure the answers (for the report)
+
+Copy `data/clean/splits/test_unseen.csv` and `data/clean/queries.jsonl` from Drive into the same folders here, then run:
+
 ```powershell
 python scripts/evaluate_answers.py --n-farming 80
 ```
-It tests 80 unseen-passage farming questions and 18 off-topic ones, and writes `results/answer_eval.csv`. The summary gives refusal rate, wrongly refused rate, verbatim share and invented numbers. It also prints the best-passage score for farming vs off-topic questions. If the two groups do not overlap, set `MIN_RETRIEVAL_SCORE` in `.env` between them to refuse off-topic questions without calling the LLM at all.
-Fill the `fluency_1to5` and `faithful_1to5` columns by hand for the report.
 
-## Step 5. Deploy on a Hugging Face Space
-1. huggingface.co > New > **Space**. Name: `mfasha`. SDK: **Gradio**. Hardware: **CPU basic (free)** to begin with.
-2. In the Space: Settings > Variables and secrets:
-   - Secret `GROQ_API_KEY` = your Groq key
-   - Secret `HF_TOKEN` = a **Read** token (so the Space can fetch your private assets)
-   - Variable `HF_ASSETS_REPO` = `YOUR_USER/mfasha-assets`
-3. Push the code (big folders are excluded by `.gitignore`):
+This asks 80 farming questions from unseen passages and 18 off-topic ones, and writes `results/answer_eval.csv`. The summary shows the refusal rate, how often a good question was wrongly refused, the verbatim share, and invented numbers. It also prints the best-passage score for farming vs off-topic questions.
+
+If those two groups of scores don't overlap, set `MIN_RETRIEVAL_SCORE` in `.env` somewhere between them. Off-topic questions are then refused without calling the LLM at all.
+
+Fill in the `fluency_1to5` and `faithful_1to5` columns by hand.
+
+## 5. Push the code to GitHub
+
+The GitHub repo is `Mfasha-Chatbot-`. The `.gitignore` keeps `.venv`, `models/` and `.env` out.
+
 ```powershell
-git init -b main
+git remote set-url origin https://github.com/carine-ahishakiye/Mfasha-Chatbot-.git
 git add .
-git commit -m "Mfasha"
+git commit -m "describe what changed"
+git push
+```
+
+Run `git status --short` before committing and make sure no `models/` or `.env` files show up.
+
+## 6. Deploy on a Hugging Face Space
+
+1. On Hugging Face, go to New > **Space**. Name it `mfasha`, choose the **Gradio** SDK and **CPU basic (free)** hardware to start.
+2. In the Space, open Settings > Variables and secrets and add:
+   - secret `GROQ_API_KEY`: your Groq key
+   - secret `HF_TOKEN`: a **Read** token, so the Space can fetch the private assets
+   - variable `HF_ASSETS_REPO`: `YOUR_USER/mfasha-assets`
+3. Add the Space as a second remote and push. I use the name `space` so it doesn't clash with the GitHub remote:
+
+```powershell
 git remote add space https://huggingface.co/spaces/YOUR_USER/mfasha
 git push --force space main
 ```
-Git asks for a username and password: use your HF username and a **Write** token as the password.
-4. Open the Space and watch the Logs tab. The first start downloads about 6 GB, so it takes several minutes. When you see `ready`, the public link works.
 
-**Check before you share the link:** open `git status` and confirm no `models/`, `data/`, `results/` or `.env` files are staged.
+Git asks for a username and password. Use your Hugging Face username and a **Write** token as the password.
 
-## If it is too slow
-The free CPU Space works, but speech recognition takes noticeably longer than typing. If the demo feels slow for your panel, change the Space hardware to a GPU in Settings (this is paid, and you can switch back to CPU after the demo). No code change is needed, the app uses the GPU automatically.
+4. Make sure `README.md` starts with the Space config block (`title`, `sdk: gradio`, `app_file: app.py`). Hugging Face reads it to know how to run the app.
+5. Open the Space and watch the Logs tab. The first start downloads about 6 GB, so it takes several minutes. When the log says `ready`, the public link works.
 
-## Problems
+## If it's too slow
+
+The free CPU Space works, but speech recognition is clearly slower than typing. If the demo feels sluggish, switch the Space to a GPU in Settings. It costs money, and you can switch back to CPU after the demo. No code change is needed, since the app picks up the GPU on its own.
+
+## Problems I've hit
+
 | Message | Cause and fix |
 |---|---|
-| `These files are missing` | Step 1 not done, or `HF_ASSETS_REPO` / `HF_TOKEN` not set |
-| `adapter file does not fit the model` | `best.pt` is not the file saved by the ASR training cell. Upload the right one |
-| UI shows "Mbabarira, habaye ikibazo" | Usually a wrong or missing `GROQ_API_KEY`. Look at the Space logs for `llm error` |
-| Space shows "Runtime error" at start | Open Logs. Most often out of memory: try the GPU hardware, or check the files in the assets repo |
-| Every question refused | `MIN_RETRIEVAL_SCORE` is set too high. Set it to 0 |
+| `These files are missing` | Step 1 wasn't done, or `HF_ASSETS_REPO` / `HF_TOKEN` isn't set |
+| `adapter file does not fit the model` | `best.pt` isn't the file saved by the ASR training cell. Upload the right one |
+| "Mbabarira, habaye ikibazo" in the UI | Usually a wrong or missing `GROQ_API_KEY`. Check the logs for `llm error` |
+| "Runtime error" when the Space starts | Open Logs. Most often it's out of memory, so try GPU hardware or check the assets repo |
+| Every question is refused | `MIN_RETRIEVAL_SCORE` is too high. Set it to 0 |
 
-## Before you present
-- Ask a Kinyarwanda speaker to read the `UI` dictionary at the top of `app.py` and fix any wording. I wrote it, but a native reader should confirm it.
-- Keep the Groq key out of the repo. It lives only in `.env` (local) and Space secrets.
+## Before presenting
+
+- Ask a Kinyarwanda speaker to read the `UI` dictionary at the top of `app.py` and correct any wording.
+- Keep the Groq key out of the repo. It only belongs in `.env` (local) and the Space secrets.
