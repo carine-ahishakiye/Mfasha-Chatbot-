@@ -1,8 +1,8 @@
-
 import hashlib
 import io
 import json
 import os
+import re
 import threading
 import time
 from collections import OrderedDict, defaultdict, deque
@@ -26,7 +26,7 @@ FEEDBACK_FILE = ROOT / "results" / "feedback.jsonl"
 
 # settings 
 MAX_QUESTION_CHARS = 500
-MAX_SPOKEN_CHARS = 350            # longer answers are read only in part, to keep the wait short
+MAX_SPOKEN_CHARS = 250            # longer answers are read only in part, to keep the wait short
 MAX_UPLOAD_BYTES = 20 * 1024 * 1024
 # confidence badge: PROVISIONAL cutoffs on the gap between best and second-best passage score.
 # scripts/evaluate_answers.py can show accuracy per gap bucket so you can calibrate them
@@ -144,13 +144,25 @@ def create_app(bot=None, speaker=None) -> FastAPI:
     inflight = {}                                  # voice jobs running right now, so none is made twice
 
     def spoken_part(text):
+        """The part of the answer that is read aloud: never longer than MAX_SPOKEN_CHARS."""
         text = tidy(text or "")[:5000]
-        spoken, truncated = "", False
+        pieces = []
         for sentence in split_sentences(text) or ([text] if text else []):
-            if spoken and len(spoken) + len(sentence) > MAX_SPOKEN_CHARS:
+            if len(sentence) <= MAX_SPOKEN_CHARS:
+                pieces.append(sentence)
+            else:                                  # a very long sentence: split it at commas and semicolons
+                pieces.extend(p.strip() for p in re.split(r"(?<=[,;:])\s+", sentence) if p.strip())
+        spoken, truncated = "", False
+        for piece in pieces:
+            if len(spoken) + len(piece) + 1 > MAX_SPOKEN_CHARS:
                 truncated = True
+                if not spoken:                     # one piece alone is too long: cut it at a space
+                    cut = piece[:MAX_SPOKEN_CHARS]
+                    spoken = cut[:cut.rfind(" ")] if " " in cut else cut
                 break
-            spoken = (spoken + " " + sentence).strip()
+            spoken = (spoken + " " + piece).strip()
+        if truncated and spoken and spoken[-1] not in ".!?":
+            spoken = spoken.rstrip(",;:") + "."
         return spoken, truncated
 
     def get_voice(text):
@@ -179,7 +191,7 @@ def create_app(bot=None, speaker=None) -> FastAPI:
                 voice_cache[key] = result
                 while len(voice_cache) > 32:
                     voice_cache.popitem(last=False)
-            print(f"[timing] voice {time.time() - t0:.1f}s")
+            print(f"[timing] voice {time.time() - t0:.1f}s for {len(spoken)} characters")
             return result
         except Exception as e:
             print("speak error:", e)
@@ -242,7 +254,9 @@ def create_app(bot=None, speaker=None) -> FastAPI:
         if len(question) > MAX_QUESTION_CHARS:
             raise HTTPException(400, MSG["too_long"])
         try:
+            t0 = time.time()
             res = holder["bot"].ask(text=question)
+            print(f"[timing] answer {time.time() - t0:.1f}s")
         except Exception as e:
             print("ask error:", e)
             raise HTTPException(500, MSG["error"])
@@ -278,8 +292,11 @@ def create_app(bot=None, speaker=None) -> FastAPI:
 
         def work():
             audio = decode_audio(data)
+            t0 = time.time()
             with asr_lock:
-                return holder["bot"].transcriber.transcribe(audio)
+                text = holder["bot"].transcriber.transcribe(audio)
+            print(f"[timing] transcribe {time.time() - t0:.1f}s ({len(audio) / config.ASR_SR:.1f}s of audio)")
+            return text
 
         try:
             text = await run_in_threadpool(work)
@@ -317,7 +334,7 @@ def create_app(bot=None, speaker=None) -> FastAPI:
 
 app = create_app()
 
-#  THE UI PAGE
+# THE UI PAGE
 
 PAGE = r"""
 <!doctype html>
