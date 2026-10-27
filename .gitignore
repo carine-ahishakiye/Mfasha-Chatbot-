@@ -1,0 +1,15 @@
+.env
+.venv/
+venv/
+__pycache__/
+*.pyc
+.pytest_cache/
+
+results/feedback.jsonl
+results/smoke_voice.wav
+data/tts_data/
+.venv/
+models/
+.env
+__pycache__/
+*.pyc
