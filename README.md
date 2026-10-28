@@ -4,10 +4,10 @@
 
 | | |
 |---|---|
-| Author | [Carine Ahishakiye Yibukabayo] |
-| Programme | [Software Engineering] |
-| Supervisor | [Hubert Apana] |
-| Year | [2026] |
+| Author | Carine Ahishakiye Yibukabayo |
+| Programme | Software Engineering|
+| Supervisor | Hubert Apana |
+| Year | 2026|
 
 ## Abstract
 
