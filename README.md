@@ -1,13 +1,13 @@
-# Mfasha: A Kinyarwanda Agricultural Question-Answering Assistant with Speech Input and Output
+# Mfasha: A Kinyarwanda Agricultural Question-Answering Assistant
 
 **Capstone project**
 
 | | |
 |---|---|
-| Author | Carine  Ahishakiye  |
-| Programme | Software Engineering |
-| Supervisor | Hubert Apana|
-| Year | 2026|
+| Author | [Carine Ahishakiye Yibukabayo] |
+| Programme | [Software Engineering] |
+| Supervisor | [Hubert Apana] |
+| Year | [2026] |
 
 ## Abstract
 
@@ -66,7 +66,11 @@ No question appears in more than one split.
 
 ### 5.1 Retrieval
 
-`multilingual-e5-large` was fine-tuned on question and passage pairs (304 M of 560 M parameters updated, learning rate 2e-5, batch size 64, 3 epochs). Epoch 2 gave the best development score and was kept. Passages are embedded once with the prefix `passage:` and questions at query time with the prefix `query:`. Retrieval is by cosine similarity. Lexical BM25 and reciprocal rank fusion of BM25 with the dense scores were evaluated as alternatives (Section 6.1).
+`intfloat/multilingual-e5-large` was fine-tuned on question and passage pairs. Each training example contains a question, its passage, and one hard negative: a passage that BM25 ranks highly for the question but that is not the answer. The loss is the multiple negatives ranking loss (cached implementation, scale 20), so the other passages in a batch also serve as negatives, and a batch sampler ensures that no two questions in a batch share a passage.
+
+Training used a learning rate of 2e-5 with 10% warm-up, weight decay of 0.01, batch size 64, mixed precision, and up to 3 epochs. The word-embedding table was frozen to fit in GPU memory, so 304 M of 560 M parameters were updated. After every epoch the model was scored on the development sets, and the epoch with the best mean R@1 (epoch 2) was kept. Training would have stopped early after two epochs without improvement.
+
+Passages are embedded once with the prefix `passage:` and questions at query time with the prefix `query:`. Retrieval is by cosine similarity. Lexical BM25 and reciprocal rank fusion of BM25 with the dense scores were evaluated as alternatives (Section 6.1).
 
 ### 5.2 Speech recognition
 
@@ -205,3 +209,12 @@ Mfasha is designed to give farmers quick access to written agricultural guidance
 ## Acknowledgements
 
 The retrieval and speech data come from the C4IR Rwanda Kinyarwanda agriculture corpora. The speech models are released by Meta (MMS) and the retrieval model by the authors of multilingual-e5.
+
+## References
+
+1. Pratap, V., et al. (2023). Scaling Speech Technology to 1,000+ Languages. arXiv:2305.13516.
+2. Wang, L., et al. (2024). Multilingual E5 Text Embeddings: A Technical Report. arXiv:2402.05672.
+3. Kim, J., Kong, J., and Son, J. (2021). Conditional Variational Autoencoder with Adversarial Learning for End-to-End Text-to-Speech. Proceedings of ICML.
+4. Lewis, P., et al. (2020). Retrieval-Augmented Generation for Knowledge-Intensive NLP Tasks. Advances in Neural Information Processing Systems.
+5. Robertson, S., and Zaragoza, H. (2009). The Probabilistic Relevance Framework: BM25 and Beyond. Foundations and Trends in Information Retrieval.
+6. Cormack, G., Clarke, C., and Buettcher, S. (2009). Reciprocal Rank Fusion Outperforms Condorcet and Individual Rank Learning Methods. Proceedings of SIGIR.
