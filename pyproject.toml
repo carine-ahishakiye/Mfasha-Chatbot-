@@ -1,0 +1,23 @@
+[build-system]
+requires = ["setuptools>=64"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "mfasha"
+version = "1.0.0"
+description = "Mfasha: a Kinyarwanda agricultural question-answering assistant (speech in, retrieved answer, speech out)"
+requires-python = ">=3.10"
+dynamic = ["dependencies"]
+
+[tool.setuptools.dynamic]
+dependencies = { file = ["requirements.txt"] }
+
+[tool.setuptools.packages.find]
+include = ["mfasha*"]
+
+[tool.setuptools.package-data]
+"mfasha.web" = ["templates/*.html", "static/*"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["."]            # tests import the project from the repository root, no sys.path edits needed
