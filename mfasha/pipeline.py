@@ -1,9 +1,9 @@
-"""The whole chatbot: question (text or voice) -> retrieve -> answer with the best passage, or refer. Speech output is added by the app."""
+
 from dataclasses import dataclass, field
 from typing import List, Optional
 
 from . import config
-from .retriever import Hit
+from .interfaces import Hit, PassageSearcher, SpeechRecognizer
 from .text_utils import clean_text
 
 ANSWERED, REFERRED, EMPTY = "answered", "referred", "empty"
@@ -28,7 +28,8 @@ class Result:
 
 
 class Mfasha:
-    def __init__(self, retriever, transcriber=None, threshold: Optional[float] = None):
+    def __init__(self, retriever: PassageSearcher, transcriber: Optional[SpeechRecognizer] = None,
+                 threshold: Optional[float] = None):
         self.retriever = retriever
         self.transcriber = transcriber
         # the score the best passage must reach before it is shown as the answer

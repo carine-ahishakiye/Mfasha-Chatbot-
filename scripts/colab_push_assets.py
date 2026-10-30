@@ -1,12 +1,4 @@
-"""Run this in a Google Colab cell (not on your PC).
-It copies the trained files straight from your Drive to a private Hugging Face repo,
-so nothing big has to pass through your own internet connection.
 
-Before running:
-  1. Colab > left key icon > add a secret called HF_TOKEN. Create the token at huggingface.co/settings/tokens
-     with the *Write* role, and switch on "Notebook access" for the secret.
-  2. Change HF_USER below.
-"""
 from pathlib import Path
 from google.colab import drive, userdata
 from huggingface_hub import HfApi

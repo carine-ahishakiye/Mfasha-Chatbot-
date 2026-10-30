@@ -1,4 +1,3 @@
-"""Makes sure the trained files exist. Uses the local project folder first, then the Hugging Face assets repo."""
 from . import config
 
 

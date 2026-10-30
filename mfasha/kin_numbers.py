@@ -1,4 +1,4 @@
-"""Writes numbers, units and percentages as Kinyarwanda words so the voice can read them."""
+
 import re
 
 ONES = {1: "rimwe", 2: "kabiri", 3: "gatatu", 4: "kane", 5: "gatanu", 6: "gatandatu",

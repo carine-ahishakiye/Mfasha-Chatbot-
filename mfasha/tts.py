@@ -1,15 +1,16 @@
-"""Text to speech with the stock MMS Kinyarwanda voice."""
+
 import re
 
 import numpy as np
 
 from . import config
+from .interfaces import SpeechSynthesizer
 from .kin_numbers import speech_prep
 
 PAUSE = {",": 0.25, ";": 0.3, ":": 0.3, ".": 0.5, "!": 0.5, "?": 0.5}
 
 
-class Speaker:
+class Speaker(SpeechSynthesizer):
     def __init__(self):
         import torch
         from transformers import AutoTokenizer, VitsModel

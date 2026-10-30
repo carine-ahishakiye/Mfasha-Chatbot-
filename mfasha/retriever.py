@@ -1,19 +1,14 @@
-"""Finds the passages that answer a question, using the fine-tuned multilingual-e5-large."""
+
 import json
-from typing import List, NamedTuple
+from typing import List
 
 import numpy as np
 
 from . import config
+from .interfaces import Hit, PassageSearcher
 
 
-class Hit(NamedTuple):
-    pid: str
-    text: str
-    score: float
-
-
-class Retriever:
+class Retriever(PassageSearcher):
     def __init__(self, passages, embeddings, encoder):
         assert len(passages) == len(embeddings), "passages and embeddings do not line up"
         self.passages = passages            # list of {"pid", "text"}

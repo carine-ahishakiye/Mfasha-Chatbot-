@@ -1,4 +1,4 @@
-﻿"""All settings in one place. Anything can be overridden with an environment variable."""
+
 import json
 import os
 from pathlib import Path
@@ -55,4 +55,17 @@ MAX_AUDIO_SECONDS = int(os.getenv("MAX_AUDIO_SECONDS", "30"))
 
 # text to speech: the stock voice won your round-trip test (0.228 vs 0.695 for the fine-tuned one)
 TTS_MODEL = "facebook/mms-tts-kin"
+
+# confidence badge: cutoffs on the gap between the best and the second-best passage score.
+# scripts/evaluate_system.py (calibration part) prints the accuracy per gap bucket for tuning them
+TIER_MIN_SCORE = float(os.getenv("TIER_MIN_SCORE", "0.60"))
+TIER_HIGH_MARGIN = float(os.getenv("TIER_HIGH_MARGIN", "0.04"))
+TIER_MEDIUM_MARGIN = float(os.getenv("TIER_MEDIUM_MARGIN", "0.015"))
+
+# web server limits
+MAX_QUESTION_CHARS = 500
+MAX_SPOKEN_CHARS = 250            # longer answers are read only in part, to keep the wait short
+MAX_UPLOAD_BYTES = 20 * 1024 * 1024
+VOICE_CACHE_SIZE = 32
+FEEDBACK_FILE = ROOT / "results" / "feedback.jsonl"
 

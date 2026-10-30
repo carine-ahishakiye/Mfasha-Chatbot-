@@ -14,3 +14,9 @@ models/
 __pycache__/
 *.pyc
 .ipynb_checkpoints/
+models/
+data/tts_data/
+*.egg-info/
+__pycache__/
+.venv/
+.env

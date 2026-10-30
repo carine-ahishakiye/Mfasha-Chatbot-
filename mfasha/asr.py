@@ -1,10 +1,11 @@
-"""Speech to text: MMS-1b-all with the Kinyarwanda adapter, plus your fine-tuned adapter weights."""
+
 import numpy as np
 
 from . import config
+from .interfaces import SpeechRecognizer
 
 
-class Transcriber:
+class Transcriber(SpeechRecognizer):
     def __init__(self):
         import torch
         from transformers import AutoProcessor, Wav2Vec2ForCTC

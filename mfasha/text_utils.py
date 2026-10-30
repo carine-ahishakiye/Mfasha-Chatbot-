@@ -1,4 +1,4 @@
-"""Text cleaning and small text checks. Pure Python, no heavy imports."""
+
 import re
 
 

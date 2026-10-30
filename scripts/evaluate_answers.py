@@ -1,12 +1,4 @@
-"""Scores the answer step: does the top passage get shown for farming questions and referred for off-topic ones?
 
-  python scripts/evaluate_answers.py                 # 40 farming questions from the test split + off-topic list
-  python scripts/evaluate_answers.py --n-farming 80
-
-No API key is needed. Needs the project assets. Writes results/answer_eval.csv and prints a summary.
-The farming questions come from the *unseen-passage test split*, so they were never used for training.
-Also prints the best-passage score for farming vs off-topic questions, to check the referral threshold.
-"""
 import argparse
 import json
 import sys
@@ -15,7 +7,6 @@ from pathlib import Path
 import numpy as np
 import pandas as pd
 
-sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
 from mfasha import config                                   # noqa: E402
 from mfasha.assets import ensure_assets                     # noqa: E402

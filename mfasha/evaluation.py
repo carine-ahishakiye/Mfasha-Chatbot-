@@ -7,6 +7,7 @@ from pathlib import Path
 import numpy as np
 
 from . import config
+from .confidence import ConfidencePolicy
 from .text_utils import clean_text, norm_key
 
 DATA = config.ROOT / "data" / "clean"
@@ -161,11 +162,8 @@ class Evaluator:
         return self._cal
 
     def tier(self, r, cal):
-        if cal["high"] is not None and r["margin"] >= cal["high"]:
-            return "high"
-        if cal["medium"] is not None and r["margin"] >= cal["medium"]:
-            return "medium"
-        return "low"
+        # same rule as the web app (mfasha.confidence); here the cutoffs come from the development data
+        return ConfidencePolicy(high_margin=cal["high"], medium_margin=cal["medium"]).classify(r["top"], r["margin"])
 
     def part_calibration(self, off_topic):
         cal = self.calibration()
