@@ -7,8 +7,7 @@ from pathlib import Path
 import numpy as np
 
 from . import config
-from .llm import NO_ANSWER
-from .text_utils import clean_text, norm_key, split_sentences, tidy, ungrounded_numbers, verbatim_share
+from .text_utils import clean_text, norm_key
 
 DATA = config.ROOT / "data" / "clean"
 SPLITS = ("train", "dev_seen", "test_seen", "dev_unseen", "test_unseen")
@@ -157,7 +156,7 @@ class Evaluator:
         correct = np.array([int(r["pids"][0] == r["gold"]) for r in dev])
         self._cal = {
             "high": choose_cutoff(margin, correct, 0.95), "medium": choose_cutoff(margin, correct, 0.85),
-            "min_score": float(np.percentile(top, 5)), "dev_n": len(dev), "dev_top1": float(correct.mean()),
+            "min_score": float(np.percentile(top[correct == 1] if correct.any() else top, 5)), "dev_n": len(dev), "dev_top1": float(correct.mean()),
         }
         return self._cal
 
@@ -175,7 +174,7 @@ class Evaluator:
         out += [f"Development questions used: {cal['dev_n']} (top-1 accuracy {cal['dev_top1']:.3f}).", ""]
         out += [f"- `TIER_HIGH_MARGIN` = {cal['high'] if cal['high'] is None else round(cal['high'], 4)} (groups of at least 95% accuracy)",
                 f"- `TIER_MEDIUM_MARGIN` = {cal['medium'] if cal['medium'] is None else round(cal['medium'], 4)} (groups of at least 85% accuracy)",
-                f"- `MIN_RETRIEVAL_SCORE` = {cal['min_score']:.4f} (5th percentile of development top scores, about 5% of farming questions would be refused)", ""]
+                f"- `REFERRAL_THRESHOLD` = {cal['min_score']:.4f} (5th percentile of the top scores of correctly answered development questions, the same rule as the notebook)", ""]
         body = []
         for t in ("high", "medium", "low"):
             sel = [r for r in test if self.tier(r, cal) == t]
@@ -194,97 +193,47 @@ class Evaluator:
         self.report.add(*out)
 
     # --- answers
-    def first_sentences(self, text, n=3):
-        return " ".join(split_sentences(tidy(text))[:n])
-
-    def part_answers(self, llm_fn, off_topic, n_farming=80, pause=0.3):
+    def part_answers(self, off_topic, n_farming=80):
+        """No language model: the answer is the top passage, or a referral when its score is below the threshold."""
         cal = self.calibration()
-        thr = cal["min_score"]
+        thr = config.REFERRAL_THRESHOLD or cal["min_score"]
         questions = load_split("test_unseen", 0, self.seed)
         questions = random.Random(self.seed).sample(questions, min(n_farming, len(questions)))
-        names = {"V1": "top passage (no LLM)", "V1b": "top passage + score threshold (no LLM)",
-                 "V2": "LLM copy-only", "V3": "LLM + number check (the app)"}
-        res = {v: {"supported": [], "refused": [], "invented": []} for v in names}
-        off_res = {v: [] for v in names}
-        rows, llm_failed = [], 0
 
-        def variants(hits, raw):
-            texts = [h.text for h in hits]
-            top1 = self.first_sentences(hits[0].text)
-            raw = tidy(raw) if raw else None
-            refused = raw == NO_ANSWER
-            bad = bool(raw) and not refused and bool(ungrounded_numbers(raw, texts))
-            v = {"V1": top1, "V1b": NO_ANSWER if hits[0].score < thr else top1, "V2": raw,
-                 "V3": None if raw is None else (NO_ANSWER if refused else (top1 if bad else raw))}
-            return v, bad, texts
-
-        for i, (qid, text, gold) in enumerate(questions):
+        rows = []
+        for qid, text, gold in questions:
+            t0 = time.perf_counter()
             hits = self.retr.search(clean_text(text))
-            raw = llm_fn(clean_text(text), hits)
-            time.sleep(pause)
-            v, bad, texts = variants(hits, raw)
-            if raw is None:
-                llm_failed += 1
-            gold_text = self.passage_text.get(gold, "")
-            row = {"qid": qid, "question": text, "gold": gold, "gold_in_top5": gold in [h.pid for h in hits],
-                   "guard_triggered": int(bad)}
-            for name, ans in v.items():
-                if ans is None:
-                    continue
-                refused = ans == NO_ANSWER
-                supported = (not refused) and verbatim_share(ans, [gold_text]) == 1.0
-                invented = (not refused) and bool(ungrounded_numbers(ans, texts))
-                res[name]["supported"].append(int(supported))
-                res[name]["refused"].append(int(refused))
-                res[name]["invented"].append(int(invented))
-                row[f"{name}_answer"], row[f"{name}_supported"] = ans, int(supported)
-            a = v["V3"]
-            row["failure"] = ("llm_error" if a is None else "wrongly_refused" if a == NO_ANSWER
-                              else "ok" if row.get("V3_supported") else "retrieval_miss" if not row["gold_in_top5"]
-                              else "number_guard_fallback" if bad else "answer_not_from_gold_passage")
-            rows.append(row)
-            if (i + 1) % 10 == 0:
-                print(f"  answers: {i + 1}/{len(questions)}")
+            referred = hits[0].score < thr
+            rows.append({"qid": qid, "question": text, "gold": gold, "top_pid": hits[0].pid,
+                         "top_score": hits[0].score, "referred": int(referred),
+                         "right_passage": int(hits[0].pid == gold), "gold_in_top5": int(gold in [h.pid for h in hits]),
+                         "latency_s": time.perf_counter() - t0})
+        off = [self.retr.search(clean_text(q))[0].score for q in off_topic]
 
-        for q in off_topic:
-            hits = self.retr.search(clean_text(q))
-            raw = llm_fn(clean_text(q), hits)
-            time.sleep(pause)
-            v, _, _ = variants(hits, raw)
-            for name, ans in v.items():
-                if ans is not None:
-                    off_res[name].append(int(ans == NO_ANSWER))
-
-        out = ["## Answer step: four ways of answering the same questions", "",
-               f"{len(questions)} questions from the unseen-passage test split, {len(off_topic)} off-topic questions, "
-               f"refusal threshold {thr:.3f} fitted on development data. "
-               "'Supported' means every sentence of the answer appears word for word in the correct passage.", ""]
-        body = []
-        for name, label in names.items():
-            r = res[name]
-            body.append([label, len(r["supported"]), fmt(bootstrap_ci(r["supported"]), pct=True),
-                         fmt(bootstrap_ci(r["refused"]), pct=True), fmt(bootstrap_ci(r["invented"]), pct=True),
-                         f"{sum(off_res[name])}/{len(off_res[name])}" if off_res[name] else "n/a"])
-        out += table(["variant", "n", "supported answers", "wrongly refused", "numbers not in passages",
-                      "off-topic refused"], body)
-        n = min(len(res["V3"]["supported"]), len(res["V1b"]["supported"]))
-        if n:
-            d = paired_diff_ci(res["V3"]["supported"][:n], res["V1b"]["supported"][:n])
-            out += ["", f"Supported answers, app (V3) minus top passage with threshold (V1b): {fmt(d)} "
-                        f"({'the interval excludes 0' if d[1] > 0 or d[2] < 0 else 'the interval includes 0, so the gap may be chance'}).", ""]
-        counts = {}
-        for r in rows:
-            counts[r["failure"]] = counts.get(r["failure"], 0) + 1
-        out += ["Outcome of the app (V3) on the farming questions:", ""]
-        out += table(["outcome", "questions"], sorted(counts.items(), key=lambda x: -x[1]))
-        guarded = sum(r["guard_triggered"] for r in rows)
-        out += ["", f"The number check replaced the LLM's answer for {guarded} of {len(rows)} questions."]
-        if llm_failed:
-            out += ["", f"The LLM did not answer for {llm_failed} question(s); they are left out of V2 and V3."]
-        out.append("")
+        answered = [r for r in rows if not r["referred"]]
+        out = ["## Answer step: top passage with a referral threshold (no language model)", "",
+               f"{len(rows)} questions from the unseen-passage test split and {len(off_topic)} off-topic questions. "
+               f"Referral threshold {thr:.3f}. The answer shown is the stored passage, unchanged, so its text is always "
+               "correct for the passage it comes from; what can go wrong is showing the wrong passage.", ""]
+        body = [
+            ["farming questions answered", f"{len(answered)} of {len(rows)}", fmt(bootstrap_ci([1 - r["referred"] for r in rows]), pct=True)],
+            ["right passage among answered", f"{sum(r['right_passage'] for r in answered)} of {len(answered)}",
+             fmt(bootstrap_ci([r["right_passage"] for r in answered]), pct=True)],
+            ["farming questions wrongly referred", f"{len(rows) - len(answered)} of {len(rows)}",
+             fmt(bootstrap_ci([r["referred"] for r in rows]), pct=True)],
+            ["right passage in top 5", f"{sum(r['gold_in_top5'] for r in rows)} of {len(rows)}",
+             fmt(bootstrap_ci([r["gold_in_top5"] for r in rows]), pct=True)],
+        ]
+        if off:
+            body.append(["off-topic questions referred", f"{sum(s < thr for s in off)} of {len(off)}",
+                         fmt(bootstrap_ci([int(s < thr) for s in off]), pct=True)])
+        out += table(["measure", "count", "share [95% interval]"], body)
+        lat = np.array([r["latency_s"] for r in rows])
+        out += ["", f"Search time per question: median {np.median(lat) * 1000:.0f} ms, 95th percentile {np.percentile(lat, 95) * 1000:.0f} ms.", ""]
         self.report.add(*out)
         import pandas as pd
-        path = config.ROOT / "results" / "answer_variants.csv"
+        path = config.ROOT / "results" / "referral_eval.csv"
         path.parent.mkdir(exist_ok=True)
         pd.DataFrame(rows).to_csv(path, index=False)
         print("per-question results saved to", path)

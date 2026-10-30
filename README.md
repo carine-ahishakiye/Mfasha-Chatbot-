@@ -11,17 +11,17 @@
 
 ## Abstract
 
-Smallholder farmers in Rwanda work mostly in Kinyarwanda, while most digital agricultural information is written in other languages or in a form that is hard to search by voice. Mfasha is a question-answering system that accepts a question in Kinyarwanda, typed or spoken, and returns a short answer in Kinyarwanda as text and as synthesised speech. The system combines four components: a fine-tuned speech recogniser, a fine-tuned multilingual passage retriever, a language model restricted to copying sentences from the retrieved passages, and a Kinyarwanda speech synthesiser. On passages never seen during training, the retriever reaches a recall at rank 1 of 0.866 and a recall at rank 10 of 0.994. Fine-tuning reduced the word error rate of speech recognition on a held-out speaker from 30.1% to 27.7%. The answer step refuses questions that the collection cannot answer and blocks any number that does not appear in the source passages. The system is delivered as a web application with a voice interface and is deployed as a public service.
+Smallholder farmers in Rwanda work mostly in Kinyarwanda, while most digital agricultural information is written in other languages or in a form that is hard to search by voice. Mfasha is a question-answering system that accepts a question in Kinyarwanda, typed or spoken, and returns a short answer in Kinyarwanda as text and as synthesised speech. The system combines four components: a fine-tuned speech recogniser, a fine-tuned multilingual passage retriever, an answer step that returns the best-matching stored passage unchanged, and a Kinyarwanda speech synthesiser. On passages never seen during training, the retriever reaches a recall at rank 1 of 0.866 and a recall at rank 10 of 0.994. Fine-tuning reduced the word error rate of speech recognition on a held-out speaker from 30.1% to 27.7%. Questions whose best passage scores below a threshold, chosen on development data, are referred instead of answered, and because the answer is the stored passage itself, no figure can appear that is not in the source. The system is delivered as a web application with a voice interface and is deployed as a public service.
 
 ## 1. Introduction
 
-Reliable agricultural advice depends on specific facts: planting periods, doses, gestation times, insurance procedures. A general language model can produce fluent Kinyarwanda but may state these facts incorrectly, which is costly for a farmer who acts on them. This project therefore treats the task as retrieval followed by constrained answer extraction. Every answer is taken from a curated collection of agricultural passages, so each statement can be traced to a source. When the collection does not contain the answer, the system says so.
+Reliable agricultural advice depends on specific facts: planting periods, doses, gestation times, insurance procedures. A general language model can produce fluent Kinyarwanda but may state these facts incorrectly, which is costly for a farmer who acts on them. This project therefore treats the task as retrieval: no text is generated. Every answer is a curated agricultural passage returned exactly as stored, so each statement can be traced to a source. When the collection does not contain a good match, the system says so.
 
 ## 2. Objectives
 
 1. Build a retrieval component that finds the passage answering a Kinyarwanda agricultural question, including for passages not seen in training.
 2. Adapt an existing multilingual speech recogniser to Kinyarwanda agricultural speech.
-3. Generate answers that stay within the retrieved text, refuse out-of-scope questions, and never introduce unsupported figures.
+3. Answer with the stored passage itself, so that no unsupported figure can appear, and refer out-of-scope questions instead of showing a poor match.
 4. Provide spoken output in Kinyarwanda, including correct reading of numbers and units.
 5. Deliver the result as a usable web application.
 
@@ -35,9 +35,9 @@ Reliable agricultural advice depends on specific facts: planting periods, doses,
                        |
           passage retrieval (multilingual-e5-large, fine-tuned)
                        |
-     answer selection (gpt-oss-120b, copy-only prompt)
+     answer = best passage, unchanged (no language model)
                        |
-        safeguards: refusal, number check, confidence level
+        safeguards: referral threshold, confidence level
                        |
          written answer  ->  speech synthesis (MMS-TTS Kinyarwanda)
 ```
@@ -76,12 +76,11 @@ Passages are embedded once with the prefix `passage:` and questions at query tim
 
 `facebook/mms-1b-all` with the Kinyarwanda language adapter was used as the starting point. The adapter and the output layer were fine-tuned (290 tensors) on the speech data described above. The epoch with the lowest development word error rate (epoch 3, 0.284) was kept.
 
-### 5.3 Grounded answer generation
+### 5.3 Answer selection and referral
 
-For each question, the five highest-ranked passages are given to `openai/gpt-oss-120b` through the Groq API with an instruction to copy, word for word, at most three sentences that answer the question, and to reply with a fixed refusal sentence if no passage answers it. The temperature is zero. Two checks run on the reply:
+No language model is used. For each question the retriever ranks the passages and the answer is the highest-ranked passage, returned exactly as stored. Because nothing is generated, the answer cannot contain a number, dose or period that is not in the source.
 
-- **Number check.** Every number in the answer must occur as a whole number in the retrieved passages. If one does not, the answer is replaced by the opening sentences of the top passage and is marked as low confidence.
-- **Refusal.** A reply equal to the refusal sentence is passed on unchanged and no source is shown.
+The one risk left is showing the wrong passage, or showing a passage for a question the collection does not cover. A **referral threshold** handles this. It is the 5th percentile of the best-passage scores of the development questions whose best passage was the right one (a coverage of 95%), so it is worked out from data and not typed in by hand. A question whose best score is below the threshold is referred with a fixed Kinyarwanda sentence (`Mbabarira, nta makuru mfite kuri icyo kibazo.`) and no source is shown. The notebook saves the value in `results/referral_threshold.json`, and the application reads it at start-up (`REFERRAL_THRESHOLD` in `.env` overrides it).
 
 A confidence level (high, medium, low) is derived from the margin between the best and the second-best retrieval score.
 
@@ -129,9 +128,9 @@ Synthesised speech was transcribed with the speech recogniser and compared with 
 
 The stock voice is more intelligible and is the one used in the application.
 
-### 6.5 Answer step 
+### 6.5 Answer step
 
-On a first set of 6 agricultural questions and 3 off-topic questions, 94% of the answer sentences were copied word for word from the passages, one answer contained a number absent from its passages (caught by the number check), and all 3 off-topic questions were refused. A larger evaluation script is provided (Section 8.4).
+The notebook reports, for a small sample of development questions and three off-topic questions, how many were answered, how many answered questions showed the right passage, and how many off-topic questions were referred (`results/ask_samples.csv`). `scripts/evaluate_answers.py` repeats this on a larger sample from the unseen-passage test split (Section 8.4).
 
 ## 7. Implementation
 
@@ -156,15 +155,15 @@ The server limits question length and request rates per visitor.
 
 ```
 app.py                  server and web page
-mfasha/                 retrieval, answer generation, speech recognition and synthesis, pipeline
-scripts/                evaluate_answers.py, smoke_test.py, colab_push_assets.py
+mfasha/                 retrieval, referral pipeline, speech recognition and synthesis
+scripts/                evaluate_answers.py, evaluate_system.py, smoke_test.py, colab_push_assets.py
 tests/                  unit and endpoint tests
 eval/off_topic_rw.txt   off-topic questions for the refusal test
 notebook/               the experiments reported above (Google Colab, Tesla T4)
 Dockerfile              container used for deployment
 ```
 
-The trained weights, data and results (`models/`, `data/`, `results/`) are not stored in the repository. The trained files are kept in a private Hugging Face repository and downloaded on first start.
+The trained weights and data (`models/`, `data/`) are not stored in the repository, except the small files that the application and tests need; `results/referral_threshold.json` must be committed because the application reads it. The trained files are kept in a private Hugging Face repository and downloaded on first start.
 
 ### 8.2 Installation and running
 
@@ -182,10 +181,9 @@ The application is then available at http://127.0.0.1:7860. The first start down
 
 | Name | Purpose |
 |---|---|
-| `GROQ_API_KEY` | key for the answer step |
 | `HF_TOKEN` | read token for the repository that holds the trained files |
 | `HF_ASSETS_REPO` | that repository, for example `carine01/mfasha-assets` |
-| `MIN_RETRIEVAL_SCORE` | optional, refuse questions whose best passage scores below this value (0 = off) |
+| `REFERRAL_THRESHOLD` | optional, overrides `results/referral_threshold.json`. Questions whose best passage scores below it are referred (0 = never refer) |
 | `TIER_MIN_SCORE`, `TIER_HIGH_MARGIN`, `TIER_MEDIUM_MARGIN` | cutoffs for the confidence level |
 
 ### 8.4 Tests and evaluation
@@ -194,9 +192,10 @@ The application is then available at http://127.0.0.1:7860. The first start down
 python -m pytest tests                 # logic and web endpoints, no model downloads
 python scripts/smoke_test.py           # each model on its own, using the real files
 python scripts/evaluate_answers.py     # unseen-passage farming questions and off-topic questions
+python scripts/evaluate_system.py      # retrieval, calibration, answer step and speech, written to results/evaluation_report.md
 ```
 
-`evaluate_answers.py` samples questions from the unseen-passage test split and reports retrieval hits, wrongly refused questions, the share of sentences copied verbatim, answers containing numbers absent from the passages, and the share of off-topic questions refused. Results are written to `results/answer_eval.csv`.
+`evaluate_answers.py` samples questions from the unseen-passage test split and reports retrieval hits, the share answered, the share of answered questions that showed the right passage, wrongly referred questions, and the share of off-topic questions referred. Results are written to `results/answer_eval.csv`. It needs no API key.
 
 ## 9. Deployment
 

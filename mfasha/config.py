@@ -1,4 +1,5 @@
-"""All settings in one place. Anything can be overridden with an environment variable."""
+﻿"""All settings in one place. Anything can be overridden with an environment variable."""
+import json
 import os
 from pathlib import Path
 
@@ -25,14 +26,26 @@ HF_TOKEN       = os.getenv("HF_TOKEN") or None
 Q_PREFIX, P_PREFIX = "query: ", "passage: "
 MAX_SEQ_LEN = 256
 TOP_K = int(os.getenv("TOP_K", "5"))
-# 0 = off. If you set it, questions whose best passage scores below it are refused without calling the LLM.
-# run scripts/evaluate_answers.py to see the score gap between farming and off-topic questions first
-MIN_RETRIEVAL_SCORE = float(os.getenv("MIN_RETRIEVAL_SCORE", "0"))
 
-# answer generation (Groq)
-GROQ_API_KEY = os.getenv("GROQ_API_KEY", "")
-LLM_MODEL = os.getenv("LLM_MODEL", "openai/gpt-oss-120b")
-LLM_TEMPERATURE = 0.0
+# answering: the answer is the top retrieved passage, unchanged. No language model is involved.
+# A question is referred instead when its best passage scores below the referral threshold.
+# The notebook works the threshold out from the dev questions and saves it here:
+REFERRAL_THRESHOLD_FILE = ROOT / "results" / "referral_threshold.json"
+REFERRAL_MESSAGE = "Mbabarira, nta makuru mfite kuri icyo kibazo."
+
+
+def _load_referral_threshold() -> float:
+    """REFERRAL_THRESHOLD in the environment wins, then the file saved by the notebook, then 0 (never refer)."""
+    env = os.getenv("REFERRAL_THRESHOLD")
+    if env:
+        return float(env)
+    try:
+        return float(json.loads(REFERRAL_THRESHOLD_FILE.read_text(encoding="utf-8-sig"))["threshold"])
+    except (OSError, ValueError, KeyError):
+        return 0.0
+
+
+REFERRAL_THRESHOLD = _load_referral_threshold()
 
 # speech to text
 ASR_MODEL = "facebook/mms-1b-all"
@@ -42,3 +55,4 @@ MAX_AUDIO_SECONDS = int(os.getenv("MAX_AUDIO_SECONDS", "30"))
 
 # text to speech: the stock voice won your round-trip test (0.228 vs 0.695 for the fine-tuned one)
 TTS_MODEL = "facebook/mms-tts-kin"
+

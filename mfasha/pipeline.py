@@ -1,28 +1,38 @@
-"""The whole chatbot: question (text or voice) -> retrieve -> grounded answer. Speech output is added by the app."""
+"""The whole chatbot: question (text or voice) -> retrieve -> answer with the best passage, or refer. Speech output is added by the app."""
 from dataclasses import dataclass, field
 from typing import List, Optional
 
 from . import config
-from .llm import NO_ANSWER, ask_llm
 from .retriever import Hit
-from .text_utils import clean_text, split_sentences, tidy, ungrounded_numbers
+from .text_utils import clean_text
+
+ANSWERED, REFERRED, EMPTY = "answered", "referred", "empty"
 
 
 @dataclass
 class Result:
-    status: str                         # ok | refused | empty | llm_error
+    status: str                              # answered | referred | empty
     question: str = ""
-    heard: Optional[str] = None         # what the ASR heard, when the question was spoken
-    answer: Optional[str] = None
+    heard: Optional[str] = None              # what the ASR heard, when the question was spoken
+    answer: Optional[str] = None             # the stored passage, unchanged, or the referral message
+    referral_reason: Optional[str] = None    # why the question was referred (None when answered)
     hits: List[Hit] = field(default_factory=list)
-    guarded: bool = False               # True when the number guard replaced the LLM's answer
+
+    @property
+    def passage_id(self) -> Optional[str]:
+        return self.hits[0].pid if self.status == ANSWERED and self.hits else None
+
+    @property
+    def score(self) -> Optional[float]:
+        return self.hits[0].score if self.hits else None
 
 
 class Mfasha:
-    def __init__(self, retriever, transcriber=None, llm=ask_llm):
+    def __init__(self, retriever, transcriber=None, threshold: Optional[float] = None):
         self.retriever = retriever
         self.transcriber = transcriber
-        self.llm = llm
+        # the score the best passage must reach before it is shown as the answer
+        self.threshold = config.REFERRAL_THRESHOLD if threshold is None else threshold
 
     @classmethod
     def load(cls):
@@ -41,24 +51,14 @@ class Mfasha:
             raw = text or ""
         question = clean_text(raw)
         if not question:
-            return Result("empty", heard=heard)
+            return Result(EMPTY, heard=heard, referral_reason="empty_question")
 
         hits = self.retriever.search(question)
+        if not hits:
+            return Result(REFERRED, question, heard, config.REFERRAL_MESSAGE, "no_retrieval_result", hits)
 
-        # optional cheap refusal: the best passage is too far from the question
-        if config.MIN_RETRIEVAL_SCORE and hits[0].score < config.MIN_RETRIEVAL_SCORE:
-            return Result("refused", question, heard, NO_ANSWER, hits)
+        # the best passage is too far from the question: refer instead of showing a wrong passage
+        if hits[0].score < self.threshold:
+            return Result(REFERRED, question, heard, config.REFERRAL_MESSAGE, "low_retrieval_score", hits)
 
-        reply = self.llm(question, hits)
-        if not reply:
-            return Result("llm_error", question, heard, None, hits)
-        reply = tidy(reply)
-        if reply == NO_ANSWER:
-            return Result("refused", question, heard, NO_ANSWER, hits)
-
-        # numbers that are not in the retrieved passages are never shown. Fall back to the top passage itself
-        if ungrounded_numbers(reply, [h.text for h in hits]):
-            fallback = " ".join(split_sentences(tidy(hits[0].text))[:3])
-            return Result("ok", question, heard, fallback, hits, guarded=True)
-
-        return Result("ok", question, heard, reply, hits)
+        return Result(ANSWERED, question, heard, hits[0].text, None, hits)

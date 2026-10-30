@@ -39,8 +39,7 @@ for part in parts:
     elif part == "calibration":
         e.part_calibration(off_topic)
     elif part == "answers":
-        from mfasha.llm import ask_llm
-        e.part_answers(ask_llm, off_topic, n_farming=args.n_farming)
+        e.part_answers(off_topic, n_farming=args.n_farming)
     elif part == "speech":
         from mfasha.asr import Transcriber
         asr = Transcriber()

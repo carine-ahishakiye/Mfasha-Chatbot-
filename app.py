@@ -18,7 +18,7 @@ from pydantic import BaseModel
 from scipy.io import wavfile
 
 from mfasha import config
-from mfasha.llm import NO_ANSWER
+from mfasha.pipeline import ANSWERED, EMPTY
 from mfasha.text_utils import split_sentences, tidy
 
 ROOT = Path(__file__).resolve().parent
@@ -29,7 +29,7 @@ MAX_QUESTION_CHARS = 500
 MAX_SPOKEN_CHARS = 250            # longer answers are read only in part, to keep the wait short
 MAX_UPLOAD_BYTES = 20 * 1024 * 1024
 # confidence badge: PROVISIONAL cutoffs on the gap between best and second-best passage score.
-# scripts/evaluate_answers.py can show accuracy per gap bucket so you can calibrate them
+# scripts/evaluate_system.py --part calibration shows accuracy per gap bucket so you can calibrate them
 TIER_MIN_SCORE = float(os.getenv("TIER_MIN_SCORE", "0.60"))
 TIER_HIGH_MARGIN = float(os.getenv("TIER_HIGH_MARGIN", "0.04"))
 TIER_MEDIUM_MARGIN = float(os.getenv("TIER_MEDIUM_MARGIN", "0.015"))
@@ -111,7 +111,7 @@ class FeedbackBody(BaseModel):
 
 
 class RateLimiter:
-    """Per-visitor limit, so a public link cannot burn through your Groq quota."""
+    """Per-visitor limit, so one visitor cannot overload the models on a public link."""
 
     def __init__(self, limit: int, window: float = 60.0):
         self.limit, self.window = limit, window
@@ -269,16 +269,14 @@ def create_app(bot=None, speaker=None) -> FastAPI:
         except Exception as e:
             print("ask error:", e)
             raise HTTPException(500, MSG["error"])
-        if res.status == "empty":
+        if res.status == EMPTY:
             raise HTTPException(400, MSG["empty"])
-        if res.status == "llm_error":
-            raise HTTPException(503, MSG["error"])
-        if res.status == "refused":
+        if res.status != ANSWERED:                  # referred: the collection has no good answer for this question
             prefetch_voice(res.answer)
             return {"answer": res.answer, "refused": True, "passage_id": None}
 
         top = res.hits[0]
-        tier = "low" if res.guarded else confidence_tier(res.hits)       # a guarded answer is never "high"
+        tier = confidence_tier(res.hits)
         shown = tidy(res.answer)
         alternatives = []
         for h in res.hits[1:3]:

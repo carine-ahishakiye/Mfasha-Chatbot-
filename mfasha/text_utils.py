@@ -1,4 +1,4 @@
-"""Text cleaning and the checks that keep answers grounded. Pure Python, no heavy imports."""
+"""Text cleaning and small text checks. Pure Python, no heavy imports."""
 import re
 
 
@@ -14,7 +14,7 @@ def clean_text(t: str) -> str:
 
 
 def tidy(text: str) -> str:
-    """Tidy an LLM answer (or a passage) before showing and speaking it."""
+    """Tidy a passage before showing and speaking it."""
     text = text.replace("\u2019", "'").replace("\u2018", "'")
     text = re.sub(r"[\u2010-\u2015]", "-", text)
     text = text.replace("*", "")

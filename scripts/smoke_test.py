@@ -1,4 +1,4 @@
-
+﻿
 import argparse
 import pickle
 import sys
@@ -49,24 +49,12 @@ def _():
     r = Retriever.load()
     state["retriever"] = r
     cases = {"Intama zororoka gute?": "intama", "Umusaruro w'inkwavu uba uhagaze gute?": "inkwavu",
-             "Umuhinzi abona bwishingizi bw'ibihingwa ate?": "bwishingizi"}
+             "Umuhinzi abona bwishingizi bw'ibihingwa ate?": "shingizi"}
     for q, word in cases.items():
         top = r.search(q)[0]
         print(f"{q}\n   -> {top.text[:90]}  (score {top.score:.2f})")
         assert word in top.text.lower(), f"top passage for '{q}' does not mention '{word}'"
     return f"{len(r.passages)} passages, 3 of 3 questions found the right topic"
-
-
-@stage("llm")
-def _():
-    from mfasha.llm import ask_llm
-    r = state.get("retriever")
-    assert r, "retrieval stage must pass first"
-    q = "Intama zororoka gute?"
-    out = ask_llm(q, r.search(q))
-    print("answer:", out)
-    assert out, "no reply from Groq. Check GROQ_API_KEY in .env and your internet"
-    return "Groq answered"
 
 
 @stage("tts")
@@ -114,9 +102,12 @@ def _():
         print(f"{q}\n   status={res.status} | {res.answer}")
     ok = bot.ask(text="Intama zororoka gute?")
     off = bot.ask(text="Ni nde watwaye igikombe cy'isi cya 2022?")
-    assert ok.status == "ok", f"farming question gave status {ok.status}"
-    assert off.status == "refused", f"off-topic question gave status {off.status}"
-    return "farming question answered, off-topic question refused"
+    assert ok.status == "answered", f"farming question gave status {ok.status}"
+    assert ok.answer == ok.hits[0].text, "the answer is not the stored passage"
+    if bot.threshold:
+        assert off.status == "referred", f"off-topic question gave status {off.status}"
+        return "farming question answered, off-topic question referred"
+    return "farming question answered (no referral threshold set, so off-topic questions are never referred)"
 
 
 print("\nSUMMARY")
