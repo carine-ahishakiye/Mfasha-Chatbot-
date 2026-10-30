@@ -1,6 +1,5 @@
 import sys
 from pathlib import Path
-sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
 from mfasha.kin_numbers import speech_prep, number_words
 from mfasha.text_utils import clean_text, tidy, ungrounded_numbers, verbatim_share

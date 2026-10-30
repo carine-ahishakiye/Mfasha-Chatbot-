@@ -1,18 +1,20 @@
-"""Web endpoint tests with a fake bot and a fake voice: no models are loaded."""
+
 import io
-import sys
 import time
 from pathlib import Path
-sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
 import numpy as np
 import pytest
 from fastapi.testclient import TestClient
 
-import app as app_module
 from mfasha import config
+from mfasha.interfaces import SpeechRecognizer, SpeechSynthesizer
 from mfasha.pipeline import Mfasha
 from mfasha.retriever import Retriever
+from mfasha.web import create_app
+from mfasha.web.messages import MSG
+
+FEEDBACK_TEST_FILE = Path(__file__).parent / "_feedback_test.jsonl"
 
 PASSAGES = [
     {"pid": "A1", "text": "Intama ihaka iminsi 149-152, (amezi 5). Yonsa amezi atatu."},
@@ -22,14 +24,14 @@ PASSAGES = [
 EMB = np.array([[1, 0, 0], [0, 1, 0], [0, 0, 1]], dtype=np.float32)
 
 
-class FakeSpeaker:
+class FakeSpeaker(SpeechSynthesizer):
     sr = 16000
 
     def speak(self, text):
         return np.zeros(self.sr // 2, dtype=np.float32), text
 
 
-class FakeAsr:
+class FakeAsr(SpeechRecognizer):
     def transcribe(self, audio):
         return "intama zororoka gute"
 
@@ -37,14 +39,13 @@ class FakeAsr:
 def make_client(vec=(1.0, 0.0, 0.0), threshold=0.0):
     retr = Retriever(PASSAGES, EMB, lambda q: np.array(vec, dtype=np.float32))
     bot = Mfasha(retr, transcriber=FakeAsr(), threshold=threshold)
-    app_module.FEEDBACK_FILE = Path(__file__).parent / "_feedback_test.jsonl"
-    return TestClient(app_module.create_app(bot=bot, speaker=FakeSpeaker()))
+    return TestClient(create_app(bot=bot, speaker=FakeSpeaker(), feedback_file=FEEDBACK_TEST_FILE))
 
 
 @pytest.fixture(autouse=True)
 def clean_feedback():
     yield
-    (Path(__file__).parent / "_feedback_test.jsonl").unlink(missing_ok=True)
+    FEEDBACK_TEST_FILE.unlink(missing_ok=True)
 
 
 def test_ask_returns_the_top_passage():
@@ -72,7 +73,7 @@ def test_empty_question_is_rejected():
 
 
 def test_too_long_question_is_rejected():
-    r = make_client().post("/api/ask", json={"question": "a" * (app_module.MAX_QUESTION_CHARS + 1)})
+    r = make_client().post("/api/ask", json={"question": "a" * (config.MAX_QUESTION_CHARS + 1)})
     assert r.status_code == 400
 
 
@@ -82,9 +83,9 @@ def test_missing_question_field_is_an_empty_question():
 
 def test_bot_crash_gives_a_friendly_error():
     broken = Mfasha(Retriever(PASSAGES, EMB, lambda q: 1 / 0), threshold=0.0)
-    c2 = TestClient(app_module.create_app(bot=broken, speaker=FakeSpeaker()))
+    c2 = TestClient(create_app(bot=broken, speaker=FakeSpeaker()))
     r = c2.post("/api/ask", json={"question": "Intama zororoka gute?"})
-    assert r.status_code == 500 and r.json()["detail"] == app_module.MSG["error"]
+    assert r.status_code == 500 and r.json()["detail"] == MSG["error"]
 
 
 def test_rate_limit_blocks_the_21st_question_in_a_minute():
@@ -119,7 +120,7 @@ def test_speak_rejects_empty_text():
 def test_feedback_is_saved_and_bad_votes_are_rejected():
     c = make_client()
     ok = c.post("/api/feedback", json={"question": "q", "passage_id": "A1", "vote": "helpful"})
-    assert ok.status_code == 200 and app_module.FEEDBACK_FILE.exists()
+    assert ok.status_code == 200 and FEEDBACK_TEST_FILE.exists()
     assert c.post("/api/feedback", json={"question": "q", "vote": "maybe"}).status_code == 422
 
 
