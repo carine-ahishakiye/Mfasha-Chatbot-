@@ -1,0 +1,59 @@
+kind,question,status,referral_reason,referred,passage_id,top_score,gold_in_top1,gold_in_top5
+farming,nu ubuhe buryo umuhinzi abona ubwishingizi bw'ibihingwa?,answered,,False,A030T004,0.730073094367981,True,True
+farming,Umusaruro w'inkwavu uba uhagaze gute?,answered,,False,A722T536,0.7674315571784973,True,True
+farming,Intama zororoka gute?,answered,,False,A712T526,0.777263879776001,True,True
+farming,Ubutaka buhingwamo ibigori bugomba kuba bumeze gute?,answered,,False,A103T084,0.5891779661178589,True,True
+farming,Ni ryari basarura umuceri?,answered,,False,A187T168,0.7530060410499573,True,True
+farming,ibitunguru bigeze igihe cy'isarurwa kiba kimeze gute?,answered,,False,A526T337,0.7239252328872681,True,True
+farming,Ni ikihe gihe kiboneye cyo gusaruramo umuceri?,answered,,False,A187T168,0.8046118021011353,True,True
+farming,umurima wa pome utegurwa gute?,answered,,False,A355T786,0.75840163230896,True,True
+farming,Ni ryari batangira gushyiraho ifumbire mvaruganda kugihingwa ku giti cya pome?,answered,,False,A366T797,0.7979326844215393,True,True
+farming,Ni ibihe bikorwa by'ingenzi umworozi yakwitaho mu gihe agiye kwakira imishwi yo korora?,answered,,False,A770T598,0.62335205078125,True,True
+farming,Ni ukubera iki amafi yakororerwa muri Kareremba?,answered,,False,A736T551,0.7855937480926514,True,True
+farming,"Muraho, ndi umuhinzi ntuye I muhanga. ndabaza nti ni gute namenya ingano y'ifumbire nakoresha ko nifuza guhinga pome?",answered,,False,A366T797,0.6166976094245911,True,True
+farming,Wakwirinda ute inyoni zitandukanye zona umuceri.,answered,,False,A186T167,0.8468818068504333,True,True
+farming,Inyoni mu muceri ni icyonnyi bwoko ki?,answered,,False,A186T167,0.6802366375923157,True,True
+farming,"Nigute udutagangurirwa tunyanyagizwa mu macunga, mamdarina n'indimu bikiri mumurima?",answered,,False,A259T690,0.6685985326766968,True,True
+farming,Muraho neza nitwa rukundo ndi umworozi ndashaka kubasobanuza ku kororoka kw'intama?,answered,,False,A712T526,0.6044193506240845,True,True
+farming,Ni gute intama zororoka?,answered,,False,A712T526,0.7913771867752075,True,True
+farming,Ubwoko bw'ikibuti (kaje) n'ingano zabyo ku byo kororeramo cg kubyariramo.,answered,,False,A898T941,0.6856162548065186,True,True
+farming,Gusarura umuceri bikorwa gute?,answered,,False,A189T170,0.694482147693634,False,True
+farming,amafi yororerwa muri kareremba agaburirwa ibiryo bimeze bite?,answered,,False,A736T551,0.6979228258132935,True,True
+farming,nakora iki nkeneye ubwishingizi bw'ibihingwa byanjye?,answered,,False,A030T004,0.8459848165512085,True,True
+farming,Ubutaka buhingwamo ibigori buba bumeze bute?,referred,low_retrieval_score,True,A103T084,0.5469387769699097,True,True
+farming,Nigute wafata neza umusaruro uvuye mubitunguru? ukanabisarura muburyo bwiza?,answered,,False,A526T337,0.6670153141021729,True,True
+farming,ni gute washyira ifumbire ku biti bya pome?,answered,,False,A366T797,0.8349628448486328,True,True
+farming,Muraho neza nitwa Rutayisire ndi umuhinzi ndashaka kubabaza ni ubuhe butaka buhingwaho ibigori?,answered,,False,A103T084,0.5864942073822021,True,True
+farming,ni gute ibitunguru bisarurwa?,answered,,False,A526T337,0.7225461006164551,True,True
+farming,guyegura umurima wo guteramo pome bikorwa mubuhe buryo?,answered,,False,A355T786,0.7985854744911194,True,True
+farming,Muraho neza nitwa Jean Claude ndi umuhizi ndashaka kubasobanuza ku dutagangurirwa tuboneka mu biti by'ibinyamacunga?,answered,,False,A259T690,0.6310997009277344,True,True
+farming,Ni iyihe ntera pome ziterwaho?,answered,,False,A356T787,0.6127541065216064,False,True
+farming,inkoko zitera amagi zikingirwa hakurikijwe iyihe gahunda?,answered,,False,A003T640,0.7522847056388855,True,True
+farming,Udutagangurirwa cyangwa mites mu macunga mandelena n'indimu dukwirakwira gute?,answered,,False,A963T1010,0.6750698089599609,False,True
+farming,Muraho neza nitwa Nizeyimana Jean Claude nifuzaga kubabaza ibigenderwaho umuntu ategura umurima wo guhingwamo pome Murakoze cyane.,answered,,False,A355T786,0.7327009439468384,True,True
+farming,igihe cyo kwitegura imishwi na nyuma yo kuyakira hakorwa ibiki bitandukanye?,answered,,False,A770T598,0.7362842559814453,True,True
+farming,inkoko zitera amagi z'umunsi 0 zikingirwa gute?,answered,,False,A754T582,0.756019651889801,False,True
+farming,Ni gute udutagangurirwa (mites) mu macunga dukwirakwira?,answered,,False,A963T1010,0.670027494430542,False,True
+farming,gutera ifumbire mu gihinvwa cya pome bikorwa bite?,answered,,False,A366T797,0.6960630416870117,True,True
+farming,Koza amafi muri kareremba bikorwa gute?,answered,,False,A736T551,0.6656872034072876,True,True
+farming,Inyoni mu muceri zigira izihe ngaruka?,answered,,False,A186T167,0.7406682968139648,True,True
+farming,ahantu ibigori byera ubutaka buba bumeze gute?,answered,,False,A103T084,0.6061892509460449,True,True
+farming,Ni ayahe moko y'inyoni zona umuceri?,answered,,False,A186T167,0.69032883644104,True,True
+off_topic,Ni nde watwaye igikombe cy'isi cya 2022?,referred,low_retrieval_score,True,A070T058,0.1919964849948883,,
+off_topic,Nakora nte porogaramu ya telefoni?,referred,low_retrieval_score,True,A064T053,0.24166420102119446,,
+off_topic,Igiciro cy'itike ya bisi i Kigali ni angahe?,referred,low_retrieval_score,True,A046T018,0.3403915762901306,,
+off_topic,Umukino wa Rayon Sports na APR uzaba ryari?,referred,low_retrieval_score,True,A761T589,0.29708176851272583,,
+off_topic,Perezida wa Amerika ni nde?,referred,low_retrieval_score,True,A400T833,0.20819827914237976,,
+off_topic,Nigira nte icyongereza vuba?,referred,low_retrieval_score,True,A192T173,0.3146046996116638,,
+off_topic,Nakwandika nte ibaruwa isaba akazi?,referred,low_retrieval_score,True,A894T937,0.4741330146789551,,
+off_topic,Umurwayi w'umutwe yafata iyihe miti?,referred,low_retrieval_score,True,A717T531,0.32035017013549805,,
+off_topic,Mbwira inkuru ishimishije.,referred,low_retrieval_score,True,A026T603,0.22992947697639465,,
+off_topic,Umujyi wa Paris uherereye mu kihe gihugu?,referred,low_retrieval_score,True,A846T885,0.43741101026535034,,
+off_topic,Telefoni nziza yo kugura ni iyihe?,referred,low_retrieval_score,True,A112T090,0.2822212278842926,,
+off_topic,Nakwiga nte gutwara imodoka?,referred,low_retrieval_score,True,A136T116,0.5096294283866882,,
+off_topic,Nakura he amafaranga yo gutangira ubucuruzi bw'imyenda?,referred,low_retrieval_score,True,A109T019,0.42953452467918396,,
+off_topic,Ni iyihe filime nshya yasohotse?,referred,low_retrieval_score,True,A026T603,0.1747528612613678,,
+off_topic,Nakwirinda nte virusi itera SIDA?,referred,low_retrieval_score,True,A506T317,0.4603084325790405,,
+off_topic,Mudasobwa ikora ite?,referred,low_retrieval_score,True,A423T232,0.3425312638282776,,
+off_topic,Indirimbo nziza ya none ni iyihe?,referred,low_retrieval_score,True,A195T176,0.41635698080062866,,
+off_topic,Nakwishyura nte umusoro ku nyungu?,referred,low_retrieval_score,True,A031T005,0.44403737783432007,,
