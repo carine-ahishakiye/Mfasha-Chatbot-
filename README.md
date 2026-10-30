@@ -8,7 +8,7 @@ BSc. in Software Engineering, African Leadership University (ALU). Capstone proj
 | Supervisor | Hubert Apana |
 | Repository | https://github.com/carine-ahishakiye/Mfasha-Chatbot- |
 | Walkthrough video | https://drive.google.com/file/d/1qTrdZHF_zQFk6N2t_sgxITCM8oXIIJ8a/view?usp=drive_link |
-
+|Technical report |	https://drive.google.com/file/d/1yYQLnHuoDiP48oh7Zd6TFGZtX_RJic_l/view?usp=drive_link|
 
 MFASHA lets a farmer ask an agricultural question in Kinyarwanda, by typing it or by recording it, and get a written answer that can also be read aloud. Answers are not generated. Each one is a passage taken unchanged from a Kinyarwanda agricultural collection, and when no passage matches well enough the app says so instead of guessing.
 
