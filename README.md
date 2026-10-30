@@ -1,219 +1,382 @@
-# Mfasha: A Kinyarwanda Agricultural Question-Answering Assistant
+# MFASHA: A Kinyarwanda Agriculture Chatbot with Text and Voice Support
 
-**Capstone project**
+BSc. in Software Engineering, African Leadership University (ALU)
+Capstone project, September 2026
 
 | | |
 |---|---|
-| Author | Carine Ahishakiye Yibukabayo |
-| Programme | Software Engineering|
-| Supervisor | Hubert Apana |
-| Year | 2026|
+| **Student** | Carine Ahishakiye Yibukabayo |
+| **Supervisor** | Hubert Apana |
+| **Repository** | https://github.com/carine-ahishakiye/Mfasha-Chatbot- |
+| **Walkthrough video** | `<ADD LINK HERE>` |
+| **Technical report (PDF, max 5 pages)** | `<ADD LINK HERE>` |
+| **Live demo (if deployed)** | `<ADD LINK HERE>` |
 
-## Abstract
+---
 
-Smallholder farmers in Rwanda work mostly in Kinyarwanda, while most digital agricultural information is written in other languages or in a form that is hard to search by voice. Mfasha is a question-answering system that accepts a question in Kinyarwanda, typed or spoken, and returns a short answer in Kinyarwanda as text and as synthesised speech. The system combines four components: a fine-tuned speech recogniser, a fine-tuned multilingual passage retriever, an answer step that returns the best-matching stored passage unchanged, and a Kinyarwanda speech synthesiser. On passages never seen during training, the retriever reaches a recall at rank 1 of 0.866 and a recall at rank 10 of 0.994. Fine-tuning reduced the word error rate of speech recognition on a held-out speaker from 30.1% to 27.7%. Questions whose best passage scores below a threshold, chosen on development data, are referred instead of answered, and because the answer is the stored passage itself, no figure can appear that is not in the source. The system is delivered as a web application with a voice interface and is deployed as a public service.
+## Table of Contents
 
-## 1. Introduction
+1. [Project Overview](#1-project-overview)
+2. [Problem Statement](#2-problem-statement)
+3. [Objectives](#3-objectives)
+4. [Scope](#4-scope)
+5. [System Pipeline](#5-system-pipeline)
+6. [Data Sources](#6-data-sources)
+7. [Technical Requirements](#7-technical-requirements)
+8. [Installation and Running](#8-installation-and-running)
+9. [Configuration](#9-configuration)
+10. [API Endpoints](#10-api-endpoints)
+11. [Testing and Evaluation](#11-testing-and-evaluation)
+12. [Repository Structure](#12-repository-structure)
+13. [Alignment with the Proposal](#13-alignment-with-the-proposal)
+14. [Ethics and Intended Use](#14-ethics-and-intended-use)
+15. [Deployment](#15-deployment)
+16. [Walkthrough Video and Technical Report](#16-walkthrough-video-and-technical-report)
+17. [References](#17-references)
 
-Reliable agricultural advice depends on specific facts: planting periods, doses, gestation times, insurance procedures. A general language model can produce fluent Kinyarwanda but may state these facts incorrectly, which is costly for a farmer who acts on them. This project therefore treats the task as retrieval: no text is generated. Every answer is a curated agricultural passage returned exactly as stored, so each statement can be traced to a source. When the collection does not contain a good match, the system says so.
+---
 
-## 2. Objectives
+## 1. Project Overview
 
-1. Build a retrieval component that finds the passage answering a Kinyarwanda agricultural question, including for passages not seen in training.
-2. Adapt an existing multilingual speech recogniser to Kinyarwanda agricultural speech.
-3. Answer with the stored passage itself, so that no unsupported figure can appear, and refer out-of-scope questions instead of showing a poor match.
-4. Provide spoken output in Kinyarwanda, including correct reading of numbers and units.
-5. Deliver the result as a usable web application.
+Most rural households in Rwanda make their living from farming. The National Institute of Statistics of Rwanda (NISR, 2025) reports about 2.2 million agricultural households in 2024, which is 65.3% of all households, and 88.4% of those households named agriculture as their main livelihood. Many farmers still depend on extension officers, radio programmes and meetings, none of which can answer a question on the spot when a problem appears in the field.
 
-## 3. System overview
+**MFASHA** is a Kinyarwanda agriculture chatbot. A farmer types a question or records a voice message, and the system replies in written Kinyarwanda and can read the answer aloud. It is meant to sit alongside extension services and the Tunga call-centre service, not to replace them.
 
-```
- spoken question                typed question
-        |                              |
-  speech recognition (MMS-1b-all + kin adapter, fine-tuned)
-        |______________________________|
-                       |
-          passage retrieval (multilingual-e5-large, fine-tuned)
-                       |
-     answer = best passage, unchanged (no language model)
-                       |
-        safeguards: referral threshold, confidence level
-                       |
-         written answer  ->  speech synthesis (MMS-TTS Kinyarwanda)
-```
+Key design decisions taken from the proposal:
 
-## 4. Data
+- **Retrieval, not generation.** Answers are selected from a verified agricultural knowledge base. No model in the pipeline generates new agricultural advice, because machine-generated advice needs expert checking before it can be trusted (Ibrahim et al., 2024).
+- **Referral instead of guessing.** If the best match is not confident enough, the system returns a referral message and advises the farmer to contact an agricultural officer.
+- **Candidates against baselines.** Pretrained components are assessed against simpler baselines and adopted only if the evidence supports it.
 
-Two public corpora from the C4IR Rwanda Hugging Face organisation were used: `C4IR-RW/kinya-ag-retrieval` (agricultural passages with questions) and `C4IR-RW/kinya-ag-tts` (studio recordings with transcripts).
+## 2. Problem Statement
 
-**Passage collection.** The collection holds 984 passages. 43 passages that consist of a heading only were removed, leaving 941.
+1. **Advice is not available when needed.** One extension officer may serve a large number of farmers, and digital tools are limited by weak network coverage, cost, low digital skills and a lack of suitable devices (Choruma et al., 2024; Mapiye et al., 2023).
+2. **Few services support Kinyarwanda in both text and voice.** Kinyarwanda is a low-resource language for NLP, and it is not yet known which of the newly published Kinyarwanda resources perform well enough on agricultural questions and farmers' voice messages.
+3. **Trust.** A chatbot built on unchecked information can give incomplete or wrong advice (Ibrahim et al., 2024).
 
-**Retrieval splits.** The original split was re-organised so that generalisation to new passages could be measured separately from generalisation to new questions.
+## 3. Objectives
 
-| Split | Questions | Passages | Description |
-|---|---:|---:|---|
-| train | 14,232 | 850 | model fitting |
-| dev_seen | 1,394 | 697 | new questions, passages seen in training |
-| test_seen | 1,394 | 697 | new questions, passages seen in training |
-| dev_unseen | 1,299 | 60 | passages held out of training |
-| test_unseen | 329 | 20 | passages held out of training |
+**Main objective:** to develop and evaluate a Kinyarwanda agriculture chatbot that gives farmers timely agricultural information through text and voice messages.
 
-No question appears in more than one split.
+**Specific objectives**
 
-**Speech data.** Fine-tuning used 2,000 clips (2.4 hours) from three studio speakers and a 100-clip development set. Evaluation used 200 sentences (19 minutes) from a fourth speaker, `rw_ag_tts_male2`. None of the test sentences occurs in the training data.
+1. Validate, by the end of week 3, whether the topics in the `kinya-ag-retrieval` dataset cover the agricultural information that farmers need most, through short discussions with up to 10 farmers and the three agricultural officers in Bumbogo Sector.
+2. Design and develop, by the start of week 9, a web-based chatbot that accepts Kinyarwanda text and voice questions and replies in written and spoken Kinyarwanda. Each candidate pretrained model is compared with a simple baseline on held-out data and adopted only if it clearly outperforms its baseline.
+3. Evaluate the prototype by the end of week 10 with about 30 farmers and three agricultural officers. Target: at least 70% of sampled answers rated correct or partially correct by officers.
 
-## 5. Methodology
+## 4. Scope
 
-### 5.1 Retrieval
+**Geographical scope.** Selected farmers in Bumbogo Sector, Gasabo District, Kigali City. The project does not try to represent all farmers in Rwanda.
 
-`intfloat/multilingual-e5-large` was fine-tuned on question and passage pairs. Each training example contains a question, its passage, and one hard negative: a passage that BM25 ranks highly for the question but that is not the answer. The loss is the multiple negatives ranking loss (cached implementation, scale 20), so the other passages in a batch also serve as negatives, and a batch sampler ensures that no two questions in a batch share a passage.
+**Content scope**
 
-Training used a learning rate of 2e-5 with 10% warm-up, weight decay of 0.01, batch size 64, mixed precision, and up to 3 epochs. The word-embedding table was frozen to fit in GPU memory, so 304 M of 560 M parameters were updated. After every epoch the model was scored on the development sets, and the epoch with the best mean R@1 (epoch 2) was kept. Training would have stopped early after two epochs without improvement.
+- Crop production and basic farming practices
+- Common crop pests and diseases
+- Livestock care and management
+- Basic animal health information
+- Weather-related farming advice, where suitable information exists
+- Government agricultural programmes and services
+- Referrals to agricultural officers for questions that need professional attention
+- Markets and agricultural inputs, where suitable information exists
 
-Passages are embedded once with the prefix `passage:` and questions at query time with the prefix `query:`. Retrieval is by cosine similarity. Lexical BM25 and reciprocal rank fusion of BM25 with the dense scores were evaluated as alternatives (Section 6.1).
+MFASHA does not give medical, financial or legal advice and is not an emergency service. It is a web-based prototype for testing and evaluation, not a nationwide production platform. Training a new language, retrieval or speech model from scratch is outside the scope.
 
-### 5.2 Speech recognition
+**Time scope.** About ten weeks (September to November 2026).
 
-`facebook/mms-1b-all` with the Kinyarwanda language adapter was used as the starting point. The adapter and the output layer were fine-tuned (290 tensors) on the speech data described above. The epoch with the lowest development word error rate (epoch 3, 0.284) was kept.
+## 5. System Pipeline
 
-### 5.3 Answer selection and referral
-
-No language model is used. For each question the retriever ranks the passages and the answer is the highest-ranked passage, returned exactly as stored. Because nothing is generated, the answer cannot contain a number, dose or period that is not in the source.
-
-The one risk left is showing the wrong passage, or showing a passage for a question the collection does not cover. A **referral threshold** handles this. It is the 5th percentile of the best-passage scores of the development questions whose best passage was the right one (a coverage of 95%), so it is worked out from data and not typed in by hand. A question whose best score is below the threshold is referred with a fixed Kinyarwanda sentence (`Mbabarira, nta makuru mfite kuri icyo kibazo.`) and no source is shown. The notebook saves the value in `results/referral_threshold.json`, and the application reads it at start-up (`REFERRAL_THRESHOLD` in `.env` overrides it).
-
-A confidence level (high, medium, low) is derived from the margin between the best and the second-best retrieval score.
-
-### 5.4 Speech synthesis
-
-`facebook/mms-tts-kin` produces the speech. Before synthesis the answer is normalised: digits, decimals, percentages, ranges and units (for example kg, ha, cm) are written out as Kinyarwanda words, and the text is spoken clause by clause with short pauses at punctuation. A voice fine-tuned on a studio speaker was also trained and compared with the stock voice (Section 6.4).
-
-## 6. Results
-
-Metrics. R@k is the share of questions whose correct passage is among the top k results. MRR@10 is the mean reciprocal rank of the correct passage within the top 10. WER and CER are word and character error rates.
-
-### 6.1 Retrieval method comparison (development sets)
-
-| System | R@10 seen | R@10 unseen | MRR@10 seen | MRR@10 unseen |
-|---|---:|---:|---:|---:|
-| BM25 | 0.816 | 0.811 | 0.596 | 0.589 |
-| multilingual-e5-large, no fine-tuning | 0.706 | 0.684 | 0.491 | 0.491 |
-| BM25 fused with fine-tuned e5 (best weight) | 0.968 | 0.956 | 0.829 | 0.810 |
-| **Fine-tuned e5 alone** | **0.994** | **0.980** | **0.946** | **0.893** |
-
-Fine-tuning improved the dense retriever substantially, and fusion with BM25 did not improve on the fine-tuned model alone. The fine-tuned model is therefore used without BM25.
-
-### 6.2 Retrieval on the test sets
-
-| Test set | Questions | R@1 | R@5 | R@10 | MRR@10 |
-|---|---:|---:|---:|---:|---:|
-| test_seen | 1,394 | 0.893 | 0.990 | 0.994 | 0.936 |
-| test_unseen | 329 | 0.866 | 0.988 | 0.994 | 0.923 |
-
-### 6.3 Speech recognition (held-out speaker, 200 sentences)
-
-| Model | WER | CER |
-|---|---:|---:|
-| MMS-1b-all, Kinyarwanda adapter | 30.1% | 6.3% |
-| After fine-tuning | 27.7% | n/a |
-
-### 6.4 Speech synthesis
-
-Synthesised speech was transcribed with the speech recogniser and compared with the input text (round-trip WER; lower is better).
-
-| Voice | Round-trip WER |
-|---|---:|
-| Stock `mms-tts-kin` | 0.228 |
-| Fine-tuned on 1.73 h of one speaker | 0.695 |
-
-The stock voice is more intelligible and is the one used in the application.
-
-### 6.5 Answer step
-
-The notebook reports, for a small sample of development questions and three off-topic questions, how many were answered, how many answered questions showed the right passage, and how many off-topic questions were referred (`results/ask_samples.csv`). `scripts/evaluate_answers.py` repeats this on a larger sample from the unseen-passage test split (Section 8.4).
-
-## 7. Implementation
-
-**Stack.** Python, PyTorch, Hugging Face Transformers and Sentence-Transformers for the models, FastAPI for the server, and a single-page web interface served by the same application. Models are loaded once at start-up.
-
-**Web interface.** Typed or spoken questions, a confidence badge on each answer, related passages, a button that reads the answer aloud, helpful and not-helpful feedback stored in `results/feedback.jsonl`, and conversation history kept in the visitor's browser. The page is the `PAGE` text at the bottom of `app.py`.
-
-**Interface of the server.**
-
-| Method and path | Input | Output |
-|---|---|---|
-| `POST /api/ask` | `{question}` | answer, confidence level, related passages, passage id |
-| `POST /api/transcribe` | audio recorded in the browser | `{text}` |
-| `POST /api/speak` | `{text}` | audio (WAV) |
-| `POST /api/feedback` | `{question, passage_id, vote}` | `{ok}` |
-
-The server limits question length and request rates per visitor.
-
-## 8. Reproducibility and usage
-
-### 8.1 Repository structure
+The proposal defines an eight-stage pipeline. Stages are kept separate so each can be evaluated and replaced on its own.
 
 ```
-app.py                  server and web page
-mfasha/                 retrieval, referral pipeline, speech recognition and synthesis
-scripts/                evaluate_answers.py, evaluate_system.py, smoke_test.py, colab_push_assets.py
-tests/                  unit and endpoint tests
-eval/off_topic_rw.txt   off-topic questions for the refusal test
-notebook/               the experiments reported above (Google Colab, Tesla T4)
-Dockerfile              container used for deployment
+ Voice question                         Typed question
+      |                                       |
+ 1. Voice input (browser recording)           |
+      |                                       |
+ 2. Speech-to-text ---------------------------+
+                         |
+              3. Text preprocessing
+                         |
+        4. Question understanding / classification
+                         |
+        5. Answer retrieval and ranking
+                         |
+        6. Verified answer (confidence threshold)
+           else -> referral message
+                         |
+              7. Text-to-speech
+                         |
+              8. Spoken response
 ```
 
-The trained weights and data (`models/`, `data/`) are not stored in the repository, except the small files that the application and tests need; `results/referral_threshold.json` must be committed because the application reads it. The trained files are kept in a private Hugging Face repository and downloaded on first start.
+An answer is released only when it comes from the reviewed knowledge base and its score passes a confidence threshold set on validation data. Otherwise the farmer receives a referral message.
 
-### 8.2 Installation and running
+## 6. Data Sources
 
+No primary data is collected from farmers for training. MFASHA builds on two public Kinyarwanda datasets published by C4IR-RW on Hugging Face:
+
+| Dataset | Purpose |
+|---|---|
+| [`kinya-ag-retrieval`](https://huggingface.co/datasets/C4IR-RW/kinya-ag-retrieval) (C4IR-RW, 2026a) | Question-and-answer data for retrieval, evaluation of retrieval and ranking, and the candidate knowledge base |
+| [`kinya-ag-tts`](https://huggingface.co/datasets/C4IR-RW/kinya-ag-tts) (C4IR-RW, 2026b) | Paired Kinyarwanda text and audio for spoken output and speech-to-text assessment |
+
+Datasets are reviewed for relevance, accuracy and licence terms before use. Where topics are not covered well enough, approved agricultural documents may be added. Data is split roughly 70% training, 15% validation and 15% testing, and official splits are used where a dataset provides them. Duplicate or near-duplicate questions are kept in the same split to avoid leakage.
+
+## 7. Technical Requirements
+
+The versions below are the ones declared in this repository (`pyproject.toml`, `requirements.txt`, `requirements-dev.txt`).
+
+### Software
+
+| Requirement | Version |
+|---|---|
+| Python | 3.10 or newer |
+| FastAPI | >= 0.110 |
+| Uvicorn | >= 0.29 |
+| Pydantic | >= 2.0 |
+| PyTorch | latest compatible (`torch`, unpinned) |
+| Hugging Face Transformers | >= 4.45 |
+| Sentence-Transformers | >= 3.0 |
+| huggingface_hub, numpy, scipy, librosa, soundfile, av, python-dotenv | see `requirements.txt` |
+| *Development only:* pytest, httpx, pandas, jiwer | see `requirements-dev.txt` |
+
+### Models used by the application (see `mfasha/config.py`)
+
+| Component | Model |
+|---|---|
+| Speech-to-text | `facebook/mms-1b-all` with the Kinyarwanda (`kin`) adapter, fine-tuned adapter weights loaded from `models/mms-kin-adapter/best.pt` |
+| Retrieval | `intfloat/multilingual-e5-large`, fine-tuned, loaded from `models/kinya-e5-large/best` |
+| Text-to-speech | `facebook/mms-tts-kin` |
+
+### Hardware and environment
+
+- The first start downloads the trained files and the MMS model weights (the project documentation estimates about 6 GB in total), so a stable internet connection and enough free disk space are needed.
+- A GPU is optional. The application picks up a GPU automatically if present. Without one, typed questions are quick but voice questions take noticeably longer.
+- Experiments in the notebook were run on Google Colab.
+- A modern browser with microphone access is needed to record voice questions.
+
+## 8. Installation and Running
+
+### 8.1 Clone the repository
+
+```bash
+git clone https://github.com/carine-ahishakiye/Mfasha-Chatbot-.git
+cd Mfasha-Chatbot-
 ```
+
+### 8.2 Create a virtual environment and install dependencies
+
+**Windows (PowerShell)**
+
+```powershell
 python -m venv .venv
-.venv\Scripts\activate
-pip install -r requirements.txt
-copy .env.example .env
+.\.venv\Scripts\Activate.ps1
+pip install -r requirements-dev.txt
+```
+
+**Linux / macOS**
+
+```bash
+python3 -m venv .venv
+source .venv/bin/activate
+pip install -r requirements-dev.txt
+```
+
+Use `requirements.txt` instead if you only want to run the app and not the tests or evaluation scripts.
+
+### 8.3 Configure the environment
+
+```bash
+cp .env.example .env        # Windows: copy .env.example .env
+```
+
+Open `.env` and set:
+
+- `HF_TOKEN`: a Hugging Face **Read** token
+- `HF_ASSETS_REPO`: the private Hugging Face repo that holds the trained files (for example `YOUR_USER/mfasha-assets`). Only needed if the model files are not already in the project folders.
+
+No commercial AI API key is needed, because the answer is the best retrieved passage.
+
+> The trained model weights (`models/`) are not stored in Git. They are kept in a private Hugging Face repository and downloaded on first start. `scripts/colab_push_assets.py` is the script used to upload them from Colab (see `DEPLOY.md`). If you need access, contact the author.
+
+### 8.4 Run the application
+
+```bash
 python app.py
 ```
 
-The application is then available at http://127.0.0.1:7860. The first start downloads about 6 GB of model files.
+Open http://127.0.0.1:7860. The page offers a typed-question tab and a voice-question tab. The port can be changed with the `PORT` environment variable.
 
-### 8.3 Configuration (`.env`)
+## 9. Configuration
 
-| Name | Purpose |
+Set these in `.env` (see `.env.example` and `mfasha/config.py`).
+
+| Variable | Purpose |
 |---|---|
-| `HF_TOKEN` | read token for the repository that holds the trained files |
-| `HF_ASSETS_REPO` | that repository, for example `carine01/mfasha-assets` |
-| `REFERRAL_THRESHOLD` | optional, overrides `results/referral_threshold.json`. Questions whose best passage scores below it are referred (0 = never refer) |
-| `TIER_MIN_SCORE`, `TIER_HIGH_MARGIN`, `TIER_MEDIUM_MARGIN` | cutoffs for the confidence level |
+| `HF_TOKEN` | Read token for the repository that holds the trained files |
+| `HF_ASSETS_REPO` | That repository, for example `YOUR_USER/mfasha-assets` |
+| `REFERRAL_THRESHOLD` | Optional. Overrides `results/referral_threshold.json`. Questions whose best passage scores below it are referred (`0` = never refer) |
+| `TOP_K` | Optional. Number of passages returned (default 5) |
+| `MAX_AUDIO_SECONDS` | Optional. Longest accepted voice recording (default 30) |
+| `TIER_MIN_SCORE`, `TIER_HIGH_MARGIN`, `TIER_MEDIUM_MARGIN` | Optional. Cutoffs for the confidence badge |
+| `PORT` | Optional. Server port (default 7860) |
 
-### 8.4 Tests and evaluation
+`results/referral_threshold.json` is read at start-up and must be committed. If it is missing, the threshold falls back to 0 and no question is ever referred.
+
+## 10. API Endpoints
+
+| Method and path | Purpose |
+|---|---|
+| `GET /` | Landing page |
+| `GET /chat` | Chat interface |
+| `GET /health` | Health check |
+| `POST /api/ask` | Submit a typed question, returns the answer, confidence level, related passages and passage id |
+| `POST /api/transcribe` | Submit audio recorded in the browser, returns the transcribed text |
+| `POST /api/speak` | Submit text, returns spoken audio |
+| `POST /api/feedback` | Store helpful / not-helpful feedback for an answer |
+
+The server limits question length, upload size and request rate per visitor.
+
+## 11. Testing and Evaluation
+
+### 11.1 Commands
+
+```bash
+# Unit and endpoint tests (no model downloads needed)
+python -m pytest tests
+
+# Each model on its own, using the real files
+python scripts/smoke_test.py
+
+# Farming questions from unseen passages plus off-topic questions
+python scripts/evaluate_answers.py
+
+# Full evaluation, written to results/evaluation_report.md
+python scripts/evaluate_system.py
+```
+
+### 11.2 Test files
+
+| File | Covers |
+|---|---|
+| `tests/test_pipeline.py` | Answer / refer / empty logic of the pipeline |
+| `tests/test_confidence.py` | Confidence level calculation |
+| `tests/test_numbers_and_text.py` | Text cleaning and number-to-Kinyarwanda-words conversion |
+| `tests/test_voice_and_audio.py` | Voice handling and audio utilities |
+| `tests/test_api.py` | Web endpoints |
+| `tests/test_ratelimit.py` | Per-visitor rate limiting |
+
+### 11.3 Evaluation plan (from the proposal)
+
+Testing happens at three levels.
+
+1. **Component level**, each against its baseline on held-out data:
+   - Retrieval and ranking: Recall@k, top-1 accuracy, MRR (nDCG if graded relevance is available), officer relevance ratings, retrieval time
+   - Speech-to-text: Word Error Rate (WER), transcription quality, processing time
+   - Text-to-speech: native-speaker ratings of clarity, naturalness (MOS-style) and pronunciation of agricultural terms, audio generation time
+   - Question classification (as proposed): accuracy, precision, recall, macro F1
+2. **System level:** interface, backend and models working together. Test cases include text questions, voice questions, empty inputs, unclear recordings, spelling variations and questions outside the knowledge base. Response time is measured per stage and end to end, and fallback behaviour is checked.
+3. **Pilot evaluation** in Bumbogo Sector with about 30 adult farmers and three agricultural extension officers or experts (purposive sampling). Officers rate a sample of answers as correct, partially correct, incorrect, relevant, clear and safe. Usability and satisfaction are measured with ratings, task completion and a short Likert-scale questionnaire. Target: at least 70% of sampled answers rated correct or partially correct.
+
+Results apply to the selected sample only and are not claimed to hold for all farmers in Rwanda. The project does not claim that MFASHA raises crop yields.
+
+### 11.4 Where to find the measured results
+
+Measured results are generated by the evaluation scripts and stored in `results/`:
+
+- `results/evaluation_report.md`: full evaluation report generated by `scripts/evaluate_system.py`
+- `results/retrieval_*.csv`, `results/asr_*.csv`: retrieval and speech-recognition comparisons
+- `results/plots/`: result plots
+- `results/referral_threshold.json`: the confidence threshold used by the app
+- `results/passages_for_officer_review.xlsx`: passages prepared for officer review
+
+The technical report (see Section 16) summarises these results.
+
+## 12. Repository Structure
 
 ```
-python -m pytest tests                 # logic and web endpoints, no model downloads
-python scripts/smoke_test.py           # each model on its own, using the real files
-python scripts/evaluate_answers.py     # unseen-passage farming questions and off-topic questions
-python scripts/evaluate_system.py      # retrieval, calibration, answer step and speech, written to results/evaluation_report.md
+Mfasha-Chatbot-/
+├── app.py                     # Application entry point (starts the FastAPI app)
+├── mfasha/                    # Main Python package
+│   ├── pipeline.py            # Answer / refer logic
+│   ├── retriever.py           # Passage retrieval and ranking
+│   ├── asr.py                 # Speech-to-text
+│   ├── tts.py                 # Text-to-speech
+│   ├── voice.py               # Voice question handling
+│   ├── audio.py               # Audio utilities
+│   ├── confidence.py          # Confidence level from retrieval scores
+│   ├── text_utils.py          # Text cleaning
+│   ├── kin_numbers.py         # Numbers and units written as Kinyarwanda words
+│   ├── ratelimit.py           # Per-visitor rate limiting
+│   ├── assets.py              # Downloads trained files on first start
+│   ├── interfaces.py          # Component interfaces
+│   ├── evaluation.py          # Evaluation helpers
+│   ├── config.py              # Paths, model names and settings
+│   └── web/                   # Web layer
+│       ├── app.py, routes.py, schemas.py, services.py, messages.py
+│       ├── templates/         # landing.html, chat.html
+│       └── static/            # CSS and JavaScript for the interface
+├── scripts/                   # smoke_test.py, evaluate_answers.py,
+│                              # evaluate_system.py, colab_push_assets.py
+├── tests/                     # pytest test suite
+├── notebook/                  # mfasha_agri_bot.ipynb (experiments)
+├── data/                      # Cleaned passages, queries and splits
+├── results/                   # Evaluation outputs, plots, referral threshold
+├── eval/                      # off_topic_rw.txt (off-topic questions)
+├── requirements.txt           # Runtime dependencies
+├── requirements-dev.txt       # Test and evaluation dependencies
+├── pyproject.toml             # Package metadata and pytest settings
+├── .env.example               # Environment variable template
+├── DEPLOY.md                  # Deployment procedure
+└── README.md
 ```
 
-`evaluate_answers.py` samples questions from the unseen-passage test split and reports retrieval hits, the share answered, the share of answered questions that showed the right passage, wrongly referred questions, and the share of off-topic questions referred. Results are written to `results/answer_eval.csv`. It needs no API key.
+`models/` (trained weights) is excluded by `.gitignore` and downloaded on first start.
 
-## 9. Deployment
+## 13. Alignment with the Proposal
 
-The application is deployed as a Docker Space on Hugging Face. See `DEPLOY.md` for the procedure.
+The proposal treats KinyaBERT, kiny-colbert-free and kinya-flex-tts as **candidate** components that must be compared against baselines and may be adopted, replaced or dropped depending on measured results (Sections 3.5.1 and 3.8 of the proposal). The implementation in this repository reflects the components that were selected and built:
 
-## 10. Intended use
+| Pipeline stage | Proposal candidates / baselines | Implemented in this repository |
+|---|---|---|
+| Speech-to-text | Openly available Kinyarwanda-capable speech models, assessed with WER | `facebook/mms-1b-all` with Kinyarwanda adapter |
+| Retrieval and ranking | kiny-colbert-free vs TF-IDF and BM25 | Fine-tuned `intfloat/multilingual-e5-large`, with BM25 comparisons in `results/` |
+| Verified answer and referral | Confidence threshold set on validation data | Implemented in `mfasha/pipeline.py`, threshold in `results/referral_threshold.json` |
+| Text-to-speech | kinya-flex-tts vs alternative | `facebook/mms-tts-kin` |
+| Question classification | KinyaBERT vs TF-IDF with Logistic Regression and SVM | Not a separate stage in the running app. Out-of-scope questions are handled by the referral threshold |
+| User interface | Streamlit (proposal) | FastAPI-served web interface (HTML, CSS, JavaScript) |
+| Database | PostgreSQL (proposal) | Feedback is stored in `results/feedback.jsonl` |
 
-Mfasha is designed to give farmers quick access to written agricultural guidance. For urgent animal health or crop emergencies, farmers should consult an agricultural extension officer or a veterinarian.
+These differences are explained in the technical report.
 
-## Acknowledgements
+## 14. Ethics and Intended Use
 
-The retrieval and speech data come from the C4IR Rwanda Kinyarwanda agriculture corpora. The speech models are released by Meta (MMS) and the retrieval model by the authors of multilingual-e5.
+- Datasets and models are public resources, used according to their licence terms and credited to their sources.
+- Participation in the validation discussions and the pilot is voluntary, participants are told the purpose beforehand and may withdraw without penalty, and permission is obtained before any voice is recorded.
+- Names, telephone numbers and other identifying details are kept out of the machine-learning data, and pilot recordings are used only for evaluation.
+- The system does not present uncertain information as confirmed advice. Questions that need professional judgement are referred to an agricultural officer.
+- MFASHA is a support tool. It does not replace extension officers. For urgent animal health or crop emergencies, farmers should consult an agricultural extension officer or a veterinarian.
 
-## References
+## 15. Deployment
 
-1. Pratap, V., et al. (2023). Scaling Speech Technology to 1,000+ Languages. arXiv:2305.13516.
-2. Wang, L., et al. (2024). Multilingual E5 Text Embeddings: A Technical Report. arXiv:2402.05672.
-3. Kim, J., Kong, J., and Son, J. (2021). Conditional Variational Autoencoder with Adversarial Learning for End-to-End Text-to-Speech. Proceedings of ICML.
-4. Lewis, P., et al. (2020). Retrieval-Augmented Generation for Knowledge-Intensive NLP Tasks. Advances in Neural Information Processing Systems.
-5. Robertson, S., and Zaragoza, H. (2009). The Probabilistic Relevance Framework: BM25 and Beyond. Foundations and Trends in Information Retrieval.
-6. Cormack, G., Clarke, C., and Buettcher, S. (2009). Reciprocal Rank Fusion Outperforms Condorcet and Individual Rank Learning Methods. Proceedings of SIGIR.
+See [`DEPLOY.md`](DEPLOY.md) for the full procedure: uploading the trained files to a private Hugging Face repository, running locally, evaluating, pushing to GitHub and deploying to a Hugging Face Space. It also lists common problems and their fixes.
+
+## 16. Walkthrough Video and Technical Report
+
+- **Walkthrough video:** `<ADD LINK HERE>`
+- **Technical report (PDF, max 5 pages):** `<ADD LINK HERE>` covering scope alignment, technical functionality, testing approaches and results, and code quality practices.
+
+> Make sure both links are set to be accessible to anyone with the link before submitting.
+
+## 17. References
+
+- C4IR-RW. (2026a, March 11). *Kinyarwanda agricultural retrieval dataset* [Dataset]. Hugging Face. https://huggingface.co/datasets/C4IR-RW/kinya-ag-retrieval
+- C4IR-RW. (2026b, March 17). *Kinyarwanda agricultural text-to-speech dataset* [Dataset]. Hugging Face. https://huggingface.co/datasets/C4IR-RW/kinya-ag-tts
+- Choruma, D. J., Dirwai, T. L., Mutenje, M. J., Mustafa, M., Chimonyo, V. G. P., Jacobs-Mata, I., & Mabhaudhi, T. (2024). Digitalisation in agriculture: A scoping review of technologies in practice, challenges, and opportunities for smallholder farmers in sub-Saharan Africa. *Journal of Agriculture and Food Research, 18*, Article 101286. https://doi.org/10.1016/j.jafr.2024.101286
+- Digital Transformation Center Rwanda. (2026, June). *Tunga Agri-chatbot open source suite.* https://digicenter.rw/portfolio/tunga-agri-chatbot-open-source-suite
+- Ibrahim, A., Senthilkumar, K., & Saito, K. (2024). Evaluating responses by ChatGPT to farmers' questions on irrigated lowland rice cultivation in Nigeria. *Scientific Reports, 14*, Article 3407. https://doi.org/10.1038/s41598-024-53916-1
+- Mapiye, O., Makombe, G., Molotsi, A., Dzama, K., & Mapiye, C. (2023). Information and communication technologies (ICTs): The potential for enhancing the dissemination of agricultural information and services to smallholder farmers in sub-Saharan Africa. *Information Development, 39*(3), 638–658. https://doi.org/10.1177/02666669211064847
+- National Institute of Statistics of Rwanda. (2025). *Agricultural household survey 2024 report.* https://www.statistics.gov.rw/sites/default/files/documents/2025-10/AHS%202024_Main%20report.pdf
+- Nzeyimana, A., & Niyongabo Rubungo, A. (2022). KinyaBERT: A morphology-aware Kinyarwanda language model. *Proceedings of the 60th Annual Meeting of the ACL (Volume 1: Long Papers)*, 5347–5363. https://doi.org/10.18653/v1/2022.acl-long.367
+- Singh, N., et al. (2024). Farmer.Chat: Scaling AI-powered agricultural services for smallholder farmers. arXiv. https://doi.org/10.48550/arXiv.2409.08916
+
+Full reference list is in the project proposal.
