@@ -63,6 +63,9 @@ and the first that fires gives the reason:
 duration limits, and per-stage latency timing on every response.
 
 ---
+## screenshots 
+    ![alt text](image-1.png)
+   ![alt text](image.png)
 
 ## 2. Technical requirements
 
@@ -394,8 +397,7 @@ Code quality practices in the repository:
 >
 > `[Watch the walkthrough video](PASTE-YOUR-PUBLIC-LINK-HERE)`
 >
-> Make sure the link opens without signing in (for example, an "anyone with the link" YouTube or Google
-> Drive share).
+>
 
 ---
 
