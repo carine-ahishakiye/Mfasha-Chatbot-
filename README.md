@@ -12,6 +12,7 @@ voice -> speech-to-text -> preprocessing -> classification -> retrieval -> refer
 ## Table of contents
 
 1. [Project overview](#1-project-overview)
+   - [Screenshots](#screenshots)
 2. [Technical requirements](#2-technical-requirements)
 3. [Installation](#3-installation)
 4. [Configuration](#4-configuration)
@@ -62,10 +63,19 @@ and the first that fires gives the reason:
 "unavailable" null objects when speech is switched off, constant-time API key check, upload size and
 duration limits, and per-stage latency timing on every response.
 
+### Screenshots
+
+**Landing page.** Farmers can start asking questions straight away or read how MFASHA works first.
+
+![MFASHA landing page](docs/screenshots/landing-page.png)
+
+**Chat page.** A question in Kinyarwanda gets a verified answer with a confidence badge, buttons to read the
+answer aloud, give feedback and copy it, and a list of past conversations. Questions can be typed or spoken
+with the microphone button.
+
+![MFASHA chat page](docs/screenshots/chat-page.png)
+
 ---
-## screenshots 
-    ![alt text](image-1.png)
-   ![alt text](image.png)
 
 ## 2. Technical requirements
 
@@ -181,7 +191,6 @@ Model folders are looked up under `models/` (not tracked by Git): `kinya-e5-larg
 `mms-kin-adapter` (STT adapter), `mms-tts-kin-ft2` (fine-tuned TTS), `classifier.joblib`,
 `referral_threshold.json`. If a folder is missing, the code falls back to the public Hugging Face model
 named in section 11 (or, for the classifier, trains a small one on the knowledge base at startup).
-See also the TTS note in [section 12](#12-known-limitations).
 
 ### 3.6 Optional: Docker
 
@@ -393,20 +402,13 @@ Code quality practices in the repository:
 
 ## 9. Walkthrough video
 
-> **TODO: add the link before submission.**
->
-> `[Watch the walkthrough video](PASTE-YOUR-PUBLIC-LINK-HERE)`
->
->
+[Watch the walkthrough video](https://drive.google.com/file/d/1dX1bElXRN0jQPMJG-gUhC0-cSth29_TQ/view?usp=sharing)
 
 ---
 
 ## 10. Technical report
 
-> 
->
-> `[ Technical report (PDF, max 5 pages)]https://docs.google.com/document/d/13HGNTeJwRpMX6xiv6Ebax8--YN7TlQ3P/edit?usp=drive_link&ouid=115337665699289449709&rtpof=true&sd=true`
-
+[Read the technical report](https://docs.google.com/document/d/13HGNTeJwRpMX6xiv6Ebax8--YN7TlQ3P/edit?usp=drive_link)
 
 ---
 
