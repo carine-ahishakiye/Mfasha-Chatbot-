@@ -1,0 +1,13 @@
+{
+  "choice": "stock",
+  "validation_wer": {
+    "stock voice": 0.48563218390804597,
+    "fine-tuned voice": 0.7528735632183908
+  },
+  "test_wer": {
+    "stock voice": 0.45434047350620066,
+    "fine-tuned voice": 0.7609921082299888
+  },
+  "asr_floor": 0.26268320180383314,
+  "min_gain": 0.02
+}

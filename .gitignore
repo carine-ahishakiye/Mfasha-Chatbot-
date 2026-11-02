@@ -1,0 +1,15 @@
+﻿.venv/
+.env
+__pycache__/
+*.egg-info/
+data/
+models/
+*.pkl
+*.wav
+*.safetensors
+*.bin
+*.pt
+*.npy
+results/tts_samples/
+results/tts_rating_pack/
+results/voice_test/

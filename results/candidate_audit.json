@@ -1,0 +1,179 @@
+{
+  "C4IR-RW/kinya-ag-retrieval": {
+    "kind": "dataset",
+    "license": "cc-by-4.0",
+    "language": [
+      "rw"
+    ],
+    "pipeline_tag": null,
+    "library": null,
+    "tags": [
+      "task_categories:text-ranking",
+      "task_categories:question-answering",
+      "language:rw",
+      "license:cc-by-4.0",
+      "modality:text",
+      "region:us",
+      "kinyarwanda",
+      "agriculture",
+      "retrieval",
+      "ranking"
+    ],
+    "n_files": 14,
+    "total_GB": 0.13,
+    "example_files": [
+      ".gitattributes",
+      "README.md",
+      "parsed_rw_ag_retrieval_passage_text.txt",
+      "parsed_rw_ag_retrieval_query_text.txt",
+      "rw_ag_retrieval_answers.tsv",
+      "rw_ag_retrieval_passage_id.txt",
+      "rw_ag_retrieval_passage_text.txt",
+      "rw_ag_retrieval_qpntriplets_all.tsv",
+      "rw_ag_retrieval_qpntriplets_dev.tsv",
+      "rw_ag_retrieval_qpntriplets_test.tsv",
+      "rw_ag_retrieval_qpntriplets_train.tsv",
+      "rw_ag_retrieval_query_id.txt"
+    ],
+    "card_start": "\n# Kinyarwanda Agricultural Retrieval Dataset\n\nIn Rwanda, many farmers struggle to access timely, personalized agricultural information. Traditional channels - like radio, TV, and online sources - offer limited reach and interactivity, while extension services and a national call center, staffed by only two agents for over two million farmers, face capacity constraints. To address these gaps, we developed a 24/7 AI-enabled Interactive Voice Response (IVR) tool. Accessible via a Kinyarwanda-speaking hotline, this tool provides advisory on topics such as pest and disease diagnosis and agro-climatic practices, as well as information on MINAGRI’s support programs for farmers, e.g. crop insurances. By utilizing AI and IVR technology, this project will make agricultural advisories more accessible, timely, and responsive to farmers’ needs. For more information, please reach out to [C4IR](https://c4ir.rw/).\n\nImplemented by: [C4IR Rwanda](https://c4ir.rw/) & [KiNLP](https://kinlp.com/); Supported by [GIZ](https://www.giz.de/); Financed by: [BMZ](https://www.bmz.de/en).\n\n## Technical Documentation\n\nThe dataset is intended for training passage retrieval and ranking models for Kinyarwanda language in agricultural domain.\nThe contains 984 kinyarwanda passages about different topics in agriculture and 19537 questions related to those passages.\nThe training data is formed in triplet format, where each query gets associated with the corresponding answer (positive passage) and a set of irrele"
+  },
+  "C4IR-RW/kinya-ag-tts": {
+    "kind": "dataset",
+    "license": "cc-by-4.0",
+    "language": [
+      "rw"
+    ],
+    "pipeline_tag": null,
+    "library": null,
+    "tags": [
+      "task_categories:text-to-speech",
+      "language:rw",
+      "license:cc-by-4.0",
+      "size_categories:10K<n<100K",
+      "format:audiofolder",
+      "modality:audio",
+      "library:datasets",
+      "library:mlcroissant",
+      "region:us",
+      "kinyarwanda",
+      "agriculture",
+      "tts"
+    ],
+    "n_files": 17978,
+    "total_GB": 4.77,
+    "example_files": [
+      ".gitattributes",
+      "README.md",
+      "rw_ag_tts_female.tsv",
+      "rw_ag_tts_female/1.wav",
+      "rw_ag_tts_female/10.wav",
+      "rw_ag_tts_female/100.wav",
+      "rw_ag_tts_female/1000.wav",
+      "rw_ag_tts_female/1001.wav",
+      "rw_ag_tts_female/1002.wav",
+      "rw_ag_tts_female/1003.wav",
+      "rw_ag_tts_female/1004.wav",
+      "rw_ag_tts_female/1005.wav"
+    ],
+    "card_start": "# Kinyarwanda Agricultural Text-to-Speech Dataset\n\nIn Rwanda, many farmers struggle to access timely, personalized agricultural information. Traditional channels - like radio, TV, and online sources - offer limited reach and interactivity, while extension services and a national call center, staffed by only two agents for over two million farmers, face capacity constraints. To address these gaps, we developed a 24/7 AI-enabled Interactive Voice Response (IVR) tool. Accessible via a Kinyarwanda-speaking hotline, this tool provides advisory on topics such as pest and disease diagnosis and agro-climatic practices, as well as information on MINAGRI’s support programs for farmers, e.g. crop insurances. By utilizing AI and IVR technology, this project will make agricultural advisories more accessible, timely, and responsive to farmers’ needs. For more information, please reach out to [C4IR](https://c4ir.rw/).\n\nImplemented by: [C4IR Rwanda](https://c4ir.rw/) & [KiNLP](https://kinlp.com/); Supported by [GIZ](https://www.giz.de/); Financed by: [BMZ](https://www.bmz.de/en).\n\n## Technical documentation\n\nThe dataset contains male and female voice recordings and their original text from an agricultural knowledge base.\n\nThe text is provided as tab-separated values (TSV) files without a header.\nThe first column is the the audio clip ID and the second column is the actual text that was read by the voice actor.\n\nSimilar audio clip ids for both female and male actors correspond to the same tex"
+  },
+  "C4IR-RW/kinyabert": {
+    "kind": "model",
+    "license": "cc-by-4.0",
+    "language": [
+      "rw"
+    ],
+    "pipeline_tag": null,
+    "library": null,
+    "tags": [
+      "safetensors",
+      "kinyarwanda",
+      "kinyabert",
+      "bert",
+      "colbert",
+      "rag",
+      "retrieval",
+      "rw",
+      "dataset:C4IR-RW/kinya-ag-retrieval",
+      "arxiv:2507.03241",
+      "license:cc-by-4.0",
+      "region:us"
+    ],
+    "n_files": 28,
+    "total_GB": 7.98,
+    "example_files": [
+      ".gitattributes",
+      "README.md",
+      "kinya_colbert_large_rw_ag_retrieval_finetuned_512D.pt",
+      "kinyabert_base_pretrained.pt",
+      "kinyabert_large_pretrained.pt",
+      "ragatouille-kinya-colbert/checkpoints/colbert-10000/artifact.metadata",
+      "ragatouille-kinya-colbert/checkpoints/colbert-10000/config.json",
+      "ragatouille-kinya-colbert/checkpoints/colbert-10000/model.safetensors",
+      "ragatouille-kinya-colbert/checkpoints/colbert-10000/special_tokens_map.json",
+      "ragatouille-kinya-colbert/checkpoints/colbert-10000/tokenizer.json",
+      "ragatouille-kinya-colbert/checkpoints/colbert-10000/tokenizer_config.json",
+      "ragatouille-kinya-colbert/checkpoints/colbert-10000/vocab.txt"
+    ],
+    "card_start": "\n# Kinyarwanda BERT and ColBERT models\n\nIn Rwanda, many farmers struggle to access timely, personalized agricultural information. Traditional channels - like radio, TV, and online sources - offer limited reach and interactivity, while extension services and a national call center, staffed by only two agents for over two million farmers, face capacity constraints. To address these gaps, we developed a 24/7 AI-enabled Interactive Voice Response (IVR) tool. Accessible via a Kinyarwanda-speaking hotline, this tool provides advisory on topics such as pest and disease diagnosis and agro-climatic practices, as well as information on MINAGRI’s support programs for farmers, e.g. crop insurances. By utilizing AI and IVR technology, this project will make agricultural advisories more accessible, timely, and responsive to farmers’ needs. For more information, please reach out to [C4IR](https://c4ir.rw/).\n\nImplemented by: [C4IR Rwanda](https://c4ir.rw/) & [KiNLP](https://kinlp.com/); Supported by [GIZ](https://www.giz.de/); Financed by: [BMZ](https://www.bmz.de/en).\n\n## Introduction\n\nThis repository Pre-trained foundational models for Kinyarwanda passage retrieval/ranking. Running these models requires using [DeepKIN-AgAI](https://github.com/c4ir-rw/ac-ai-models/tree/main/DeepKIN-AgAI) package.\n\n## Example uses:\n\n### 1. Fine-tuning a pretrained KinyaBERT model into a KinyaColBERT retrieval model\n\nThe following example uses a pre-trained KinyaBERT base model (107M paremeters).\n\nThe trainin"
+  },
+  "C4IR-RW/kiny-colbert-free": {
+    "kind": "model",
+    "license": "cc-by-4.0",
+    "language": [
+      "rw"
+    ],
+    "pipeline_tag": "feature-extraction",
+    "library": null,
+    "tags": [
+      "safetensors",
+      "bert",
+      "feature-extraction",
+      "rw",
+      "base_model:Davlan/bert-base-multilingual-cased-finetuned-kinyarwanda",
+      "base_model:finetune:Davlan/bert-base-multilingual-cased-finetuned-kinyarwanda",
+      "license:cc-by-4.0",
+      "region:us"
+    ],
+    "n_files": 9,
+    "total_GB": 0.72,
+    "example_files": [
+      ".gitattributes",
+      "README.md",
+      "artifact.metadata",
+      "config.json",
+      "model.safetensors",
+      "special_tokens_map.json",
+      "tokenizer.json",
+      "tokenizer_config.json",
+      "vocab.txt"
+    ],
+    "card_start": "# Kinya-COLBERT Free\n\nThis is an information retrieval / embedding model for RAG systems in Kinyarwanda. It was trained on agricultural question answer pairs.\n\n## About the project\n\nIn Rwanda, many farmers struggle to access timely, personalized agricultural information. Traditional channels - like radio, TV, and online sources - offer limited reach and interactivity, while extension services and a national call center, staffed by only two agents for over two million farmers, face capacity constraints. To address these gaps, we developed a 24/7 AI-enabled Interactive Voice Response (IVR) tool. Accessible via a Kinyarwanda-speaking hotline, this tool provides advisory on topics such as pest and disease diagnosis and agro-climatic practices, as well as information on MINAGRI’s support programs for farmers, e.g. crop insurances. By utilizing AI and IVR technology, this project will make agricultural advisories more accessible, timely, and responsive to farmers’ needs. For more information, please reach out to [C4IR](https://c4ir.rw/). \n\nImplemented by: [C4IR Rwanda](https://c4ir.rw/) & [KiNLP](https://kinlp.com/); Supported by [GIZ](https://giz.de/); Financed by: [BMZ](https://www.bmz.de/en). \n\n## Usage\n\n```bash\npip install ragatouille==0.0.8 transformers==4.49\n```\n\n```python\nfrom ragatouille import RAGPretrainedModel\nfrom ragatouille.utils import get_wikipedia_page\n\n# load the model\nmodel = RAGPretrainedModel.from_pretrained(\"C4IR-RW/kiny-colbert-free\")\n\n# create and index know"
+  },
+  "C4IR-RW/kinya-flex-tts": {
+    "kind": "model",
+    "license": "cc-by-4.0",
+    "language": [
+      "rw"
+    ],
+    "pipeline_tag": "text-to-speech",
+    "library": null,
+    "tags": [
+      "kinyarwanda",
+      "tts",
+      "text-to-speech",
+      "rw",
+      "dataset:C4IR-RW/kinya-ag-tts",
+      "license:cc-by-4.0",
+      "region:us"
+    ],
+    "n_files": 3,
+    "total_GB": 1.11,
+    "example_files": [
+      ".gitattributes",
+      "README.md",
+      "kinya_flex_tts_base_trained.pt"
+    ],
+    "card_start": "\n# Kinyarwanda Text-to-Speech (TTS) Model used with the agricultural chatbot\n\nIn Rwanda, many farmers struggle to access timely, personalized agricultural information. Traditional channels - like radio, TV, and online sources - offer limited reach and interactivity, while extension services and a national call center, staffed by only two agents for over two million farmers, face capacity constraints. To address these gaps, we developed a 24/7 AI-enabled Interactive Voice Response (IVR) tool. Accessible via a Kinyarwanda-speaking hotline, this tool provides advisory on topics such as pest and disease diagnosis and agro-climatic practices, as well as information on MINAGRI’s support programs for farmers, e.g. crop insurances. By utilizing AI and IVR technology, this project will make agricultural advisories more accessible, timely, and responsive to farmers’ needs. For more information, please reach out to [C4IR](https://c4ir.rw/).\n\nImplemented by: [C4IR Rwanda](https://c4ir.rw/) & [KiNLP](https://kinlp.com/); Supported by [GIZ](https://www.giz.de/); Financed by: [BMZ](https://www.bmz.de/en).\n\n## Demonstrator\n\nView [live demo here](https://huggingface.co/spaces/Professor/c4ir-rw-kinyarwandatts).\n\n## Technical Documentation\n\nThe pre-trained model implements a multi-speaker TTS model with [MB-iSTFT-VITS2](https://github.com/FENRlR/MB-iSTFT-VITS2) architecture.\nThe implementation code for training and evaluating the model is available from [DeepKIN-AgAI](https://github.com/c4ir-rw"
+  }
+}
