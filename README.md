@@ -408,7 +408,7 @@ Code quality practices in the repository:
 
 ## 10. Technical report
 
-[Read the technical report](https://docs.google.com/document/d/13HGNTeJwRpMX6xiv6Ebax8--YN7TlQ3P/edit?usp=drive_link)
+[Read the technical report](https://drive.google.com/file/d/1fCGWlLDgnMNojanflFUv4JIrvKef4C1B/view?usp=sharing)
 
 ---
 
