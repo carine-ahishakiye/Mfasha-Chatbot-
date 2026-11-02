@@ -2,7 +2,8 @@
 .env
 __pycache__/
 *.egg-info/
-data/
+data/*
+!data/sample/
 models/
 *.pkl
 *.wav

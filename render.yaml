@@ -1,0 +1,15 @@
+services:
+  - type: web
+    name: mfasha
+    runtime: docker
+    plan: free
+    healthCheckPath: /api/health
+    envVars:
+      - key: MFASHA_API_KEY
+        generateValue: true
+      - key: MFASHA_RETRIEVER
+        value: hybrid
+      - key: MFASHA_ENABLE_STT
+        value: "false"
+      - key: MFASHA_ENABLE_TTS
+        value: "false"
