@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="rw">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>MFASHA – Baza ikibazo cy'ubuhinzi</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <main>
+    <header>
+      <h1>MFASHA</h1>
+      <p>Baza ikibazo cyawe ku buhinzi n'ubworozi mu Kinyarwanda.</p>
+    </header>
+
+    <section class="card">
+      <label for="question">Andika ikibazo cyawe</label>
+      <textarea id="question" rows="3" maxlength="500" placeholder="Urugero: Ni gute nahinga ibigori?"></textarea>
+      <div class="row">
+        <button id="send" class="primary">Ohereza</button>
+        <button id="record" type="button">🎤 Fata ijwi</button>
+        <label class="inline"><input type="checkbox" id="withAudio"> Umva igisubizo</label>
+      </div>
+      <p id="status" role="status" aria-live="polite"></p>
+    </section>
+
+    <section id="result" class="card hidden" aria-live="polite">
+      <p id="heard" class="muted"></p>
+      <h2 id="badge"></h2>
+      <p id="answer"></p>
+      <audio id="player" controls class="hidden"></audio>
+      <p class="muted" id="meta"></p>
+      <div id="feedback">
+        <span>Igisubizo cyagufashije?</span>
+        <button data-useful="true" data-rating="5">👍 Yego</button>
+        <button data-useful="false" data-rating="1">👎 Oya</button>
+      </div>
+    </section>
+  </main>
+  <script src="app.js"></script>
+</body>
+</html>

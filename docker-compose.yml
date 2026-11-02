@@ -1,0 +1,31 @@
+# docker compose up --build   ->  http://localhost:8000   (API docs at /docs)
+services:
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: mfasha
+      POSTGRES_PASSWORD: mfasha
+      POSTGRES_DB: mfasha
+    volumes: [pgdata:/var/lib/postgresql/data]
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U mfasha"]
+      interval: 5s
+      retries: 10
+
+  app:
+    build: .
+    depends_on:
+      db: {condition: service_healthy}
+    environment:
+      DATABASE_URL: postgresql://mfasha:mfasha@db:5432/mfasha
+      MFASHA_API_KEY: ${MFASHA_API_KEY:-change-me}
+      MFASHA_RETRIEVER: ${MFASHA_RETRIEVER:-hybrid}
+      MFASHA_ENABLE_STT: ${MFASHA_ENABLE_STT:-false}
+      MFASHA_ENABLE_TTS: ${MFASHA_ENABLE_TTS:-false}
+    volumes:
+      - ./models:/app/models          # fine-tuned models from the notebook
+      - ./data:/app/data              # knowledge base and officer review files
+    ports: ["8000:8000"]
+
+volumes:
+  pgdata:
