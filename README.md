@@ -22,7 +22,6 @@ voice -> speech-to-text -> preprocessing -> classification -> retrieval -> refer
 9. [Walkthrough video](#9-walkthrough-video)
 10. [Technical report](#10-technical-report)
 11. [Data and model sources](#11-data-and-model-sources)
-12. [Known limitations](#12-known-limitations)
 
 ---
 
@@ -76,9 +75,9 @@ duration limits, and per-stage latency timing on every response.
 | Validation | Pydantic >= 2.6 | `requirements.txt` |
 | Database | SQLAlchemy >= 2.0; SQLite by default, PostgreSQL via `DATABASE_URL` (`psycopg2-binary >= 2.9`) | `requirements.txt` |
 | ML (core) | NumPy >= 1.26, scikit-learn >= 1.4, joblib >= 1.3 | `requirements.txt` |
-| ML (optional: speech and e5 retriever) | PyTorch (unpinned), Transformers >= 4.40, sentence-transformers >= 3.0 | `requirements-ml.txt` |
+| ML  | PyTorch (unpinned), Transformers >= 4.40, sentence-transformers >= 3.0 | `requirements-ml.txt` |
 | Dev tools | pytest >= 8, pytest-cov >= 5, httpx >= 0.27, ruff >= 0.4 | `requirements-dev.txt` |
-| Containers (optional) | Docker; Compose file uses `postgres:16-alpine` | `docker-compose.yml` |
+| Containers  | Docker; Compose file uses `postgres:16-alpine` | `docker-compose.yml` |
 | Frontend | No build step; no framework. A modern browser with microphone access for voice | `frontend/` |
 
 ### Hardware
