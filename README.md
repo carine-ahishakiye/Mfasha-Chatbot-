@@ -401,13 +401,10 @@ Code quality practices in the repository:
 
 ## 10. Technical report
 
-> **TODO: add the link before submission.**
+> 
 >
-> `[Read the technical report (PDF, max 5 pages)](PASTE-YOUR-LINK-HERE)`
->
-> The report should cover scope alignment, technical functionality, testing approaches and results, and
-> code quality practices. A convenient option is to commit the PDF to the repository (for example
-> `docs/MFASHA_technical_report.pdf`) and link to it with a relative path.
+> `[ Technical report (PDF, max 5 pages)]https://docs.google.com/document/d/13HGNTeJwRpMX6xiv6Ebax8--YN7TlQ3P/edit?usp=drive_link&ouid=115337665699289449709&rtpof=true&sd=true`
+
 
 ---
 
