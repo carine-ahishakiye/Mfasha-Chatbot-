@@ -134,3 +134,20 @@ html[data-theme="dark"][data-view="chat"] .composer { background: var(--surface)
 .welcome.hero-welcome .hint { margin: 0 0 12px; }
 .welcome.hero-welcome .cards { justify-content: center; margin: 0; max-width: 640px; }
 .welcome.hero-welcome .card { border-radius: 12px; padding: 10px 15px 10px 12px; }
+
+
+/* farmer photo on the welcome screen */
+.hero-photo { width: min(100%, 600px); margin: 0 0 26px; border: 1px solid var(--border); border-radius: 10px; overflow: hidden; }
+.hero-photo img { display: block; width: 100%; height: auto; aspect-ratio: 2.4 / 1; object-fit: cover; object-position: center 38%; }
+@media (max-height: 760px) { .hero-photo img { aspect-ratio: 3.4 / 1; } }
+
+/* thumbs on the feedback buttons */
+.tool { display: inline-flex; align-items: center; gap: 7px; }
+.tool svg { width: 16px; height: 16px; flex: none; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+.tool svg.down { transform: scaleY(-1); }
+.tool.selected svg { fill: currentColor; }
+.tool.selected:disabled { opacity: 1; }
+
+/* arrow icon in landing buttons */
+.l-btn i { display: inline-flex; align-items: center; }
+.l-btn i svg { width: 16px; height: 16px; fill: none; stroke: currentColor; stroke-width: 2.2; stroke-linecap: round; stroke-linejoin: round; }

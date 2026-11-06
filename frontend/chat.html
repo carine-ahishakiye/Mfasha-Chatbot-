@@ -21,8 +21,8 @@
     h.setAttribute('data-view', location.hash === '#chat' ? 'chat' : 'other');
   } catch (e) {} }());
 </script>
-<link rel="stylesheet" href="style.css">
-<link rel="stylesheet" href="ui.css">
+<link rel="stylesheet" href="style.css?v=3">
+<link rel="stylesheet" href="ui.css?v=3">
 <noscript><style>.land .rv { opacity: 1; transform: none; }</style></noscript>
 </head>
 <body>
@@ -35,7 +35,7 @@
     <div class="l-c">
       <a class="l-brand" href="#" aria-label="Mfasha, urupapuro rwa mbere"><svg aria-hidden="true"><use href="#logo-mark"/></svg><span translate="no">Mfasha</span></a>
       <nav class="l-links" aria-label="Menu"><a href="#ikora">Ibyo ikora</a><a href="#uko-ikora">Uko ikora</a></nav>
-      <a class="l-btn sm" href="#chat">Tangira <i aria-hidden="true">→</i></a>
+      <a class="l-btn sm" href="#chat">Tangira <i aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6"/></svg></i></a>
     </div>
   </header>
 
@@ -47,7 +47,7 @@
           <h2>Umufasha wawe mu buhinzi n’ubworozi</h2>
           <p>Baza ikibazo mu Kinyarwanda, ukivuge cyangwa ukyandike, ubone igisubizo gikomoka ku nyandiko z’ubuhinzi.</p>
           <div class="l-row">
-            <a class="l-btn lime" href="#chat">Tangira <i aria-hidden="true">→</i></a>
+            <a class="l-btn lime" href="#chat">Tangira <i aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6"/></svg></i></a>
             <a class="l-btn out" href="#uko-ikora">Reba uko ikora</a>
           </div>
         </div>
@@ -77,7 +77,7 @@
         <div class="l-head rv">
           <span class="l-lab">Mfasha ni iki</span>
           <h2>Isubiza ibibazo by’ubuhinzi n’ubworozi mu rurimi rwawe</h2>
-          <p><span translate="no">Mfasha</span> ni umufasha  m’umuhinzi n’umworozi . Wandika cyangwa ukavuga ikibazo cyawe, ikagushakira igisubizo mu nyandiko z’ubuhinzi n’ubworozi.</p>
+          <p><span translate="no">Mfasha</span> ni umufasha w’umuhinzi n’umworozi. Wandika cyangwa ukavuga ikibazo cyawe, ikagushakira igisubizo mu nyandiko z’ubuhinzi n’ubworozi.</p>
         </div>
         <div class="l-grid">
           <div class="l-f rv">
@@ -135,7 +135,7 @@
     <section class="l-cta">
       <div class="l-c">
         <h2 class="rv">Tangira kubaza ikibazo cyawe.</h2>
-        <a class="l-btn lime rv" href="#chat">Tangira <i aria-hidden="true">→</i></a>
+        <a class="l-btn lime rv" href="#chat">Tangira <i aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6"/></svg></i></a>
       </div>
     </section>
   </main>
@@ -212,7 +212,7 @@
       <div class="column">
 
         <section class="welcome hero-welcome" id="empty-state" aria-label="Murakaza neza">
-          <span class="hero-mark" aria-hidden="true"><svg viewBox="0 0 120 120"><use href="#logo-mark"/></svg></span>
+          <figure class="hero-photo"><img src="img/field-team.png" width="678" height="452" alt="Abahinzi babiri mu murima w’ibigori"></figure>
           <h2>Muraho! Ndi <span translate="no">Mfasha</span>, umufasha wawe mu buhinzi n’ubworozi</h2>
           <p class="hero-sub">Mbaza ibibazo ku bihingwa, amatungo, ifumbire n’ubutaka. Wandike ikibazo cyawe, cyangwa ukande mikoro ukavuge.</p>
 
@@ -322,7 +322,7 @@
   </defs>
 </svg>
 
-<script src="chat.js"></script>
-<script src="ui.js"></script>
+<script src="chat.js?v=3"></script>
+<script src="ui.js?v=3"></script>
 </body>
 </html>

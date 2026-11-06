@@ -20,6 +20,14 @@ from mfasha.pipeline import MfashaPipeline
 from mfasha.storage import InteractionRepository, create_session_factory
 
 
+class FreshStaticFiles(StaticFiles):
+    """Serves the web pages with `no-cache`, so a browser always re-checks and never keeps an old design."""
+    async def get_response(self, path, scope):
+        response = await super().get_response(path, scope)
+        response.headers["Cache-Control"] = "no-cache"
+        return response
+
+
 def create_app(settings: Optional[Settings] = None, pipeline: Optional[MfashaPipeline] = None,
                knowledge_base: Optional[KnowledgeBase] = None,
                repository: Optional[InteractionRepository] = None) -> FastAPI:
@@ -45,7 +53,7 @@ def create_app(settings: Optional[Settings] = None, pipeline: Optional[MfashaPip
 
     frontend = ROOT / "frontend"
     if frontend.exists():                       # the farmer web app is served from the same origin
-        app.mount("/", StaticFiles(directory=frontend, html=True), name="frontend")
+        app.mount("/", FreshStaticFiles(directory=frontend, html=True), name="frontend")
     return app
 
 

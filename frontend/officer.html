@@ -1,4 +1,4 @@
-﻿<!doctype html>
+<!doctype html>
 <html lang="rw">
 <head>
 <meta charset="utf-8">
@@ -8,17 +8,19 @@
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%232E7D32'/%3E%3Cpath d='M30 46C22 40 22 26 32 16c9 9 8 24-2 30z' fill='%23fff'/%3E%3Cpath d='M36 44C32 30 40 18 52 12c3 16-5 28-16 32z' fill='%23A4C42B'/%3E%3C/svg%3E">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500&family=Inter:wght@400;500&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="style.css">
-<link rel="stylesheet" href="officer.css">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css?v=3">
+<link rel="stylesheet" href="officer.css?v=3">
 </head>
 <body class="o-body">
 <noscript><p class="noscript">Mfasha ikenera JavaScript kugira ngo ikore.</p></noscript>
 
 <!-- Login -->
 <main class="o-login" id="login-view">
-  <div class="o-card o-login-card">
-    <svg class="o-logo" viewBox="0 0 120 120" aria-hidden="true"><use href="#logo-mark"/></svg>
+  <div class="o-login-card">
+    <img class="o-login-photo" src="img/hillside.png" width="275" height="183" alt="Abakozi b’ubuhinzi baganira mu murima ku musozi">
+    <div class="o-login-body">
+    <div class="o-login-brand"><svg class="o-logo" viewBox="0 0 120 120" aria-hidden="true"><use href="#logo-mark"/></svg><span translate="no">Mfasha</span></div>
     <h1>Umukozi w’ubuhinzi</h1>
 
     <div class="o-switch" role="tablist" aria-label="Injira cyangwa ufungure konti">
@@ -64,33 +66,50 @@
     </form>
 
     <a class="o-link" href="index.html" id="switch-role-login">Subira ku rupapuro rwa mbere</a>
+    </div>
   </div>
 </main>
 
 <!-- Dashboard -->
 <div class="o-app" id="app-view" hidden>
-  <header class="o-top">
-    <div class="o-brand"><svg viewBox="0 0 120 120" aria-hidden="true"><use href="#logo-mark"/></svg><span translate="no">Mfasha</span><small>Abakozi b’ubuhinzi</small></div>
-    <nav class="o-tabs" role="tablist" aria-label="Ibice">
-      <button role="tab" id="tab-overview" aria-controls="overview-view" aria-selected="true" type="button">Incamake</button>
-      <button role="tab" id="tab-review" aria-controls="review-view" aria-selected="false" type="button">Suzuma ibisubizo</button>
+  <aside class="o-rail">
+    <div class="o-brand"><span class="o-mark"><svg viewBox="0 0 120 120" aria-hidden="true"><use href="#logo-mark"/></svg></span><div><b translate="no">Mfasha</b><small>Abakozi b’ubuhinzi</small></div></div>
+    <nav class="o-tabs" role="tablist" aria-label="Ibice" aria-orientation="vertical">
+      <button role="tab" id="tab-overview" aria-controls="overview-view" aria-selected="true" type="button"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg>Incamake</button>
+      <button role="tab" id="tab-review" aria-controls="review-view" aria-selected="false" type="button"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 6h12M8 12h12M8 18h12M3.5 6h.01M3.5 12h.01M3.5 18h.01"/></svg>Suzuma ibisubizo</button>
     </nav>
-    <div class="o-who"><span id="who"></span>
+    <div class="o-who">
+      <span class="o-who-label">Winjiye nka</span>
+      <span id="who"></span>
       <button class="o-btn ghost sm" id="logout" type="button">Sohoka</button>
     </div>
-  </header>
+  </aside>
 
   <main class="o-main">
     <!-- Overview -->
     <section id="overview-view" role="tabpanel" aria-labelledby="tab-overview">
-      <div class="o-row"><h2>Incamake y’imikorere</h2>
-        <button class="o-btn ghost sm" id="refresh-stats" type="button">Vugurura</button></div>
+      <div class="o-welcome">
+        <div>
+          <p class="o-kicker">Incamake</p>
+          <h1 id="hello">Muraho</h1>
+          <p class="o-muted">Dore uko Mfasha ikora n’ibisubizo bitegereje gusuzumwa.</p>
+        </div>
+        <img class="o-field" src="img/hillside.png" width="275" height="183" alt="Abakozi b’ubuhinzi baganira mu murima ku musozi">
+      </div>
+
+      <div class="o-row"><h2>Imikorere ya Mfasha</h2>
+        <div class="o-refresh-wrap">
+          <small class="o-stamp" id="stats-stamp" role="status" aria-live="polite"></small>
+          <button class="o-btn ghost sm o-refresh" id="refresh-stats" type="button"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 11a8 8 0 1 0-2.3 5.7M20 4v7h-7"/></svg><span>Vugurura</span></button>
+        </div>
+      </div>
       <p class="o-error" id="stats-error" role="alert" hidden></p>
-      <div class="o-stats" id="stats-grid"></div>
-      <div class="o-card o-target" id="target-card" hidden>
+      <div id="stats-grid"></div>
+
+      <div class="o-target" id="target-card" hidden>
         <h3>Intego y’isuzuma</h3>
         <p id="target-text"></p>
-        <div class="o-bar" aria-hidden="true"><span id="target-fill"></span><i></i></div>
+        <div class="o-bar" aria-hidden="true"><span id="target-fill"></span><i></i><em>70%</em></div>
         <small class="o-muted">Intego: nibura 70% by’ibisubizo byasuzumwe bifatwa ko ari ukuri cyangwa ukuri igice.</small>
       </div>
     </section>
@@ -98,9 +117,15 @@
     <!-- Review -->
     <section id="review-view" role="tabpanel" aria-labelledby="tab-review" hidden>
       <div class="o-split">
-        <aside class="o-card o-queue">
-          <div class="o-row"><h2>Ibitegereje gusuzumwa</h2>
-            <button class="o-btn ghost sm" id="refresh-queue" type="button">Vugurura</button></div>
+        <aside class="o-queue">
+          <div class="o-row"><h2>Ibisubizo <span class="o-count" id="queue-count" hidden></span></h2>
+            <button class="o-btn ghost sm o-refresh" id="refresh-queue" type="button"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 11a8 8 0 1 0-2.3 5.7M20 4v7h-7"/></svg><span>Vugurura</span></button>
+          </div>
+          <div class="o-filter" role="radiogroup" aria-label="Ibyo kwerekana">
+            <button type="button" role="radio" aria-checked="true" data-f="pending">Bitegereje</button>
+            <button type="button" role="radio" aria-checked="false" data-f="all">Byose</button>
+          </div>
+          <small class="o-stamp" id="queue-stamp" role="status" aria-live="polite"></small>
           <div id="queue-list" class="o-list"></div>
 
           <form id="lookup-form" class="o-lookup">
@@ -112,7 +137,7 @@
           </form>
         </aside>
 
-        <form class="o-card o-form" id="review-form">
+        <form class="o-form" id="review-form">
           <p class="o-muted" id="review-empty">Hitamo igisubizo ibumoso kugira ngo ugisuzume.</p>
           <div id="review-body" hidden>
             <div class="o-meta" id="review-meta"></div>
@@ -121,11 +146,13 @@
             <h3>Igisubizo cya Mfasha</h3>
             <p class="o-text o-answer" id="r-answer"></p>
 
-            <fieldset>
+            <fieldset class="o-verdicts">
               <legend>Icyemezo cyawe</legend>
-              <label class="o-radio"><input type="radio" name="verdict" value="correct" required> Ni ukuri</label>
-              <label class="o-radio"><input type="radio" name="verdict" value="partially_correct"> Ni ukuri igice</label>
-              <label class="o-radio"><input type="radio" name="verdict" value="incorrect"> Si ukuri</label>
+              <div class="o-tiles">
+              <label class="o-radio good"><input type="radio" name="verdict" value="correct" required><span>Ni ukuri</span></label>
+              <label class="o-radio mid"><input type="radio" name="verdict" value="partially_correct"><span>Ni ukuri igice</span></label>
+              <label class="o-radio bad"><input type="radio" name="verdict" value="incorrect"><span>Si ukuri</span></label>
+              </div>
             </fieldset>
 
             <fieldset>
@@ -163,6 +190,6 @@
     </symbol>
   </defs>
 </svg>
-<script src="officer.js"></script>
+<script src="officer.js?v=3"></script>
 </body>
 </html>

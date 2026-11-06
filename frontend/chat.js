@@ -116,8 +116,13 @@
     var p = document.createElement('p'); p.className = 'thinking'; p.textContent = 'Ndimo gushaka igisubizo…';
     turn.body.appendChild(p); chatScroll.scrollTop = chatScroll.scrollHeight;
   }
-  function makeButton(text) {
-    var b = document.createElement('button'); b.type = 'button'; b.className = 'tool'; b.textContent = text; return b;
+  var THUMB = '<svg class="%C" viewBox="0 0 24 24" aria-hidden="true"><path d="M14 9V5a3 3 0 0 0-3-3l-4 9v11h11.28a2 2 0 0 0 2-1.7l1.38-9a2 2 0 0 0-2-2.3zM7 22H4a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h3"/></svg>';
+  // thumb: 'up' | 'down' | undefined (plain text button)
+  function makeButton(text, thumb) {
+    var b = document.createElement('button'); b.type = 'button'; b.className = 'tool';
+    if (thumb) b.innerHTML = THUMB.replace('%C', thumb);
+    var label = document.createElement('span'); label.textContent = text; b.appendChild(label);
+    return b;
   }
 
   async function sendFeedback(item, answerId, useful, button) {
@@ -162,11 +167,11 @@
     var tools = document.createElement('div'); tools.className = 'tools';
 
     if (!refused) {
-      var yes = makeButton(item.vote === 'helpful' ? 'Byamfashije ✓' : 'Byamfashije');
-      yes.disabled = !!item.vote;
+      var yes = makeButton('Byamfashije', 'up');
+      yes.disabled = !!item.vote; yes.classList.toggle('selected', item.vote === 'helpful');
       yes.addEventListener('click', function () { sendFeedback(item, answer.answer_id, true, yes); });
-      var no = makeButton(item.vote === 'not_helpful' ? 'Ntibyamfashije ✓' : 'Ntibyamfashije');
-      no.disabled = !!item.vote;
+      var no = makeButton('Ntibyamfashije', 'down');
+      no.disabled = !!item.vote; no.classList.toggle('selected', item.vote === 'not_helpful');
       no.addEventListener('click', function () { sendFeedback(item, answer.answer_id, false, no); });
       var copy = makeButton('Koporora');
       copy.addEventListener('click', function () {
@@ -329,7 +334,7 @@
   }
 
   function askVoice(wavBlob) {
-    runTurn('🎤 …', async function () {
+    runTurn('Ijwi ryawe…', async function () {
       var form = new FormData();
       form.append('audio', wavBlob, 'question.wav');
       var response = await api('/ask/voice', { method: 'POST', body: form }, 'Ntabwo amajwi yahinduwe inyandiko.');
