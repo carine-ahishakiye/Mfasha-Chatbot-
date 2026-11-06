@@ -1,4 +1,4 @@
-﻿(function () {
+(function () {
   'use strict';
 
   var API = window.MFASHA_API || '/api';
@@ -10,7 +10,7 @@
   /* ---------- helpers ---------- */
   function show(el, on) { el.hidden = !on; }
   function say(el, text) { el.textContent = text || ''; show(el, !!text); }
-  function pct(x) { return x == null ? 'â€”' : Math.round(x * 1000) / 10 + '%'; }
+  function pct(x) { return x == null ? '—' : Math.round(x * 1000) / 10 + '%'; }
   function store(k, v) { try { localStorage.setItem(k, v); } catch (e) {} }
   function load(k) { try { return localStorage.getItem(k) || ''; } catch (e) { return ''; } }
   function clear(k) { try { localStorage.removeItem(k); } catch (e) {} }
@@ -33,8 +33,8 @@
   }
   function message(status, detail) {
     if (status === 0) return 'Ntabwo bishoboka kugera kuri seriveri. Reba murandasi yawe.';
-    if (status === 401) return 'Urufunguzo rwâ€™ibanga ntirwemewe.';
-    if (status === 503) return 'Igice cyâ€™abakozi ntikirafungurwa kuri seriveri (MFASHA_API_KEY ntiyashyizweho).';
+    if (status === 401) return 'Urufunguzo rw’ibanga ntirwemewe.';
+    if (status === 503) return 'Igice cy’abakozi ntikirafungurwa kuri seriveri (MFASHA_API_KEY ntiyashyizweho).';
     if (status === 404) return 'Iki gisubizo ntikibonetse.';
     return detail || 'Habaye ikibazo. Ongera ugerageze.';
   }
@@ -42,7 +42,7 @@
   /* ---------- role / login ---------- */
   function switchRole(e) {
     if (e) e.preventDefault();
-    clear(ROLE_STORE); clear(KEY_STORE); clear(NAME_STORE);
+    clear(ROLE_STORE); try { sessionStorage.removeItem(ROLE_STORE); } catch (e) {} clear(KEY_STORE); clear(NAME_STORE);
     location.href = 'index.html';
   }
   $('switch-role-login').addEventListener('click', switchRole);
@@ -98,7 +98,7 @@
         statCard(s.referred, 'Byoherejwe ku mukozi'),
         statCard(pct(s.referral_rate), 'Igipimo cyo kohereza'),
         statCard(Math.round(s.avg_latency_ms) + ' ms', 'Igihe gisanzwe cyo gusubiza'),
-        statCard(s.feedback_count, 'Ibitekerezo byâ€™abahinzi'),
+        statCard(s.feedback_count, 'Ibitekerezo by’abahinzi'),
         statCard(pct(s.useful_rate), 'Byafashije abahinzi'),
         statCard(s.expert_reviews, 'Ibisubizo byasuzumwe')
       );
@@ -130,7 +130,7 @@
       items.forEach(function (it) {
         var b = document.createElement('button'); b.type = 'button'; b.className = 'o-item';
         var t = document.createElement('b'); t.textContent = it.question || '(nta kibazo)';
-        var s = document.createElement('small'); s.textContent = '#' + it.answer_id + ' Â· ' + (it.status === 'referred' ? 'Cyoherejwe' : 'Cyasubijwe');
+        var s = document.createElement('small'); s.textContent = '#' + it.answer_id + ' · ' + (it.status === 'referred' ? 'Cyoherejwe' : 'Cyasubijwe');
         b.appendChild(t); b.appendChild(s);
         b.addEventListener('click', function () { openReview(it, b); });
         list.appendChild(b);
@@ -138,7 +138,7 @@
     } catch (err) {
       if (err.status === 404 || err.status === 405) {
         queueAvailable = false;
-        note('Urutonde rwâ€™ibitegereje ntiruraboneka kuri seriveri. Andika nimero yâ€™igisubizo hasi.');
+        note('Urutonde rw’ibitegereje ntiruraboneka kuri seriveri. Andika nimero y’igisubizo hasi.');
       } else note(err.message);
     }
   }
