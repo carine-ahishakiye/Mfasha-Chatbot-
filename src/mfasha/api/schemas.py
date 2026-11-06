@@ -5,10 +5,11 @@ from typing import Optional
 
 from pydantic import BaseModel, Field
 
+from mfasha.auth import PIN_PATTERN
+
 
 class TextQuestion(BaseModel):
     question: str = Field(..., min_length=1, max_length=500, description="Kinyarwanda question")
-    with_audio: bool = False
 
 
 class AskResponse(BaseModel):
@@ -26,7 +27,6 @@ class AskResponse(BaseModel):
     source: Optional[str] = None
     latency_ms: float
     stage_ms: dict
-    audio_base64: Optional[str] = None
 
 
 class FeedbackIn(BaseModel):
@@ -34,6 +34,18 @@ class FeedbackIn(BaseModel):
     rating: int = Field(..., ge=1, le=5)
     is_useful: bool
     comment: Optional[str] = Field(None, max_length=1000)
+
+
+class OfficerLoginIn(BaseModel):
+    phone: str = Field(..., min_length=5, max_length=25)
+    pin: str = Field(..., pattern=PIN_PATTERN, description="4 to 6 digits")
+
+
+class OfficerRegisterIn(BaseModel):
+    name: str = Field(..., min_length=2, max_length=80)
+    phone: str = Field(..., min_length=5, max_length=25)
+    pin: str = Field(..., pattern=PIN_PATTERN, description="4 to 6 digits")
+    code: str = Field(..., min_length=1, max_length=100, description="sign-up code given by the supervisor")
 
 
 class ExpertReviewIn(BaseModel):

@@ -1,12 +1,12 @@
 # MFASHA: Kinyarwanda Agriculture Chatbot (Text and Voice)
 
 A farmer types a question or records a voice message in Kinyarwanda. MFASHA replies with a
-**verified, officer-reviewed** answer in writing and, optionally, aloud. It **never generates advice**:
+**verified, officer-reviewed** answer in writing. It **never generates advice**:
 it retrieves reviewed passages from a knowledge base and **refers the farmer to an agricultural officer**
 whenever it is not sure.
 
 ```
-voice -> speech-to-text -> preprocessing -> classification -> retrieval -> referral policy -> answer -> text-to-speech
+voice -> speech-to-text -> preprocessing -> classification -> retrieval -> referral policy -> answer
 ```
 
 ## Table of contents
@@ -44,8 +44,6 @@ service.
    of the two, or dense e5 embeddings).
 5. **Referral policy**: a chain of rules decides whether to answer or refer (see below).
 6. **Answer**: the text of the best passage is returned together with its review status and source.
-7. **Text-to-speech** (optional): MMS TTS (`facebook/mms-tts-kin`) speaks the answer. If TTS is missing
-   or fails, the written answer is still returned.
 
 **When MFASHA refers instead of answering** (`src/mfasha/referral/policy.py`). Rules are tried in order
 and the first that fires gives the reason:
@@ -59,7 +57,7 @@ and the first that fires gives the reason:
 | `empty_question`, `no_retrieval_result`, `speech_not_understood` | input problems |
 
 **Design notes** (visible in the code): dependency injection with a single composition root
-(`factory.py`), abstract interfaces for retriever / classifier / STT / TTS (`interfaces.py`),
+(`factory.py`), abstract interfaces for retriever / classifier / STT (`interfaces.py`),
 "unavailable" null objects when speech is switched off, constant-time API key check, upload size and
 duration limits, and per-stage latency timing on every response.
 
@@ -69,8 +67,7 @@ duration limits, and per-stage latency timing on every response.
 
 ![MFASHA landing page](docs/screenshots/landing-page.png)
 
-**Chat page.** A question in Kinyarwanda gets a verified answer with a confidence badge, buttons to read the
-answer aloud, give feedback and copy it, and a list of past conversations. Questions can be typed or spoken
+**Chat page.** A question in Kinyarwanda gets a verified answer with a confidence badge, buttons to give feedback and copy it, and a list of past conversations. Questions can be typed or spoken
 with the microphone button.
 
 ![MFASHA chat page](docs/screenshots/chat-page.png)
@@ -166,7 +163,7 @@ cp .env.example .env               # Windows PowerShell: Copy-Item .env.example 
 uvicorn mfasha.api.main:create_app --factory --port 8000 --env-file .env
 ```
 
-- Farmer web app: http://localhost:8000
+- Welcome page: http://localhost:8000 (farmers go on to `chat.html`, officers to `officer.html`)
 - Interactive API docs: http://localhost:8000/docs
 - Health check: http://localhost:8000/api/health
 
@@ -183,12 +180,11 @@ Then in `.env`:
 
 ```
 MFASHA_ENABLE_STT=true
-MFASHA_ENABLE_TTS=true
 MFASHA_RETRIEVER=embedding
 ```
 
 Model folders are looked up under `models/` (not tracked by Git): `kinya-e5-large/best` (retriever),
-`mms-kin-adapter` (STT adapter), `mms-tts-kin-ft2` (fine-tuned TTS), `classifier.joblib`,
+`mms-kin-adapter` (STT adapter), `classifier.joblib`,
 `referral_threshold.json`. If a folder is missing, the code falls back to the public Hugging Face model
 named in section 11 (or, for the classifier, trains a small one on the knowledge base at startup).
 
@@ -203,6 +199,27 @@ the build context. The compose file also mounts `./data` and `./models` into the
 `INSTALL_ML=true` as a build argument to include `requirements-ml.txt` in the image.
 
 ---
+
+
+### Officer sign-in (phone number + PIN)
+
+The site opens on a welcome page (`/`) that asks **who are you**:
+- **Farmer** goes straight to the chat (`chat.html`). There is no account and no login.
+- **Officer** goes to `officer.html`, where they **create an account** or **sign in** with a phone number and a
+  4 to 6 digit PIN. Creating an account needs the sign-up code set in `.env` as `MFASHA_OFFICER_CODE`
+  (give it only to real officers; with no code set, sign-up is closed).
+
+An administrator can also register officers from the project folder (the PIN is asked without showing on screen):
+
+```bash
+python scripts/add_officer.py add --phone 0788123456 --name "Mukamana Jeanne"
+python scripts/add_officer.py list
+python scripts/add_officer.py deactivate --phone 0788123456
+```
+
+Running `add` again for the same phone number resets that officer's PIN. PINs are stored only as salted hashes.
+Five wrong PINs lock a phone number for five minutes. A login lasts 12 hours. Set `MFASHA_SECRET_KEY`
+in `.env` so officers stay signed in when the server restarts.
 
 ## 4. Configuration
 
@@ -220,9 +237,10 @@ All settings are environment variables (defined in `src/mfasha/config.py`; templ
 | `MFASHA_REFERRAL_THRESHOLD` / `MFASHA_REFERRAL_MARGIN` | `0.20` / `0.02` | referral rule parameters (overridden by `models/referral_threshold.json` if present) |
 | `MFASHA_USE_AGREEMENT` | `true` | enable the classifier/retriever agreement rule |
 | `MFASHA_SERVE_UNREVIEWED` | `false` | allow passages not signed off by an officer (keep `false` for the pilot) |
-| `MFASHA_ENABLE_STT` / `MFASHA_ENABLE_TTS` | `false` / `false` | switch speech on (needs `requirements-ml.txt`) |
-| `MFASHA_STT_MODEL` / `MFASHA_TTS_MODEL` | `facebook/mms-1b-all` / `facebook/mms-tts-kin` | Hugging Face model ids |
-| `MFASHA_API_KEY` | empty | protects `/api/officer/*` and `/api/admin/*`; empty disables them (HTTP 503) |
+| `MFASHA_ENABLE_STT` | `false` | switch speech-to-text on (needs `requirements-ml.txt`) |
+| `MFASHA_STT_MODEL` | `facebook/mms-1b-all` | Hugging Face model ids |
+| `MFASHA_API_KEY` | empty | administrator key (`X-API-Key`) for `/api/officer/*` and `/api/admin/*`; empty disables key access (HTTP 503) |
+| `MFASHA_SECRET_KEY` | random at every start | signs officer login tokens; set it so officers stay signed in after a restart |
 | `MFASHA_CORS_ORIGINS` | `*` | comma-separated allowed origins |
 
 Fixed limits in `Settings`: questions up to 500 characters, audio up to 5,000,000 bytes and 30 seconds.
@@ -237,7 +255,8 @@ Fixed limits in `Settings`: questions up to 500 characters, audio up to 5,000,00
 | `POST /api/ask/text` | farmer | JSON `{question, with_audio}` returns an answer |
 | `POST /api/ask/voice` | farmer | multipart WAV (`audio`, `with_audio`) returns an answer plus the transcription |
 | `POST /api/feedback` | farmer | rating 1-5 and useful yes/no for an answer |
-| `POST /api/officer/reviews` | officer (`X-API-Key`) | correct / partially correct / incorrect, plus relevant / clear / safe |
+| `POST /api/officer/login` | none | phone number + PIN, returns a 12-hour token (5 wrong PINs lock the number for 5 minutes) |
+| `POST /api/officer/reviews` | officer (Bearer token) or admin (`X-API-Key`) | correct / partially correct / incorrect, plus relevant / clear / safe |
 | `GET /api/admin/stats` | admin (`X-API-Key`) | referral rate, latency, ratings, officer-correct rate |
 
 Every answer is logged (question, answer, components used, per-stage timings) so feedback and officer
@@ -266,7 +285,7 @@ enabled, `401` wrong API key, `404` unknown `answer_id`.
 │   ├── nlp/              text cleaning and tokenising
 │   ├── referral/         referral rules (chain of responsibility) and threshold tuning
 │   ├── retrieval/        BM25 (implemented from scratch), TF-IDF, hybrid fusion, dense e5 embeddings
-│   ├── speech/           WAV helpers, MMS speech-to-text, MMS text-to-speech, "unavailable" null objects
+│   ├── speech/           WAV helpers, MMS speech-to-text, "unavailable" null objects
 │   ├── storage/          SQLAlchemy tables, database session, repository
 │   ├── config.py         settings from environment variables
 │   ├── factory.py        composition root: the only place that picks concrete classes
@@ -278,7 +297,7 @@ enabled, `401` wrong API key, `404` unknown `answer_id`.
 │   ├── unit/             audio, BM25, classifiers and KB, hybrid and TF-IDF, preprocessing, referral
 │   ├── integration/      API and pipeline tests (fakes replace the heavy models)
 │   └── performance/      latency budget test
-├── Notebooks/            mfasha_notebook.ipynb (data prep, retrieval fine-tuning, ASR, TTS, end to end)
+├── Notebooks/            mfasha_notebook.ipynb (data prep, retrieval fine-tuning, ASR, end to end)
 ├── results/              evaluation outputs (CSV/JSON), plots/, officer review sheets, label drafts
 ├── benchmark_*.json      latency and throughput measurements from scripts/benchmark.py
 ├── make_review.py        builds officer_reviewed_passages.csv from the officer review spreadsheet
@@ -288,7 +307,7 @@ enabled, `401` wrong API key, `404` unknown `answer_id`.
 ```
 
 Not tracked by Git (see `.gitignore`): `data/`, `models/`, `.venv/`, `.env`, `*.pkl`, `*.wav`, model weight
-files, and the TTS sample folders under `results/`.
+files.
 
 ---
 
@@ -321,18 +340,6 @@ test set is **not** reported in `results/`. The fine-tuned model is used by sett
 | MMS-1b-all (Kinyarwanda adapter) | 0.301 | 0.063 |
 | MMS adapter fine-tuned | **0.277** | **0.058** |
 
-### 7.3 Text-to-speech selection (`results/tts_choice.json`)
-
-Each voice was scored by speaking sentences, transcribing them with the fine-tuned ASR and measuring
-WER against the text (lower is better). The stock voice won, so the notebook recorded `"choice": "stock"`.
-
-| Voice | Validation WER | Test WER |
-|---|---|---|
-| stock (`facebook/mms-tts-kin`) | **0.486** | **0.454** |
-| fine-tuned | 0.753 | 0.761 |
-
-Real recordings of the same sentences through the same ASR gave a WER of 0.263 (the floor).
-
 ### 7.4 Out-of-scope questions (`results/oos_results.csv`)
 
 40 questions outside the knowledge base (not agriculture, financial, legal, medical, and farming
@@ -340,7 +347,7 @@ questions probably not covered): **all 40 were referred** to an officer, none an
 
 ### 7.5 Latency and throughput (`benchmark_*.json`, from `scripts/benchmark.py`)
 
-Machine: Windows 10, Python 3.13.3, 4 logical CPUs, 8 client threads. STT and TTS were disabled in
+Machine: Windows 10, Python 3.13.3, 4 logical CPUs, 8 client threads. STT was disabled in
 every run, so these figures cover the text pipeline only.
 
 | Run | Passages | Retriever | p50 | p95 | Throughput |
@@ -379,11 +386,11 @@ Without `make`, run `pytest -m "not performance"` and `ruff check src tests scri
 | Suite | Files | What it covers |
 |---|---|---|
 | `tests/unit/` | 6 | audio decoding, BM25, hybrid + TF-IDF, preprocessing, classifiers and knowledge base, referral rules |
-| `tests/integration/` | 2 | the HTTP API and the full pipeline (answer, referral, empty input, unreviewed passage never served, voice with fake STT/TTS, every retriever choice builds) |
+| `tests/integration/` | 2 | the HTTP API and the full pipeline (answer, referral, empty input, unreviewed passage never served, voice with fake STT, every retriever choice builds) |
 | `tests/performance/` | 1 | text pipeline latency budget |
 
 62 tests are collected in total (61 plus the performance test). The integration tests use small fake
-STT/TTS classes (`tests/conftest.py`) so the suite runs offline in about a second. **They read the
+STT class (`tests/conftest.py`) so the suite runs offline in about a second. **They read the
 knowledge base from `data/sample/`**, so that folder must be present for the integration tests to run.
 
 Code quality practices in the repository:
@@ -417,13 +424,10 @@ Code quality practices in the repository:
 | Resource | Used for | License (from `results/candidate_audit.json`) |
 |---|---|---|
 | `C4IR-RW/kinya-ag-retrieval` (Hugging Face dataset) | passages and questions for retrieval | cc-by-4.0 |
-| `C4IR-RW/kinya-ag-tts` (Hugging Face dataset) | Kinyarwanda speech for TTS experiments | cc-by-4.0 |
 | `intfloat/multilingual-e5-large` | base retrieval model that was fine-tuned | see model card |
 | `facebook/mms-1b-all` (adapter `kin`) | speech-to-text | see model card |
-| `facebook/mms-tts-kin` | text-to-speech | see model card |
 
 `results/candidate_audit.json` also lists the candidate models and datasets that were audited
 (`C4IR-RW/kinyabert`, `C4IR-RW/kiny-colbert-free`, `C4IR-RW/kinya-flex-tts`).
 
 ---
-

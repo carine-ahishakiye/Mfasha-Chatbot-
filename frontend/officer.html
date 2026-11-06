@@ -17,21 +17,54 @@
 
 <!-- Login -->
 <main class="o-login" id="login-view">
-  <form class="o-card o-login-card" id="login-form" autocomplete="off">
+  <div class="o-card o-login-card">
     <svg class="o-logo" viewBox="0 0 120 120" aria-hidden="true"><use href="#logo-mark"/></svg>
-    <h1>Injira nk’umukozi w’ubuhinzi</h1>
-    <p class="o-muted">Andika amazina yawe n’urufunguzo rw’ibanga wahawe.</p>
+    <h1>Umukozi w’ubuhinzi</h1>
 
-    <label for="reviewer">Amazina yawe</label>
-    <input id="reviewer" type="text" minlength="2" maxlength="80" required>
+    <div class="o-switch" role="tablist" aria-label="Injira cyangwa ufungure konti">
+      <button type="button" role="tab" id="tab-login" aria-selected="true">Injira</button>
+      <button type="button" role="tab" id="tab-register" aria-selected="false">Fungura konti</button>
+    </div>
 
-    <label for="apikey">Urufunguzo rw’ibanga</label>
-    <input id="apikey" type="password" required autocomplete="off">
+    <!-- sign in -->
+    <form id="login-form" autocomplete="off">
+      <p class="o-muted">Andika nimero ya telefone na PIN wahisemo.</p>
 
-    <p class="o-error" id="login-error" role="alert" hidden></p>
-    <button class="o-btn" id="login-btn" type="submit">Injira</button>
-    <a class="o-link" href="#" id="switch-role-login">Hindura uruhare</a>
-  </form>
+      <label for="phone">Nimero ya telefone</label>
+      <input id="phone" type="tel" inputmode="tel" placeholder="0788 123 456" maxlength="20" required autocomplete="tel">
+
+      <label for="pin">PIN (imibare 4 kugeza kuri 6)</label>
+      <input id="pin" type="password" inputmode="numeric" pattern="[0-9]{4,6}" minlength="4" maxlength="6" required autocomplete="current-password">
+
+      <p class="o-error" id="login-error" role="alert" hidden></p>
+      <button class="o-btn" id="login-btn" type="submit">Injira</button>
+    </form>
+
+    <!-- create account -->
+    <form id="register-form" autocomplete="off" hidden>
+      <p class="o-muted">Fungura konti nshya. Uzakenera kode wahawe n’umuyobozi wawe.</p>
+
+      <label for="reg-name">Amazina yawe yose</label>
+      <input id="reg-name" type="text" minlength="2" maxlength="80" required autocomplete="name">
+
+      <label for="reg-phone">Nimero ya telefone</label>
+      <input id="reg-phone" type="tel" inputmode="tel" placeholder="0788 123 456" maxlength="20" required autocomplete="tel">
+
+      <label for="reg-pin">Hitamo PIN (imibare 4 kugeza kuri 6)</label>
+      <input id="reg-pin" type="password" inputmode="numeric" pattern="[0-9]{4,6}" minlength="4" maxlength="6" required autocomplete="new-password">
+
+      <label for="reg-pin2">Ongera wandike PIN</label>
+      <input id="reg-pin2" type="password" inputmode="numeric" pattern="[0-9]{4,6}" minlength="4" maxlength="6" required autocomplete="new-password">
+
+      <label for="reg-code">Kode yo kwiyandikisha</label>
+      <input id="reg-code" type="password" required autocomplete="off">
+
+      <p class="o-error" id="register-error" role="alert" hidden></p>
+      <button class="o-btn" id="register-btn" type="submit">Fungura konti</button>
+    </form>
+
+    <a class="o-link" href="index.html" id="switch-role-login">Subira ku rupapuro rwa mbere</a>
+  </div>
 </main>
 
 <!-- Dashboard -->

@@ -1,4 +1,3 @@
-
 (function () {
   'use strict';
 
@@ -17,7 +16,6 @@
 
   var conversations = [], activeConversationId = null, isBusy = false;
   var recorder = null, micStream = null, recordTimer = null;
-  var audioCache = {}, audioPlayer = null, audioUrl = null, activeSpeakButton = null, speechRequestId = 0;
 
   /*  helpers */
   function setStatus(text) { statusLine.textContent = text || ''; }
@@ -88,13 +86,13 @@
   }
   function showEmpty(show) { emptyState.hidden = !show; }
   function beginNewChat() {
-    stopSpeech(); activeConversationId = null; thread.replaceChildren(); showEmpty(true);
+    activeConversationId = null; thread.replaceChildren(); showEmpty(true);
     renderHistory(); chatScroll.scrollTop = 0; app.classList.remove('open'); questionBox.focus();
   }
   function openConversation(id) {
     var c = conversations.find(function (item) { return item.id === id; });
     if (!c) return;
-    stopSpeech(); activeConversationId = id; thread.replaceChildren(); showEmpty(false);
+    activeConversationId = id; thread.replaceChildren(); showEmpty(false);
     c.items.forEach(function (item) {
       var turn = createTurn(item.question);
       if (item.answer) renderAnswer(turn, item.answer, item, true);
@@ -162,9 +160,6 @@
     text.textContent = answer.answer || 'Nta gisubizo cyagarutse.'; turn.body.appendChild(text);
 
     var tools = document.createElement('div'); tools.className = 'tools';
-    var speaker = makeButton('Soma igisubizo');
-    speaker.addEventListener('click', function () { speakAnswer(item, answer, speaker); });
-    tools.appendChild(speaker);
 
     if (!refused) {
       var yes = makeButton(item.vote === 'helpful' ? 'Byamfashije ✓' : 'Byamfashije');
@@ -188,56 +183,6 @@
   function showAnswerError(turn, message) {
     turn.body.replaceChildren();
     var p = document.createElement('p'); p.className = 'error'; p.textContent = message; turn.body.appendChild(p);
-  }
-
-  /* ---------- read answer aloud ---------- */
-  function resetSpeakButton() {
-    if (activeSpeakButton) { activeSpeakButton.classList.remove('selected'); activeSpeakButton.textContent = 'Soma igisubizo'; activeSpeakButton = null; }
-  }
-  function stopSpeech() {
-    speechRequestId++;
-    if (audioPlayer) { audioPlayer.onended = null; audioPlayer.onerror = null; audioPlayer.pause(); audioPlayer = null; }
-    if (audioUrl) { URL.revokeObjectURL(audioUrl); audioUrl = null; }
-    resetSpeakButton();
-  }
-  // The API returns audio only together with an answer, so "read answer" asks again with
-  // with_audio=true and keeps the audio in memory so a second click does not call the server.
-  async function fetchAudio(item, answer) {
-    var key = answer.answer_id;
-    if (key != null && audioCache[key]) return audioCache[key];
-    var response = await api('/ask/text', {
-      method: 'POST', headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ question: (item.question || '').slice(0, MAX_CHARS), with_audio: true })
-    }, 'Ijwi ntiryakunze.');
-    var data = await response.json();
-    if (!data.audio_base64) throw new Error('Ijwi ntirirboneka kuri seriveri ubu.');
-    var bytes = Uint8Array.from(atob(data.audio_base64), function (c) { return c.charCodeAt(0); });
-    var blob = new Blob([bytes], { type: 'audio/wav' });
-    if (key != null) audioCache[key] = blob;
-    return blob;
-  }
-  async function speakAnswer(item, answer, button) {
-    if (button && activeSpeakButton === button) { stopSpeech(); setStatus(''); return; }
-    stopSpeech();
-    var requestId = speechRequestId;
-    activeSpeakButton = button || null;
-    if (button) { button.classList.add('selected'); button.textContent = 'Hagarika gusoma'; }
-    setStatus('Ndimo gutegura amajwi…');
-    try {
-      var blob = await fetchAudio(item, answer);
-      if (requestId !== speechRequestId) return;
-      audioUrl = URL.createObjectURL(blob); audioPlayer = new Audio(audioUrl);
-      setStatus('Ndimo gusoma igisubizo…');
-      audioPlayer.onended = function () { if (requestId !== speechRequestId) return; stopSpeech(); setStatus(''); };
-      audioPlayer.onerror = function () {
-        if (requestId !== speechRequestId) return; stopSpeech();
-        setStatus('Ntabwo ijwi ryakinnye. Ongera ukande “Soma igisubizo”.');
-      };
-      await audioPlayer.play();
-    } catch (error) {
-      if (requestId !== speechRequestId) return;
-      stopSpeech(); setStatus(error.message || 'Ijwi ntiryakunze.');
-    }
   }
 
   /* ---------- composer ---------- */
@@ -340,7 +285,7 @@
   /* ---------- asking ---------- */
   // Shared by text and voice: creates the turn, runs `request`, renders the result.
   async function runTurn(initialQuestion, request) {
-    stopSpeech(); setStatus(''); isBusy = true; sendButton.disabled = true; microphoneButton.disabled = true;
+    setStatus(''); isBusy = true; sendButton.disabled = true; microphoneButton.disabled = true;
     emptyState.hidden = true; questionBox.value = ''; resizeQuestion();
 
     var conversation = getActiveConversation();
@@ -377,7 +322,7 @@
     runTurn(question, async function () {
       var response = await api('/ask/text', {
         method: 'POST', headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ question: question, with_audio: false })
+        body: JSON.stringify({ question: question })
       }, 'Habaye ikibazo mu gushaka igisubizo.');
       return response.json();
     });
@@ -386,7 +331,7 @@
   function askVoice(wavBlob) {
     runTurn('🎤 …', async function () {
       var form = new FormData();
-      form.append('audio', wavBlob, 'question.wav'); form.append('with_audio', 'false');
+      form.append('audio', wavBlob, 'question.wav');
       var response = await api('/ask/voice', { method: 'POST', body: form }, 'Ntabwo amajwi yahinduwe inyandiko.');
       return response.json();
     });

@@ -38,13 +38,11 @@ class Settings:
 
     # speech
     enable_stt: bool = False
-    enable_tts: bool = False
     stt_model: str = "facebook/mms-1b-all"
     stt_language: str = "kin"
-    tts_model: str = "facebook/mms-tts-kin"
 
     # api
-    api_key: str = ""                        # empty = officer/admin endpoints are disabled
+    api_key: str = ""                        # empty = the API-key (administrator) login is disabled
     max_question_chars: int = 500
     max_audio_bytes: int = 5_000_000
     max_audio_seconds: float = 30.0
@@ -68,10 +66,10 @@ class Settings:
             use_agreement=_flag("MFASHA_USE_AGREEMENT", d.use_agreement),
             serve_unreviewed=_flag("MFASHA_SERVE_UNREVIEWED", d.serve_unreviewed),
             enable_stt=_flag("MFASHA_ENABLE_STT", d.enable_stt),
-            enable_tts=_flag("MFASHA_ENABLE_TTS", d.enable_tts),
             stt_model=os.getenv("MFASHA_STT_MODEL", d.stt_model),
-            tts_model=os.getenv("MFASHA_TTS_MODEL", d.tts_model),
             api_key=os.getenv("MFASHA_API_KEY", d.api_key),
+            secret_key=os.getenv("MFASHA_SECRET_KEY", d.secret_key),
+            officer_signup_code=os.getenv("MFASHA_OFFICER_CODE", d.officer_signup_code),
             cors_origins=tuple(os.getenv("MFASHA_CORS_ORIGINS", "*").split(",")),
         )
         return settings.with_tuned_referral()

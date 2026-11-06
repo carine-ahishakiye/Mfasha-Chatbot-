@@ -7,7 +7,8 @@ from sqlalchemy import func, select
 from sqlalchemy.orm import selectinload, sessionmaker
 
 from mfasha.domain.models import AnswerStatus, PipelineResult
-from mfasha.storage.orm import AnswerRow, ExpertReviewRow, FeedbackRow, QuestionRow
+from mfasha.auth import hash_pin
+from mfasha.storage.orm import AnswerRow, ExpertReviewRow, FeedbackRow, OfficerRow, QuestionRow
 
 VERDICTS = {"correct", "partially_correct", "incorrect"}
 
@@ -53,6 +54,50 @@ class InteractionRepository:
             session.add(row)
             session.flush()
             return row.id
+
+    # ------------------------------------------------------------------ officers
+    def upsert_officer(self, phone: str, name: str, pin: str) -> bool:
+        """Create the officer, or replace the name and PIN of an existing one. Returns True if created."""
+        salt, digest = hash_pin(pin)
+        with self._sessions.begin() as session:
+            row = session.scalar(select(OfficerRow).where(OfficerRow.phone == phone))
+            created = row is None
+            if created:
+                row = OfficerRow(phone=phone, name=name, pin_salt=salt, pin_hash=digest, active=True)
+                session.add(row)
+            else:
+                row.name, row.pin_salt, row.pin_hash, row.active = name, salt, digest, True
+            return created
+
+    def create_officer(self, phone: str, name: str, pin: str) -> bool:
+        """Create a new officer. Returns False (and changes nothing) when the phone number is taken."""
+        salt, digest = hash_pin(pin)
+        with self._sessions.begin() as session:
+            if session.scalar(select(OfficerRow).where(OfficerRow.phone == phone)) is not None:
+                return False
+            session.add(OfficerRow(phone=phone, name=name, pin_salt=salt, pin_hash=digest, active=True))
+            return True
+
+    def set_officer_active(self, phone: str, active: bool) -> bool:
+        with self._sessions.begin() as session:
+            row = session.scalar(select(OfficerRow).where(OfficerRow.phone == phone))
+            if row is None:
+                return False
+            row.active = active
+            return True
+
+    def get_officer(self, phone: str) -> Optional[dict]:
+        with self._sessions() as session:
+            row = session.scalar(select(OfficerRow).where(OfficerRow.phone == phone))
+            if row is None:
+                return None
+            return {"phone": row.phone, "name": row.name, "pin_salt": row.pin_salt,
+                    "pin_hash": row.pin_hash, "active": row.active}
+
+    def list_officers(self) -> list[dict]:
+        with self._sessions() as session:
+            return [{"phone": r.phone, "name": r.name, "active": r.active}
+                    for r in session.scalars(select(OfficerRow).order_by(OfficerRow.id)).all()]
 
     def stats(self) -> dict:
         """Numbers for the administrator dashboard and for the pilot evaluation in proposal 3.12."""

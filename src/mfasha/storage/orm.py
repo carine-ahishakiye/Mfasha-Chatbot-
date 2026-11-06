@@ -69,3 +69,15 @@ class ExpertReviewRow(Base):
     remarks: Mapped[str | None] = mapped_column(Text, nullable=True)
     reviewed_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=_now)
     answer: Mapped[AnswerRow] = relationship(back_populates="reviews")
+
+
+class OfficerRow(Base):
+    """An agricultural officer who may sign in to the review page (phone number + PIN)."""
+    __tablename__ = "officers"
+    id: Mapped[int] = mapped_column(primary_key=True)
+    phone: Mapped[str] = mapped_column(String(20), unique=True, index=True)
+    name: Mapped[str] = mapped_column(String(80))
+    pin_salt: Mapped[str] = mapped_column(String(32))
+    pin_hash: Mapped[str] = mapped_column(String(64))
+    active: Mapped[bool] = mapped_column(Boolean, default=True)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=_now)

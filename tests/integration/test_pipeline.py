@@ -65,10 +65,10 @@ def test_retrieval_quality_on_sample_questions_meets_a_floor(pipeline):
     assert hits / len(rows) >= 0.60
 
 
-def test_voice_question_goes_through_stt_and_tts(pipeline):
-    result = pipeline.ask_audio(make_wav(), with_audio=True)
-    assert result.heard == IN_SCOPE_QUESTION and result.audio
-    assert "speech_to_text" in result.stage_ms and "text_to_speech" in result.stage_ms
+def test_voice_question_goes_through_stt(pipeline):
+    result = pipeline.ask_audio(make_wav())
+    assert result.heard == IN_SCOPE_QUESTION
+    assert "speech_to_text" in result.stage_ms
 
 
 def test_silent_transcription_is_referred(pipeline):
@@ -85,12 +85,6 @@ def test_stt_disabled_raises_service_unavailable(pipeline):
     pipeline._stt = UnavailableSpeechToText()
     with pytest.raises(ServiceUnavailableError):
         pipeline.ask_audio(make_wav())
-
-
-def test_missing_tts_still_returns_the_written_answer(settings, knowledge_base):
-    pipe, _ = build_pipeline(settings, knowledge_base)           # real TTS switched off in settings
-    result = pipe.ask_text(IN_SCOPE_QUESTION, with_audio=True)
-    assert result.status == AnswerStatus.ANSWERED and result.audio is None
 
 
 @pytest.mark.parametrize("retriever", ["bm25", "tfidf", "hybrid"])
