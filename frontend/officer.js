@@ -5,7 +5,7 @@
   var KEY_STORE = 'mfasha-officer-token', NAME_STORE = 'mfasha-officer-name', ROLE_STORE = 'mfasha-role';
   var $ = function (id) { return document.getElementById(id); };
 
-  var apiKey = '', reviewer = '', current = null, queueAvailable = true;
+  var apiKey = '', reviewer = '', current = null, queueAvailable = true, queueFilter = 'pending';
 
   /* ---------- helpers ---------- */
   function show(el, on) { el.hidden = !on; }
@@ -14,9 +14,24 @@
   function store(k, v) { try { localStorage.setItem(k, v); } catch (e) {} }
   function load(k) { try { return localStorage.getItem(k) || ''; } catch (e) { return ''; } }
   function clear(k) { try { localStorage.removeItem(k); } catch (e) {} }
+  function two(n) { return (n < 10 ? '0' : '') + n; }
+  function stamp(id) { var d = new Date(); $(id).textContent = 'Byavuguruwe saa ' + two(d.getHours()) + ':' + two(d.getMinutes()) + ':' + two(d.getSeconds()); }
+  // Runs a refresh with a visible spinner (kept at least 500 ms so the click is noticeable).
+  async function refreshWith(btn, stampId, job) {
+    if (btn.disabled) return;
+    btn.disabled = true; btn.classList.add('busy'); $(stampId).textContent = 'Ndimo kuvugurura…';
+    var started = Date.now(), ok = false;
+    try { ok = await job(); } catch (e) { ok = false; }
+    var wait = Math.max(0, 500 - (Date.now() - started));
+    setTimeout(function () {
+      btn.disabled = false; btn.classList.remove('busy');
+      if (ok) stamp(stampId); else $(stampId).textContent = 'Ntibyavuguruwe. Ongera ugerageze.';
+    }, wait);
+  }
 
   async function call(path, options) {
     options = options || {};
+    options.cache = 'no-store';
     options.headers = Object.assign(apiKey ? { 'Authorization': 'Bearer ' + apiKey } : {}, options.headers || {});
     var res;
     try { res = await fetch(API + path, options); }
@@ -95,7 +110,10 @@
   function enter() {
     show($('login-view'), false); show($('app-view'), true);
     $('who').textContent = reviewer;
-    loadStats(); loadQueue();
+    var first = reviewer.split(' ')[0];
+    $('hello').textContent = first ? 'Muraho, ' + first : 'Muraho';
+    loadStats().then(function (ok) { if (ok) stamp('stats-stamp'); });
+    loadQueue().then(function (ok) { if (ok) stamp('queue-stamp'); });
   }
 
   $('login-form').addEventListener('submit', async function (e) {
@@ -140,26 +158,32 @@
   $('tab-review').addEventListener('click', function () { selectTab('review'); });
 
   /* ---------- overview ---------- */
-  function statCard(value, label) {
-    var d = document.createElement('div'); d.className = 'o-stat';
+  function big(value, label) {
+    var d = document.createElement('div'); d.className = 'o-big-item';
     var b = document.createElement('b'); b.textContent = value;
     var s = document.createElement('span'); s.textContent = label;
     d.appendChild(b); d.appendChild(s); return d;
+  }
+  function ledgerRow(dl, label, value) {
+    var dt = document.createElement('dt'); dt.textContent = label;
+    var dd = document.createElement('dd'); dd.textContent = value;
+    dl.appendChild(dt); dl.appendChild(dd);
   }
   async function loadStats() {
     say($('stats-error'), '');
     try {
       var s = await call('/admin/stats'), grid = $('stats-grid');
-      grid.replaceChildren(
-        statCard(s.questions, 'Ibibazo byose'),
-        statCard(s.answered, 'Byasubijwe'),
-        statCard(s.referred, 'Byoherejwe ku mukozi'),
-        statCard(pct(s.referral_rate), 'Igipimo cyo kohereza'),
-        statCard(Math.round(s.avg_latency_ms) + ' ms', 'Igihe gisanzwe cyo gusubiza'),
-        statCard(s.feedback_count, 'Ibitekerezo by’abahinzi'),
-        statCard(pct(s.useful_rate), 'Byafashije abahinzi'),
-        statCard(s.expert_reviews, 'Ibisubizo byasuzumwe')
-      );
+      var top = document.createElement('div'); top.className = 'o-big';
+      top.appendChild(big(s.questions, 'Ibibazo byose'));
+      top.appendChild(big(s.referred, 'Byoherejwe ku mukozi'));
+      top.appendChild(big(s.expert_reviews, 'Ibisubizo byasuzumwe'));
+      var dl = document.createElement('dl'); dl.className = 'o-ledger';
+      ledgerRow(dl, 'Byasubijwe', s.answered);
+      ledgerRow(dl, 'Igipimo cyo kohereza', pct(s.referral_rate));
+      ledgerRow(dl, 'Igihe gisanzwe cyo gusubiza', Math.round(s.avg_latency_ms) + ' ms');
+      ledgerRow(dl, 'Ibitekerezo by’abahinzi', s.feedback_count);
+      ledgerRow(dl, 'Byafashije abahinzi', pct(s.useful_rate));
+      grid.replaceChildren(top, dl);
       var rate = s.officer_correct_or_partial_rate, card = $('target-card');
       show(card, true);
       $('target-text').textContent = rate == null
@@ -168,9 +192,10 @@
       var fill = $('target-fill');
       fill.style.width = rate == null ? '0' : Math.min(100, rate * 100) + '%';
       fill.classList.toggle('low', rate != null && rate < 0.7);
-    } catch (err) { say($('stats-error'), err.message); }
+      return true;
+    } catch (err) { say($('stats-error'), err.message); return false; }
   }
-  $('refresh-stats').addEventListener('click', loadStats);
+  $('refresh-stats').addEventListener('click', function () { refreshWith(this, 'stats-stamp', loadStats); });
 
   /* ---------- review queue ---------- */
   // Expects GET /officer/answers?unreviewed=true&limit=50 returning a list (or {items: [...]}) of
@@ -181,10 +206,11 @@
     var list = $('queue-list'); list.replaceChildren();
     var note = function (t) { var p = document.createElement('p'); p.className = 'o-muted'; p.textContent = t; list.appendChild(p); };
     try {
-      var data = await call('/officer/answers?unreviewed=true&limit=50');
+      var data = await call('/officer/answers?unreviewed=' + (queueFilter === 'pending') + '&limit=50');
       var items = Array.isArray(data) ? data : (data.items || []);
       queueAvailable = true;
-      if (!items.length) { note('Nta bisubizo bitegereje gusuzumwa.'); return; }
+      var count = $('queue-count'); count.textContent = items.length; show(count, items.length > 0);
+      if (!items.length) { note(queueFilter === 'pending' ? 'Nta bisubizo bitegereje gusuzumwa. Hitamo “Byose” kugira ngo urebe ibisubizo byose.' : 'Nta bisubizo biraboneka. Abahinzi nibabaza ibibazo, bizagaragara hano.'); return true; }
       items.forEach(function (it) {
         var b = document.createElement('button'); b.type = 'button'; b.className = 'o-item';
         var t = document.createElement('b'); t.textContent = it.question || '(nta kibazo)';
@@ -193,14 +219,24 @@
         b.addEventListener('click', function () { openReview(it, b); });
         list.appendChild(b);
       });
+      return true;
     } catch (err) {
+      show($('queue-count'), false);
       if (err.status === 404 || err.status === 405) {
         queueAvailable = false;
         note('Urutonde rw’ibitegereje ntiruraboneka kuri seriveri. Andika nimero y’igisubizo hasi.');
       } else note(err.message);
+      return false;
     }
   }
-  $('refresh-queue').addEventListener('click', loadQueue);
+  document.querySelectorAll('.o-filter button').forEach(function (b) {
+    b.addEventListener('click', function () {
+      queueFilter = b.getAttribute('data-f');
+      document.querySelectorAll('.o-filter button').forEach(function (x) { x.setAttribute('aria-checked', x === b ? 'true' : 'false'); });
+      loadQueue().then(function (ok) { if (ok) stamp('queue-stamp'); });
+    });
+  });
+  $('refresh-queue').addEventListener('click', function () { refreshWith(this, 'queue-stamp', loadQueue); });
 
   $('lookup-form').addEventListener('submit', async function (e) {
     e.preventDefault();
