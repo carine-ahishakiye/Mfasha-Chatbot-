@@ -43,6 +43,8 @@ class Settings:
 
     # api
     api_key: str = ""                        # empty = the API-key (administrator) login is disabled
+    secret_key: str = ""                     # empty = random at every start (logins end on restart)
+    officer_signup_code: str = ""            # empty = officer sign-up is closed
     max_question_chars: int = 500
     max_audio_bytes: int = 5_000_000
     max_audio_seconds: float = 30.0

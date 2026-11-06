@@ -14,7 +14,15 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500&family=Inter:wght@400;500&family=Source+Sans+3:wght@400;500&display=swap" rel="stylesheet">
+<script>
+  (function () { try {
+    var st = JSON.parse(localStorage.getItem('mfasha-settings')) || {}, h = document.documentElement;
+    h.setAttribute('data-theme', st.theme === 'light' ? 'light' : 'dark');
+    h.setAttribute('data-view', location.hash === '#chat' ? 'chat' : 'other');
+  } catch (e) {} }());
+</script>
 <link rel="stylesheet" href="style.css">
+<link rel="stylesheet" href="ui.css">
 <noscript><style>.land .rv { opacity: 1; transform: none; }</style></noscript>
 </head>
 <body>
@@ -141,7 +149,7 @@
 
   <aside class="sidebar" id="sidebar" aria-label="Ibiganiro">
     <div class="side-top">
-      <a class="brand" href="#" aria-label="Mfasha, ujye ku rupapuro rwa mbere">
+      <a class="brand" href="index.html" aria-label="Mfasha, subira ku rupapuro rwa mbere">
         <svg viewBox="0 0 120 120" aria-hidden="true"><use href="#logo-mark"/></svg>
         <span class="brand-name" translate="no">Mfasha</span>
       </a>
@@ -159,6 +167,14 @@
     <nav class="history" id="history-list" aria-labelledby="history-title"></nav>
 
     <div class="sidebar-foot">
+      <a class="link-btn calm" href="index.html">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 12H5M11 6l-6 6 6 6"/></svg>
+        Subira ku rupapuro rwa mbere
+      </a>
+      <button class="link-btn calm" id="side-settings" type="button">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M4.9 4.9 7 7M17 17l2.1 2.1M19.1 4.9 17 7M7 17l-2.1 2.1"/></svg>
+        Igenamiterere
+      </button>
       <button class="link-btn" id="clear-history" type="button">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 6h18M8 6V4h8v2M6 6l1 14h10l1-14M10 11v5M14 11v5"/></svg>
         Siba ibiganiro byose
@@ -178,19 +194,27 @@
         <p class="topbar-name" translate="no">Mfasha</p>
         <p class="topbar-sub">Umufasha wawe mu buhinzi n’ubworozi</p>
       </div>
+      <div class="top-actions">
+        <a class="top-btn" href="index.html" aria-label="Subira ku rupapuro rwa mbere" title="Subira ku rupapuro rwa mbere">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M19 12H5M11 6l-6 6 6 6"/></svg>
+        </a>
+        <button class="top-btn" id="open-notif" type="button" aria-label="Ibimenyeshwa" title="Ibimenyeshwa" aria-haspopup="dialog" aria-expanded="false" aria-controls="notif-panel">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 9a6 6 0 0 1 12 0c0 6 2.5 7.5 2.5 7.5h-17S6 15 6 9z"/><path d="M10 20a2 2 0 0 0 4 0"/></svg>
+          <span class="badge" id="notif-badge" hidden>0</span>
+        </button>
+        <button class="top-btn" id="open-settings" type="button" aria-label="Igenamiterere" title="Igenamiterere" aria-haspopup="dialog" aria-expanded="false" aria-controls="settings-panel">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.9l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.9-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.9.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.9 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.9l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.9.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.9-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.9V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg>
+        </button>
+      </div>
     </header>
 
     <div class="scroll" id="chat-scroll">
       <div class="column">
 
-        <section class="welcome" id="empty-state" aria-label="Murakaza neza">
-          <div class="msg">
-            <span class="avatar" aria-hidden="true"></span>
-            <div class="bubble">
-              <p>Muraho! Ndi <span translate="no">Mfasha</span>, umufasha wawe mu buhinzi n’ubworozi.</p>
-              <p>Mbaza ibibazo ku bihingwa, amatungo, ifumbire n’ubutaka. Ushobora kwandika ikibazo, cyangwa gukanda mikoro ukavuga.</p>
-            </div>
-          </div>
+        <section class="welcome hero-welcome" id="empty-state" aria-label="Murakaza neza">
+          <span class="hero-mark" aria-hidden="true"><svg viewBox="0 0 120 120"><use href="#logo-mark"/></svg></span>
+          <h2>Muraho! Ndi <span translate="no">Mfasha</span>, umufasha wawe mu buhinzi n’ubworozi</h2>
+          <p class="hero-sub">Mbaza ibibazo ku bihingwa, amatungo, ifumbire n’ubutaka. Wandike ikibazo cyawe, cyangwa ukande mikoro ukavuge.</p>
 
           <p class="hint" id="cards-title">Ushobora gutangirira kuri kimwe muri ibi:</p>
           <div class="cards" role="group" aria-labelledby="cards-title">
@@ -227,6 +251,61 @@
   </main>
 </div>
 
+<div class="ui-scrim" id="ui-scrim" hidden></div>
+
+<section class="notif" id="notif-panel" role="dialog" aria-labelledby="notif-title" hidden>
+  <div class="ui-head">
+    <h2 id="notif-title">Ibimenyeshwa</h2>
+    <button class="ui-link" id="mark-read" type="button">Byose nabisomye</button>
+  </div>
+  <ul class="notif-list" id="notif-list"></ul>
+  <p class="notif-foot">Ibimenyeshwa bigaragara hano gusa, ntibyoherezwa kuri telefone yawe.</p>
+</section>
+
+<aside class="drawer" id="settings-panel" role="dialog" aria-labelledby="settings-title" hidden>
+  <div class="ui-head">
+    <h2 id="settings-title">Igenamiterere</h2>
+    <button class="x-btn" id="close-settings" type="button" aria-label="Funga"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"/></svg></button>
+  </div>
+  <div class="drawer-body">
+    <div class="set">
+      <h3 id="theme-title">Isura</h3>
+      <p class="hint2">Hitamo ijoro cyangwa umucyo.</p>
+      <div class="seg two" id="theme-seg" role="radiogroup" aria-labelledby="theme-title">
+        <button type="button" role="radio" data-theme="dark" aria-checked="true">Ijoro</button>
+        <button type="button" role="radio" data-theme="light" aria-checked="false">Umucyo</button>
+      </div>
+    </div>
+    <div class="set">
+      <h3 id="size-title">Ingano y’inyandiko</h3>
+      <p class="hint2">Hitamo uko ushaka gusoma ibiganiro.</p>
+      <div class="seg" id="size-seg" role="radiogroup" aria-labelledby="size-title">
+        <button type="button" role="radio" data-size="small" aria-checked="false">Nto</button>
+        <button type="button" role="radio" data-size="normal" aria-checked="true">Isanzwe</button>
+        <button type="button" role="radio" data-size="large" aria-checked="false">Nini</button>
+      </div>
+      <p class="preview">Ni ryari ngomba gutera imbuto?</p>
+    </div>
+    <div class="set">
+      <h3>Ibiganiro</h3>
+      <p class="hint2">Ibiganiro bibikwa kuri iki gikoresho gusa.</p>
+      <button class="btn-line danger" id="settings-clear" type="button">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 6h18M8 6V4h8v2M6 6l1 14h10l1-14M10 11v5M14 11v5"/></svg>
+        Siba ibiganiro byose
+      </button>
+    </div>
+    <div class="set">
+      <h3>Ibyerekeye <span translate="no">Mfasha</span></h3>
+      <p class="about"><span translate="no">Mfasha</span> isubiza gusa ibiri mu nyandiko zisuzumwe n’abakozi b’ubuhinzi. <b>Ikibazo cyihutirwa, baza umukozi w’ubuhinzi cyangwa veterineri.</b></p>
+      <p class="about" id="about-line"></p>
+      <a class="btn-line" href="index.html" style="margin-top:12px">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M19 12H5M11 6l-6 6 6 6"/></svg>
+        Subira ku rupapuro rwa mbere
+      </a>
+    </div>
+  </div>
+</aside>
+
 <svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false">
   <defs>
     <symbol id="logo-mark" viewBox="0 0 120 120">
@@ -244,5 +323,6 @@
 </svg>
 
 <script src="chat.js"></script>
+<script src="ui.js"></script>
 </body>
 </html>

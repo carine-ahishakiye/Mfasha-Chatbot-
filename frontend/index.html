@@ -1,55 +1,213 @@
 <!doctype html>
-<!-- MFASHA welcome page: who are you? -->
+<!-- MFASHA welcome page: what Mfasha is, and who are you? -->
 <html lang="rw">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="description" content="Mfasha igufasha gushaka amakuru ku buhinzi n’ubworozi mu Kinyarwanda.">
-<meta name="theme-color" content="#F6F4EC">
+<meta name="description" content="Mfasha igufasha gushaka amakuru ku buhinzi n’ubworozi mu Kinyarwanda, wandika cyangwa uvuga.">
+<meta name="theme-color" content="#1F6B35">
 <title>Mfasha – Murakaza neza</title>
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%232E7D32'/%3E%3Cpath d='M32 14c-8 8-8 20 0 30 8-10 8-22 0-30z' fill='%23fff'/%3E%3C/svg%3E">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500&family=Inter:wght@400;500&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="style.css">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
-  .w-page { min-height: 100vh; min-height: 100dvh; display: grid; place-items: center; padding: 20px; }
-  .w-box { width: 100%; max-width: 520px; text-align: center; }
-  .w-box svg.w-logo { width: 64px; height: 64px; }
-  .w-box h1 { margin: 12px 0 4px; font-family: var(--serif); font-size: 2.1rem; font-weight: 500; }
-  .w-box .w-sub { margin: 0 0 26px; color: var(--muted); }
-  .w-opts { display: grid; gap: 14px; }
-  .w-opt {
-    display: flex; flex-direction: column; gap: 3px; align-items: flex-start; text-align: left;
-    min-height: 84px; padding: 18px 20px; border: 1px solid var(--border); border-radius: 14px;
-    background: var(--surface); color: var(--text);
+  :root { --green: #1F6B35; --green-d: #17542A; --lime: #A4C42B; --cream: #F1EFE3; --ink: #17231B; --muted: #566058; --line: #E3DFD0;
+          --serif: Fraunces, Georgia, serif; --ease: cubic-bezier(.2, .7, .2, 1); }
+  *, *::before, *::after { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body { margin: 0; background: #fff; color: var(--ink); font: 400 16px/1.6 Inter, system-ui, -apple-system, "Segoe UI", Arial, sans-serif; -webkit-font-smoothing: antialiased; }
+  a { color: inherit; text-decoration: none; }
+  p, h1, h2, h3 { margin: 0; }
+  :focus-visible { outline: 2px solid var(--lime); outline-offset: 3px; }
+  .wrap { width: min(100% - 40px, 1080px); margin: 0 auto; }
+
+  /* hero */
+  .hero {
+    position: relative; margin: 10px; min-height: min(720px, calc(100vh - 20px)); border-radius: 26px; overflow: hidden; color: #fff;
+    display: flex; flex-direction: column;
+    background: linear-gradient(rgba(8, 24, 14, .38), rgba(8, 24, 14, .62)), #1d3a28 url(img/tea-picker.png) center 35% / cover no-repeat;
   }
-  .w-opt:hover { border-color: var(--primary); background: var(--primary-light); }
-  .w-opt strong { font-size: 1.12rem; font-weight: 500; }
-  .w-opt span { font-size: .9rem; color: var(--muted); }
-  .w-foot { margin-top: 22px; font-size: .82rem; color: var(--faint); }
+  .nav { display: flex; align-items: center; justify-content: space-between; gap: 14px; padding: 18px 22px; }
+  .brand { display: flex; align-items: center; gap: 9px; font-family: var(--serif); font-size: 1.3rem; font-weight: 600; }
+  .brand svg { width: 34px; height: 34px; background: #fff; border-radius: 50%; padding: 3px; }
+  .pills { display: flex; gap: 6px; padding: 5px; border-radius: 999px; background: rgba(255, 255, 255, .16); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); }
+  .pills a { padding: 7px 18px; border-radius: 999px; font-size: .85rem; font-weight: 500; color: rgba(255, 255, 255, .92); transition: background .2s; }
+  .pills a:hover { background: rgba(255, 255, 255, .2); }
+  .pills a.on { background: #fff; color: var(--ink); }
+  .btn { display: inline-flex; align-items: center; gap: 8px; height: 46px; padding: 0 24px; border-radius: 999px; font-size: .9rem; font-weight: 600; transition: transform .2s var(--ease), background .2s, box-shadow .2s; }
+  .btn:hover { transform: translateY(-1px); }
+  .btn.white { background: #fff; color: var(--ink); }
+  .btn.white:hover { background: #f1f6ee; }
+  .btn.glass { background: rgba(255, 255, 255, .18); color: #fff; box-shadow: inset 0 0 0 1px rgba(255, 255, 255, .35); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); }
+  .btn.glass:hover { background: rgba(255, 255, 255, .28); }
+  .btn.sm { height: 40px; padding: 0 20px; }
+
+  .hero-body { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: 24px 20px 120px; }
+  .eyebrow { margin-bottom: 18px; font-size: .78rem; font-weight: 500; letter-spacing: .14em; text-transform: uppercase; opacity: .92; }
+  .hero h1 { max-width: 15em; font-size: clamp(2.2rem, 5.2vw, 4rem); font-weight: 600; line-height: 1.08; letter-spacing: -.02em; text-wrap: balance; }
+  .hero-cta { margin-top: 30px; display: flex; flex-wrap: wrap; justify-content: center; gap: 12px; }
+
+  .peek {
+    position: absolute; right: 22px; bottom: 22px; display: flex; align-items: center; gap: 14px; padding: 9px 12px 9px 9px; border-radius: 20px;
+    background: rgba(255, 255, 255, .16); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); box-shadow: inset 0 0 0 1px rgba(255, 255, 255, .25);
+  }
+  .peek img { display: block; width: 74px; height: 62px; object-fit: cover; border-radius: 13px; }
+  .peek p { font-size: .92rem; font-weight: 500; line-height: 1.3; }
+  .peek a { margin-top: 7px; display: inline-flex; align-items: center; gap: 8px; padding: 4px 6px 4px 14px; border-radius: 999px; background: rgba(255, 255, 255, .92); color: var(--ink); font-size: .72rem; font-weight: 600; letter-spacing: .06em; text-transform: uppercase; }
+  .peek a i { width: 22px; height: 22px; display: grid; place-items: center; border-radius: 50%; background: var(--green); color: #fff; }
+  .peek a svg { width: 11px; height: 11px; fill: none; stroke: currentColor; stroke-width: 3; stroke-linecap: round; stroke-linejoin: round; }
+
+  /* sections */
+  section { padding: 84px 0 0; scroll-margin-top: 12px; }
+  .head { text-align: center; max-width: 44em; margin: 0 auto; }
+  .label { display: block; margin-bottom: 12px; font-size: .8rem; font-weight: 500; letter-spacing: .12em; text-transform: uppercase; color: var(--muted); }
+  .head h2 { font-family: var(--serif); font-size: clamp(1.7rem, 3.4vw, 2.5rem); font-weight: 500; line-height: 1.18; color: var(--green); text-wrap: balance; }
+  .head p { margin-top: 16px; color: var(--muted); font-size: 1.02rem; line-height: 1.7; }
+  .head p b { color: var(--ink); font-weight: 600; }
+
+  .feats { margin: 44px 0 0; padding: 0; list-style: none; display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; }
+  .feats li { padding: 26px 22px 28px; border-radius: 20px; background: var(--cream); }
+  .feats .ic { width: 46px; height: 46px; margin-bottom: 52px; display: grid; place-items: center; border-radius: 50%; background: var(--green); color: #fff; }
+  .feats .ic svg { width: 22px; height: 22px; fill: none; stroke: currentColor; stroke-width: 1.7; stroke-linecap: round; stroke-linejoin: round; }
+  .feats h3 { margin-bottom: 6px; font-size: 1.04rem; font-weight: 600; color: var(--green-d); }
+  .feats p { font-size: .9rem; line-height: 1.55; color: var(--muted); }
+
+  .steps { margin: 40px 0 0; padding: 0; list-style: none; display: grid; grid-template-columns: repeat(4, 1fr); gap: 28px; counter-reset: s; }
+  .steps li { padding-top: 18px; border-top: 2px solid var(--line); counter-increment: s; }
+  .steps li::before { content: "0" counter(s); display: block; margin-bottom: 8px; font-family: var(--serif); font-size: 1.5rem; color: var(--green); }
+  .steps h3 { margin-bottom: 4px; font-size: 1rem; font-weight: 600; }
+  .steps p { font-size: .9rem; line-height: 1.55; color: var(--muted); }
+
+  .who { padding-bottom: 84px; }
+  .opts { margin-top: 40px; display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+  .opt { display: flex; flex-direction: column; overflow: hidden; border-radius: 22px; background: var(--cream); transition: transform .25s var(--ease), box-shadow .25s var(--ease); }
+  .opt:hover { transform: translateY(-3px); box-shadow: 0 16px 36px rgba(23, 84, 42, .16); }
+  .opt img { display: block; width: 100%; height: 190px; object-fit: cover; }
+  .opt .t { display: flex; align-items: center; justify-content: space-between; gap: 18px; padding: 22px 24px 26px; }
+  .opt strong { display: block; margin-bottom: 3px; font-size: 1.14rem; font-weight: 600; color: var(--green-d); }
+  .opt span.d { display: block; font-size: .9rem; line-height: 1.5; color: var(--muted); }
+  .opt .go { flex: none; width: 42px; height: 42px; display: grid; place-items: center; border-radius: 50%; background: var(--green); color: #fff; transition: transform .25s var(--ease); }
+  .opt:hover .go { transform: translateX(4px); }
+  .opt .go svg { width: 18px; height: 18px; fill: none; stroke: currentColor; stroke-width: 2.2; stroke-linecap: round; stroke-linejoin: round; }
+  .note { margin-top: 26px; text-align: center; font-size: .86rem; color: var(--muted); }
+  .count { margin-top: 22px; text-align: center; font-size: .88rem; color: var(--green); font-weight: 500; }
+
+  footer { border-top: 1px solid var(--line); padding: 22px 0; font-size: .82rem; color: var(--muted); }
+  footer .wrap { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 6px 24px; }
+
+  @media (max-width: 900px) {
+    .feats, .steps { grid-template-columns: 1fr 1fr; }
+    .pills { display: none; }
+  }
+  @media (max-width: 640px) {
+    .hero { margin: 6px; border-radius: 20px; min-height: 640px; }
+    .nav { padding: 14px; }
+    .peek { display: none; }
+    .hero-body { padding-bottom: 60px; }
+    section { padding-top: 60px; }
+    .feats, .steps, .opts { grid-template-columns: 1fr; }
+    .feats .ic { margin-bottom: 28px; }
+    .opt img { height: 160px; }
+  }
+  @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } .btn, .opt, .opt .go { transition: none; } }
 </style>
 </head>
 <body>
-<noscript><p class="noscript">Mfasha ikenera JavaScript kugira ngo ikore.</p></noscript>
-<main class="w-page">
-  <div class="w-box">
-    <svg class="w-logo" viewBox="0 0 120 120" aria-hidden="true"><use href="#logo-mark"/></svg>
-    <h1 translate="no">Mfasha</h1>
-    <p class="w-sub">Murakaza neza. Uri nde?</p>
-    <div class="w-opts">
-      <a class="w-opt" href="chat.html#chat">
-        <strong>Ndi umuhinzi</strong>
-        <span>Baza ibibazo ku buhinzi n’ubworozi. Nta kwiyandikisha bisabwa.</span>
-      </a>
-      <a class="w-opt" href="officer.html">
-        <strong>Ndi umukozi w’ubuhinzi</strong>
-        <span>Fungura konti cyangwa winjire kugira ngo usuzume ibisubizo.</span>
-      </a>
-    </div>
-    <p class="w-foot">Mfasha isubiza gusa ibyemejwe n’abakozi b’ubuhinzi.</p>
+<noscript><p style="padding:12px;text-align:center;background:#FEF3C7">Mfasha ikenera JavaScript kugira ngo ikore.</p></noscript>
+
+<header class="hero">
+  <div class="nav">
+    <a class="brand" href="index.html" aria-label="Mfasha, urupapuro rwa mbere"><svg viewBox="0 0 120 120" aria-hidden="true"><use href="#logo-mark"/></svg><span translate="no">Mfasha</span></a>
+    <nav class="pills" aria-label="Menu">
+      <a class="on" href="#ibyerekeye">Ibyerekeye</a>
+      <a href="#uko-ikora">Uko ikora</a>
+      <a href="#uri-nde">Uri nde?</a>
+    </nav>
+    <a class="btn white sm" href="#uri-nde">Tangira</a>
   </div>
+
+  <div class="hero-body">
+    <p class="eyebrow">Umufasha mu buhinzi n’ubworozi</p>
+    <h1>Ibisubizo ku buhinzi n’ubworozi, mu Kinyarwanda</h1>
+    <div class="hero-cta">
+      <a class="btn white" href="chat.html#chat">Ndi umuhinzi</a>
+      <a class="btn glass" href="officer.html">Ndi umukozi w’ubuhinzi</a>
+    </div>
+  </div>
+
+  <div class="peek">
+    <img src="img/tea-picker.png" width="547" height="365" alt="">
+    <div>
+      <p>Wandike cyangwa uvuge,<br>ubone igisubizo</p>
+      <a href="#uko-ikora">Reba <i><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 17 17 7M8 7h9v9"/></svg></i></a>
+    </div>
+  </div>
+</header>
+
+<main>
+  <section id="ibyerekeye">
+    <div class="wrap">
+      <div class="head">
+        <span class="label">Mfasha ni iki?</span>
+        <h2>Umufasha w’umuhinzi n’umworozi, uvuga Kinyarwanda</h2>
+        <p><b translate="no">Mfasha</b> ni umufasha wo kuri telefone cyangwa mudasobwa ushubiza ibibazo by’abahinzi n’aborozi. Wandika cyangwa ukavuga ikibazo cyawe, maze ukabona igisubizo gishingiye ku nyandiko z’ubuhinzi zasuzumwe n’abakozi b’ubuhinzi.</p>
+      </div>
+      <ul class="feats">
+        <li><span class="ic"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="9" y="3" width="6" height="12" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/></svg></span><h3>Yumva Kinyarwanda</h3><p>Uvuga ikibazo cyawe, Mfasha ikagihindura inyandiko.</p></li>
+        <li><span class="ic"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg></span><h3>Ishakisha mu nyandiko</h3><p>Isubiza gusa ibiri mu nyandiko z’ubuhinzi, ntiyihimbira.</p></li>
+        <li><span class="ic"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3 4 6v6c0 5 3.5 8 8 9 4.5-1 8-4 8-9V6z"/><path d="m9 12 2 2 4-4"/></svg></span><h3>Yasuzumwe n’abakozi</h3><p>Ibisubizo byemejwe n’abakozi b’ubuhinzi mbere yo gutangwa.</p></li>
+        <li><span class="ic"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 4 2.5 20h19z"/><path d="M12 10v4M12 17.5v.01"/></svg></span><h3>Ivuga ko nta cyo izi</h3><p>Iyo nta gisubizo gihari, irabikubwira aho kuguha ibitari byo.</p></li>
+      </ul>
+    </div>
+  </section>
+
+  <section id="uko-ikora">
+    <div class="wrap">
+      <div class="head">
+        <span class="label">Uko ikora</span>
+        <h2>Intambwe enye, kuva ku kibazo ukageza ku gisubizo</h2>
+      </div>
+      <ol class="steps">
+        <li><h3>Baza ikibazo</h3><p>Andika, cyangwa ukande mikoro ukivuge mu Kinyarwanda.</p></li>
+        <li><h3>Iragutega amatwi</h3><p>Ijwi ryawe rihindurwa inyandiko, ikibazo kigasobanurwa neza.</p></li>
+        <li><h3>Ishakisha igisubizo</h3><p>Isuzuma inyandiko zasuzumwe n’abakozi, ikabona igikwiranye.</p></li>
+        <li><h3>Ubona igisubizo</h3><p>Ubona igisubizo n’icyizere cyacyo. Iyo itizeye, igutuma ku mukozi w’ubuhinzi.</p></li>
+      </ol>
+    </div>
+  </section>
+
+  <section class="who" id="uri-nde">
+    <div class="wrap">
+      <div class="head">
+        <span class="label">Tangira</span>
+        <h2>Uri nde?</h2>
+        <p>Hitamo uko ushaka gukoresha <span translate="no">Mfasha</span>.</p>
+      </div>
+      <div class="opts">
+        <a class="opt" href="chat.html#chat">
+          <img src="img/field-team.png" width="678" height="452" alt="Abahinzi babiri mu murima w’ibigori">
+          <div class="t">
+            <div><strong>Ndi umuhinzi cyangwa umworozi</strong><span class="d">Baza ibibazo ku bihingwa n’amatungo. Nta kwiyandikisha bisabwa.</span></div>
+            <span class="go"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span>
+          </div>
+        </a>
+        <a class="opt" href="officer.html">
+          <img src="img/hillside.png" width="275" height="183" alt="Abakozi b’ubuhinzi baganira mu murima ku musozi">
+          <div class="t">
+            <div><strong>Ndi umukozi w’ubuhinzi</strong><span class="d">Fungura konti cyangwa winjire kugira ngo usuzume ibisubizo.</span></div>
+            <span class="go"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span>
+          </div>
+        </a>
+      </div>
+      <p class="count" id="w-count" hidden></p>
+      <p class="note">Ikibazo cyihutirwa, nk’itungo ryarwaye cyane, buri gihe baza umukozi w’ubuhinzi cyangwa veterineri.</p>
+    </div>
+  </section>
 </main>
+
+<footer><div class="wrap"><span><span translate="no">Mfasha</span> · Umufasha wawe mu buhinzi n’ubworozi</span><span>Mfasha isubiza gusa ibyemejwe n’abakozi b’ubuhinzi.</span></div></footer>
+
 <svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false">
   <defs>
     <symbol id="logo-mark" viewBox="0 0 120 120">
@@ -65,5 +223,15 @@
     </symbol>
   </defs>
 </svg>
+
+<script>
+  // Live count of reviewed answers (silently skipped if the server is unreachable).
+  fetch('/api/health').then(function (r) { return r.ok ? r.json() : null; }).then(function (h) {
+    if (!h || !h.reviewed_passages) return;
+    var p = document.getElementById('w-count');
+    p.textContent = 'Mfasha ifite ibisubizo ' + h.reviewed_passages + ' byasuzumwe n’abakozi b’ubuhinzi.';
+    p.hidden = false;
+  }).catch(function () {});
+</script>
 </body>
 </html>
