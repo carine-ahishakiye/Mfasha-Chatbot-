@@ -187,3 +187,21 @@
 .o-filter button:hover { color: var(--o-ink); }
 .o-filter button[aria-checked=true] { color: var(--o-green-d); border-bottom-color: var(--o-green); }
 .o-list { border-top: 0; margin-top: 4px; }
+
+/* login: split layout */
+.o-login { display: block; padding: 0; }
+.o-login-card { max-width: none; min-height: 100vh; min-height: 100dvh; display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); border: 0; border-radius: 0; background: #fff; }
+.o-login-side { position: relative; margin: 20px; border-radius: 14px; overflow: hidden; background: #1d3a28; }
+.o-login-side::after { content: ""; position: absolute; inset: 0; background: linear-gradient(rgba(8,20,12,.05) 40%, rgba(8,20,12,.7)); }
+.o-login-side .o-login-photo { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; object-position: center; }
+.o-login-side p { position: absolute; z-index: 1; left: 28px; right: 28px; bottom: 28px; color: #fff; font-family: var(--serif); font-size: clamp(1.4rem, 2.6vw, 2rem); line-height: 1.2; }
+.o-login-body { align-self: center; justify-self: center; width: min(100% - 48px, 380px); padding: 32px 0; }
+.o-login-card h1 { margin-top: 22px; font-size: 1.9rem; }
+.o-login-card .o-btn { border-radius: 6px; }
+.o-body input[type=text], .o-body input[type=password], .o-body input[type=tel] { border-radius: 6px; }
+@media (max-width: 760px) {
+  .o-login-card { grid-template-columns: 1fr; min-height: 0; }
+  .o-login-side { height: 150px; margin: 10px; }
+  .o-login-side p { display: none; }
+  .o-login-body { padding: 16px 0 32px; }
+}

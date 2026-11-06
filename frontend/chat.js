@@ -386,29 +386,8 @@
     if (e.key === 'Escape' && app.classList.contains('open')) { app.classList.remove('open'); $('toggle-history').focus(); }
   });
 
-  /* ---------- landing page / chat switch ---------- */
-  // "/" shows the landing page, "/#chat" shows the chat. Any other hash (#ikora, #uko-ikora)
-  // is an anchor inside the landing page.
-  var landing = $('landing'), lastView = null;
-  function route() {
-    var chat = location.hash === '#chat';
-    landing.hidden = chat; app.hidden = !chat;
-    document.title = chat ? 'Baza Mfasha – Umufasha wawe mu buhinzi n’ubworozi' : 'Mfasha – Umufasha wawe mu buhinzi n’ubworozi';
-    if (chat && lastView !== 'chat') questionBox.focus();
-    if (!chat && lastView === 'chat') window.scrollTo(0, 0);
-    lastView = chat ? 'chat' : 'landing';
-  }
-  window.addEventListener('hashchange', route);
-  route();
-
-  // Reveal landing sections as they scroll into view.
-  var reveal = document.querySelectorAll('.rv');
-  if ('IntersectionObserver' in window) {
-    var io = new IntersectionObserver(function (entries) {
-      entries.forEach(function (e) { if (e.isIntersecting) { e.target.classList.add('on'); io.unobserve(e.target); } });
-    }, { threshold: 0.12 });
-    reveal.forEach(function (el) { io.observe(el); });
-  } else { reveal.forEach(function (el) { el.classList.add('on'); }); }
+  document.title = 'Baza Mfasha – Umufasha wawe mu buhinzi n’ubworozi';
+  questionBox.focus();
 
   loadConversations();
 }());
