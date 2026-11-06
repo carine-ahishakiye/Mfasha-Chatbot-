@@ -1,17 +1,18 @@
 import base64
 
-from tests.conftest import make_wav
+from tests.conftest import IN_SCOPE_QUESTION, make_wav
 
 KEY = {"X-API-Key": "test-key"}
 
 
-def test_health(client):
+def test_health(client, knowledge_base):
     body = client.get("/api/health").json()
-    assert body["status"] == "ok" and body["passages"] == 12 and body["components"]["retriever"]
+    assert body["status"] == "ok" and body["components"]["retriever"]
+    assert body["passages"] == len(knowledge_base)
 
 
 def test_text_question_round_trip_and_feedback(client):
-    r = client.post("/api/ask/text", json={"question": "Ni gute nahinga ibigori?", "with_audio": True})
+    r = client.post("/api/ask/text", json={"question": IN_SCOPE_QUESTION, "with_audio": True})
     assert r.status_code == 200
     body = r.json()
     assert body["status"] == "answered" and base64.b64decode(body["audio_base64"])[:4] == b"RIFF"
@@ -37,7 +38,7 @@ def test_script_in_question_is_returned_as_data_not_executed(client):
 
 def test_voice_question(client):
     r = client.post("/api/ask/voice", files={"audio": ("q.wav", make_wav(), "audio/wav")})
-    assert r.status_code == 200 and r.json()["heard"] == "Ni gute nahinga ibigori?"
+    assert r.status_code == 200 and r.json()["heard"] == IN_SCOPE_QUESTION
 
 
 def test_voice_with_invalid_audio_returns_422(client):
@@ -66,7 +67,7 @@ def test_feedback_validation(client):
 
 
 def test_officer_and_admin_endpoints_need_the_api_key(client):
-    answer_id = client.post("/api/ask/text", json={"question": "Ni gute nahinga ibigori?"}).json()["answer_id"]
+    answer_id = client.post("/api/ask/text", json={"question": IN_SCOPE_QUESTION}).json()["answer_id"]
     review = {"answer_id": answer_id, "reviewer": "Officer A", "verdict": "correct",
               "is_relevant": True, "is_clear": True, "is_safe": True}
     assert client.post("/api/officer/reviews", json=review).status_code == 401
