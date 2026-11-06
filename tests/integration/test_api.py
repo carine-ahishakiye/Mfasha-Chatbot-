@@ -91,3 +91,12 @@ def test_admin_disabled_without_configured_key(settings, knowledge_base, pipelin
 def test_frontend_is_served(client):
     r = client.get("/")
     assert r.status_code == 200 and "MFASHA" in r.text
+
+def test_officer_answer_queue_needs_key_and_lists_answers(client):
+    answer_id = client.post("/api/ask/text", json={"question": IN_SCOPE_QUESTION}).json()["answer_id"]
+    assert client.get("/api/officer/answers").status_code == 401
+    rows = client.get("/api/officer/answers", headers=KEY).json()
+    assert any(r["answer_id"] == answer_id for r in rows)
+    one = client.get(f"/api/officer/answers/{answer_id}", headers=KEY)
+    assert one.status_code == 200 and one.json()["answer_id"] == answer_id
+    assert client.get("/api/officer/answers/99999", headers=KEY).status_code == 404
