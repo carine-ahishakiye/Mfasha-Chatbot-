@@ -8,67 +8,92 @@
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%232E7D32'/%3E%3Cpath d='M30 46C22 40 22 26 32 16c9 9 8 24-2 30z' fill='%23fff'/%3E%3Cpath d='M36 44C32 30 40 18 52 12c3 16-5 28-16 32z' fill='%23A4C42B'/%3E%3C/svg%3E">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600&family=Inter:wght@400;500;600&family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="style.css?v=3">
-<link rel="stylesheet" href="officer.css?v=3">
+<link rel="stylesheet" href="officer.css?v=4">
 </head>
 <body class="o-body">
 <noscript><p class="noscript">Mfasha ikenera JavaScript kugira ngo ikore.</p></noscript>
 
 <!-- Login -->
-<main class="o-login" id="login-view">
-  <div class="o-login-card">
-    <div class="o-login-side"><img class="o-login-photo" src="img/hillside.png" width="275" height="183" alt="Abakozi b’ubuhinzi baganira mu murima ku musozi"><p>Umufasha wawe mu buhinzi n’ubworozi</p></div>
-    <div class="o-login-body">
-    <div class="o-login-brand"><svg class="o-logo" viewBox="0 0 120 120" aria-hidden="true"><use href="#logo-mark"/></svg><span translate="no">Mfasha</span></div>
-    <h1>Umukozi w’ubuhinzi</h1>
+<main class="lg" id="login-view">
+  <span class="lg-blob b1" aria-hidden="true"></span><span class="lg-blob b2" aria-hidden="true"></span><span class="lg-blob b3" aria-hidden="true"></span>
+  <div class="lg-card">
+    <section class="lg-form">
+      <a class="lg-back" href="index.html" id="switch-role-login"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M19 12H5M11 6l-6 6 6 6"/></svg>Subira ku rupapuro rwa mbere</a>
 
-    <div class="o-switch" role="tablist" aria-label="Injira cyangwa ufungure konti">
-      <button type="button" role="tab" id="tab-login" aria-selected="true">Injira</button>
-      <button type="button" role="tab" id="tab-register" aria-selected="false">Fungura konti</button>
-    </div>
+      <p class="lg-welcome">Murakaza neza</p>
+      <h1 id="lg-title">Injira</h1>
 
-    <!-- sign in -->
-    <form id="login-form" autocomplete="off">
-      <p class="o-muted">Andika nimero ya telefone na PIN wahisemo.</p>
+      <div class="o-switch" role="tablist" aria-label="Injira cyangwa ufungure konti">
+        <button type="button" role="tab" id="tab-login" aria-selected="true">Injira</button>
+        <button type="button" role="tab" id="tab-register" aria-selected="false">Fungura konti</button>
+      </div>
 
-      <label for="phone">Nimero ya telefone</label>
-      <input id="phone" type="tel" inputmode="tel" placeholder="0788 123 456" maxlength="20" required autocomplete="tel">
+      <!-- sign in -->
+      <form id="login-form" autocomplete="off">
+        <label for="phone">Nimero ya telefone</label>
+        <input id="phone" type="tel" inputmode="tel" placeholder="0788 123 456" maxlength="20" required autocomplete="tel">
 
-      <label for="pin">PIN (imibare 4 kugeza kuri 6)</label>
-      <input id="pin" type="password" inputmode="numeric" pattern="[0-9]{4,6}" minlength="4" maxlength="6" required autocomplete="current-password">
+        <label for="pin">PIN (imibare 4 kugeza kuri 6)</label>
+        <div class="lg-pass">
+          <input id="pin" type="password" inputmode="numeric" pattern="[0-9]{4,6}" minlength="4" maxlength="6" placeholder="••••" required autocomplete="current-password">
+          <button type="button" class="lg-eye" data-for="pin" aria-label="Erekana PIN"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M2 12s3.500-7 10-7 10 7 10 7-3.500 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></svg></button>
+        </div>
 
-      <p class="o-error" id="login-error" role="alert" hidden></p>
-      <button class="o-btn" id="login-btn" type="submit">Injira</button>
-    </form>
+        <p class="o-error" id="login-error" role="alert" hidden></p>
+        <button class="o-btn" id="login-btn" type="submit">Injira</button>
+      </form>
 
-    <!-- create account -->
-    <form id="register-form" autocomplete="off" hidden>
-      <p class="o-muted">Fungura konti nshya. Uzakenera kode wahawe n’umuyobozi wawe.</p>
+      <!-- create account -->
+      <form id="register-form" autocomplete="off" hidden>
+        <p class="o-muted">Fungura konti nshya. Uzakenera kode wahawe n’umuyobozi wawe.</p>
 
-      <label for="reg-name">Amazina yawe yose</label>
-      <input id="reg-name" type="text" minlength="2" maxlength="80" required autocomplete="name">
+        <label for="reg-name">Amazina yawe yose</label>
+        <input id="reg-name" type="text" minlength="2" maxlength="80" required autocomplete="name">
 
-      <label for="reg-phone">Nimero ya telefone</label>
-      <input id="reg-phone" type="tel" inputmode="tel" placeholder="0788 123 456" maxlength="20" required autocomplete="tel">
+        <label for="reg-phone">Nimero ya telefone</label>
+        <input id="reg-phone" type="tel" inputmode="tel" placeholder="0788 123 456" maxlength="20" required autocomplete="tel">
 
-      <label for="reg-pin">Hitamo PIN (imibare 4 kugeza kuri 6)</label>
-      <input id="reg-pin" type="password" inputmode="numeric" pattern="[0-9]{4,6}" minlength="4" maxlength="6" required autocomplete="new-password">
+        <label for="reg-pin">Hitamo PIN (imibare 4 kugeza kuri 6)</label>
+        <input id="reg-pin" type="password" inputmode="numeric" pattern="[0-9]{4,6}" minlength="4" maxlength="6" required autocomplete="new-password">
 
-      <label for="reg-pin2">Ongera wandike PIN</label>
-      <input id="reg-pin2" type="password" inputmode="numeric" pattern="[0-9]{4,6}" minlength="4" maxlength="6" required autocomplete="new-password">
+        <label for="reg-pin2">Ongera wandike PIN</label>
+        <input id="reg-pin2" type="password" inputmode="numeric" pattern="[0-9]{4,6}" minlength="4" maxlength="6" required autocomplete="new-password">
 
-      <label for="reg-code">Kode yo kwiyandikisha</label>
-      <input id="reg-code" type="password" required autocomplete="off">
+        <label for="reg-code">Kode yo kwiyandikisha</label>
+        <input id="reg-code" type="password" required autocomplete="off">
 
-      <p class="o-error" id="register-error" role="alert" hidden></p>
-      <button class="o-btn" id="register-btn" type="submit">Fungura konti</button>
-    </form>
+        <p class="o-error" id="register-error" role="alert" hidden></p>
+        <button class="o-btn" id="register-btn" type="submit">Fungura konti</button>
+      </form>
+    </section>
 
-    <a class="o-link" href="index.html" id="switch-role-login">Subira ku rupapuro rwa mbere</a>
-    </div>
+    <aside class="lg-side">
+      <div class="lg-brand"><svg viewBox="0 0 120 120" aria-hidden="true"><use href="#logo-mark"/></svg><span><b translate="no">Mfasha</b><small>[ Abakozi b’ubuhinzi ]</small></span></div>
+      <div class="lg-art">
+        <i class="cloud c1" aria-hidden="true"></i><i class="cloud c2" aria-hidden="true"></i>
+        <img src="img/greenhouse-farmer.png" width="678" height="452" alt="Umuhinzi akoresha telefone mu busitani">
+      </div>
+      <h2>Fasha abahinzi kubona ibisubizo byizewe</h2>
+      <p>Suzuma ibisubizo bya Mfasha, wemeze ibikwiye, kandi usubize abahinzi bakeneye inama zihariye.</p>
+    </aside>
   </div>
 </main>
+
+<script>
+/* Login view only: show/hide PIN and match the heading to the selected tab. */
+(function () {
+  var eye = document.querySelector('.lg-eye'), title = document.getElementById('lg-title');
+  eye.addEventListener('click', function () {
+    var i = document.getElementById(eye.dataset['for']), show = i.type === 'password';
+    i.type = show ? 'text' : 'password';
+    eye.setAttribute('aria-label', show ? 'Hisha PIN' : 'Erekana PIN');
+  });
+  document.getElementById('tab-login').addEventListener('click', function () { title.textContent = 'Injira'; });
+  document.getElementById('tab-register').addEventListener('click', function () { title.textContent = 'Fungura konti'; });
+})();
+</script>
 
 <!-- Dashboard -->
 <div class="o-app" id="app-view" hidden>
