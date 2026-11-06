@@ -90,3 +90,17 @@ def officer_review(body: ExpertReviewIn, repo: InteractionRepository = Depends(g
 @router.get("/admin/stats", dependencies=[Depends(require_api_key)])
 def stats(repo: InteractionRepository = Depends(get_repository)):
     return repo.stats()
+
+
+@router.get("/officer/answers", dependencies=[Depends(require_api_key)])
+def officer_answers(unreviewed: bool = True, limit: int = 50,
+                    repo: InteractionRepository = Depends(get_repository)):
+    return repo.list_answers(unreviewed=unreviewed, limit=min(max(limit, 1), 200))
+
+
+@router.get("/officer/answers/{answer_id}", dependencies=[Depends(require_api_key)])
+def officer_answer(answer_id: int, repo: InteractionRepository = Depends(get_repository)):
+    row = repo.get_answer(answer_id)
+    if row is None:
+        raise HTTPException(status_code=404, detail="unknown answer_id")
+    return row

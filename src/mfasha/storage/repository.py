@@ -4,7 +4,7 @@ from __future__ import annotations
 from typing import Optional
 
 from sqlalchemy import func, select
-from sqlalchemy.orm import sessionmaker
+from sqlalchemy.orm import selectinload, sessionmaker
 
 from mfasha.domain.models import AnswerStatus, PipelineResult
 from mfasha.storage.orm import AnswerRow, ExpertReviewRow, FeedbackRow, QuestionRow
@@ -79,3 +79,27 @@ class InteractionRepository:
             "expert_reviews": n_reviews, "officer_correct_or_partial_rate":
                 round(ok / n_reviews, 3) if n_reviews else None,   # objective 3 target: >= 0.70
         }
+
+
+    @staticmethod
+    def _answer_dict(r: AnswerRow) -> dict:
+        return {
+            "answer_id": r.id, "question": r.question.question_text, "answer": r.answer_text,
+            "status": r.status, "referral_reason": r.referral_reason,
+            "retrieval_score": r.retrieval_score, "predicted_category": r.predicted_category,
+            "passage_id": r.passage_id, "review_status": r.review_status,
+            "submitted_at": r.generated_at.isoformat() if r.generated_at else None,
+        }
+
+    def list_answers(self, unreviewed: bool = True, limit: int = 50) -> list[dict]:
+        with self._sessions() as session:
+            stmt = (select(AnswerRow).options(selectinload(AnswerRow.question))
+                    .order_by(AnswerRow.id.desc()).limit(limit))
+            if unreviewed:
+                stmt = stmt.where(~AnswerRow.reviews.any())
+            return [self._answer_dict(r) for r in session.scalars(stmt).all()]
+
+    def get_answer(self, answer_id: int) -> Optional[dict]:
+        with self._sessions() as session:
+            row = session.get(AnswerRow, answer_id, options=[selectinload(AnswerRow.question)])
+            return self._answer_dict(row) if row else None

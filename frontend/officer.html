@@ -1,0 +1,135 @@
+﻿<!doctype html>
+<html lang="rw">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex">
+<title>Mfasha – Abakozi b’ubuhinzi</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%232E7D32'/%3E%3Cpath d='M30 46C22 40 22 26 32 16c9 9 8 24-2 30z' fill='%23fff'/%3E%3Cpath d='M36 44C32 30 40 18 52 12c3 16-5 28-16 32z' fill='%23A4C42B'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500&family=Inter:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+<link rel="stylesheet" href="officer.css">
+</head>
+<body class="o-body">
+<noscript><p class="noscript">Mfasha ikenera JavaScript kugira ngo ikore.</p></noscript>
+
+<!-- Login -->
+<main class="o-login" id="login-view">
+  <form class="o-card o-login-card" id="login-form" autocomplete="off">
+    <svg class="o-logo" viewBox="0 0 120 120" aria-hidden="true"><use href="#logo-mark"/></svg>
+    <h1>Injira nk’umukozi w’ubuhinzi</h1>
+    <p class="o-muted">Andika amazina yawe n’urufunguzo rw’ibanga wahawe.</p>
+
+    <label for="reviewer">Amazina yawe</label>
+    <input id="reviewer" type="text" minlength="2" maxlength="80" required>
+
+    <label for="apikey">Urufunguzo rw’ibanga</label>
+    <input id="apikey" type="password" required autocomplete="off">
+
+    <p class="o-error" id="login-error" role="alert" hidden></p>
+    <button class="o-btn" id="login-btn" type="submit">Injira</button>
+    <a class="o-link" href="#" id="switch-role-login">Hindura uruhare</a>
+  </form>
+</main>
+
+<!-- Dashboard -->
+<div class="o-app" id="app-view" hidden>
+  <header class="o-top">
+    <div class="o-brand"><svg viewBox="0 0 120 120" aria-hidden="true"><use href="#logo-mark"/></svg><span translate="no">Mfasha</span><small>Abakozi b’ubuhinzi</small></div>
+    <nav class="o-tabs" role="tablist" aria-label="Ibice">
+      <button role="tab" id="tab-overview" aria-controls="overview-view" aria-selected="true" type="button">Incamake</button>
+      <button role="tab" id="tab-review" aria-controls="review-view" aria-selected="false" type="button">Suzuma ibisubizo</button>
+    </nav>
+    <div class="o-who"><span id="who"></span>
+      <button class="o-btn ghost sm" id="logout" type="button">Sohoka</button>
+    </div>
+  </header>
+
+  <main class="o-main">
+    <!-- Overview -->
+    <section id="overview-view" role="tabpanel" aria-labelledby="tab-overview">
+      <div class="o-row"><h2>Incamake y’imikorere</h2>
+        <button class="o-btn ghost sm" id="refresh-stats" type="button">Vugurura</button></div>
+      <p class="o-error" id="stats-error" role="alert" hidden></p>
+      <div class="o-stats" id="stats-grid"></div>
+      <div class="o-card o-target" id="target-card" hidden>
+        <h3>Intego y’isuzuma</h3>
+        <p id="target-text"></p>
+        <div class="o-bar" aria-hidden="true"><span id="target-fill"></span><i></i></div>
+        <small class="o-muted">Intego: nibura 70% by’ibisubizo byasuzumwe bifatwa ko ari ukuri cyangwa ukuri igice.</small>
+      </div>
+    </section>
+
+    <!-- Review -->
+    <section id="review-view" role="tabpanel" aria-labelledby="tab-review" hidden>
+      <div class="o-split">
+        <aside class="o-card o-queue">
+          <div class="o-row"><h2>Ibitegereje gusuzumwa</h2>
+            <button class="o-btn ghost sm" id="refresh-queue" type="button">Vugurura</button></div>
+          <div id="queue-list" class="o-list"></div>
+
+          <form id="lookup-form" class="o-lookup">
+            <label for="answer-id">Cyangwa andika nimero y’igisubizo</label>
+            <div class="o-inline">
+              <input id="answer-id" type="number" min="1" inputmode="numeric">
+              <button class="o-btn sm" type="submit">Shaka</button>
+            </div>
+          </form>
+        </aside>
+
+        <form class="o-card o-form" id="review-form">
+          <p class="o-muted" id="review-empty">Hitamo igisubizo ibumoso kugira ngo ugisuzume.</p>
+          <div id="review-body" hidden>
+            <div class="o-meta" id="review-meta"></div>
+            <h3>Ikibazo cy’umuhinzi</h3>
+            <p class="o-text" id="r-question"></p>
+            <h3>Igisubizo cya Mfasha</h3>
+            <p class="o-text o-answer" id="r-answer"></p>
+
+            <fieldset>
+              <legend>Icyemezo cyawe</legend>
+              <label class="o-radio"><input type="radio" name="verdict" value="correct" required> Ni ukuri</label>
+              <label class="o-radio"><input type="radio" name="verdict" value="partially_correct"> Ni ukuri igice</label>
+              <label class="o-radio"><input type="radio" name="verdict" value="incorrect"> Si ukuri</label>
+            </fieldset>
+
+            <fieldset>
+              <legend>Ibindi bisuzumwa</legend>
+              <label class="o-check"><input type="checkbox" id="is-relevant"> Gifitanye isano n’ikibazo</label>
+              <label class="o-check"><input type="checkbox" id="is-clear"> Gisobanutse</label>
+              <label class="o-check"><input type="checkbox" id="is-safe"> Nta kibazo cy’umutekano kirimo</label>
+            </fieldset>
+
+            <label for="remarks">Icyo wongeraho (si ngombwa)</label>
+            <textarea id="remarks" rows="3" maxlength="1000"></textarea>
+
+            <p class="o-error" id="review-error" role="alert" hidden></p>
+            <p class="o-ok" id="review-ok" role="status" hidden></p>
+            <button class="o-btn" id="submit-review" type="submit">Ohereza isuzuma</button>
+          </div>
+        </form>
+      </div>
+    </section>
+  </main>
+</div>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false">
+  <defs>
+    <symbol id="logo-mark" viewBox="0 0 120 120">
+      <clipPath id="lg-clip"><circle cx="58" cy="72" r="34"/></clipPath>
+      <path d="M31 56a34 34 0 1 0 54 -10" fill="none" stroke="#1F6B35" stroke-width="7" stroke-linecap="round"/>
+      <g clip-path="url(#lg-clip)">
+        <path d="M24 70q22-14 70-8v10q-40-6-70 8z" fill="#A4C42B"/>
+        <path d="M24 82q26-14 70-6v10q-42-8-70 8z" fill="#A4C42B"/>
+        <path d="M30 98q24-22 64-14v26H30z" fill="#7FA51F"/>
+      </g>
+      <path d="M52 62C44 56 44 42 54 32c9 9 8 24-2 30z" fill="#1F6B35"/>
+      <path d="M62 60C58 44 68 26 88 18c4 22-8 38-26 42z" fill="#1F6B35"/>
+    </symbol>
+  </defs>
+</svg>
+<script src="officer.js"></script>
+</body>
+</html>
