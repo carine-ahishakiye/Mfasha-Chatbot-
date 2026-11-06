@@ -19,9 +19,10 @@ services:
     environment:
       DATABASE_URL: postgresql://mfasha:mfasha@db:5432/mfasha
       MFASHA_API_KEY: ${MFASHA_API_KEY:-change-me}
+      MFASHA_SECRET_KEY: ${MFASHA_SECRET_KEY:-change-me-too}
+      MFASHA_OFFICER_CODE: ${MFASHA_OFFICER_CODE:-}
       MFASHA_RETRIEVER: ${MFASHA_RETRIEVER:-hybrid}
       MFASHA_ENABLE_STT: ${MFASHA_ENABLE_STT:-false}
-      MFASHA_ENABLE_TTS: ${MFASHA_ENABLE_TTS:-false}
     volumes:
       - ./models:/app/models          # fine-tuned models from the notebook
       - ./data:/app/data              # knowledge base and officer review files

@@ -2,7 +2,7 @@
   'use strict';
 
   var API = window.MFASHA_API || '/api';
-  var KEY_STORE = 'mfasha-officer-key', NAME_STORE = 'mfasha-officer-name', ROLE_STORE = 'mfasha-role';
+  var KEY_STORE = 'mfasha-officer-token', NAME_STORE = 'mfasha-officer-name', ROLE_STORE = 'mfasha-role';
   var $ = function (id) { return document.getElementById(id); };
 
   var apiKey = '', reviewer = '', current = null, queueAvailable = true;
@@ -17,11 +17,12 @@
 
   async function call(path, options) {
     options = options || {};
-    options.headers = Object.assign({ 'X-API-Key': apiKey }, options.headers || {});
+    options.headers = Object.assign(apiKey ? { 'Authorization': 'Bearer ' + apiKey } : {}, options.headers || {});
     var res;
     try { res = await fetch(API + path, options); }
     catch (e) { throw httpError(0); }
     if (!res.ok) {
+      if (res.status === 401 && apiKey && !options.isLogin) { sessionExpired(); }
       var info = await res.json().catch(function () { return {}; });
       var detail = Array.isArray(info.detail) ? info.detail.map(function (d) { return d.msg; }).join('; ') : info.detail;
       throw httpError(res.status, detail);
@@ -33,8 +34,9 @@
   }
   function message(status, detail) {
     if (status === 0) return 'Ntabwo bishoboka kugera kuri seriveri. Reba murandasi yawe.';
-    if (status === 401) return 'Urufunguzo rw’ibanga ntirwemewe.';
-    if (status === 503) return 'Igice cy’abakozi ntikirafungurwa kuri seriveri (MFASHA_API_KEY ntiyashyizweho).';
+    if (status === 401) return 'Igihe cyo kwinjira cyarangiye. Ongera winjire.';
+    if (status === 429) return 'Wagerageje kenshi PIN itari yo. Ongera ugerageze nyuma y’iminota 5.';
+    if (status === 503) return 'Igice cy’abakozi ntikirafungurwa kuri seriveri.';
     if (status === 404) return 'Iki gisubizo ntikibonetse.';
     return detail || 'Habaye ikibazo. Ongera ugerageze.';
   }
@@ -47,6 +49,49 @@
   }
   $('switch-role-login').addEventListener('click', switchRole);
 
+  /* ---------- sign in / create account tabs ---------- */
+  function showForm(which) {
+    var reg = which === 'register';
+    show($('login-form'), !reg); show($('register-form'), reg);
+    $('tab-login').setAttribute('aria-selected', reg ? 'false' : 'true');
+    $('tab-register').setAttribute('aria-selected', reg ? 'true' : 'false');
+    say($('login-error'), ''); say($('register-error'), '');
+    $(reg ? 'reg-name' : 'phone').focus();
+  }
+  $('tab-login').addEventListener('click', function () { showForm('login'); });
+  $('tab-register').addEventListener('click', function () { showForm('register'); });
+
+  function signedIn(r) {
+    apiKey = r.token; reviewer = r.name;
+    store(KEY_STORE, apiKey); store(NAME_STORE, reviewer); store(ROLE_STORE, 'officer');
+    enter();
+  }
+
+  $('register-form').addEventListener('submit', async function (e) {
+    e.preventDefault();
+    var btn = $('register-btn'); btn.disabled = true; say($('register-error'), '');
+    var pin = $('reg-pin').value.trim();
+    if (!/^\d{4,6}$/.test(pin)) { say($('register-error'), 'PIN igomba kuba imibare 4 kugeza kuri 6.'); btn.disabled = false; return; }
+    if (pin !== $('reg-pin2').value.trim()) { say($('register-error'), 'PIN zombi ntizihuye. Ongera ubyandike.'); btn.disabled = false; return; }
+    try {
+      var r = await call('/officer/register', {
+        method: 'POST', headers: { 'Content-Type': 'application/json' }, isLogin: true,
+        body: JSON.stringify({ name: $('reg-name').value.trim(), phone: $('reg-phone').value.trim(), pin: pin, code: $('reg-code').value.trim() })
+      });
+      $('register-form').reset();
+      signedIn(r);
+    } catch (err) {
+      var msg = err.message;
+      if (err.status === 401) msg = 'Kode yo kwiyandikisha si yo.';
+      else if (err.status === 409) msg = 'Iyi nimero ya telefone isanzwe ifite konti. Koresha “Injira”.';
+      else if (err.status === 503) msg = 'Kwiyandikisha ntibirafungurwa kuri seriveri. Baza umuyobozi wawe.';
+      else if (err.status === 429) msg = 'Wagerageje kode itari yo kenshi. Ongera ugerageze nyuma y’iminota 5.';
+      else if (err.status === 422) msg = 'Reba amazina, nimero ya telefone na PIN.';
+      say($('register-error'), msg);
+    }
+    finally { btn.disabled = false; }
+  });
+
   function enter() {
     show($('login-view'), false); show($('app-view'), true);
     $('who').textContent = reviewer;
@@ -56,19 +101,32 @@
   $('login-form').addEventListener('submit', async function (e) {
     e.preventDefault();
     var btn = $('login-btn'); btn.disabled = true; say($('login-error'), '');
-    apiKey = $('apikey').value.trim(); reviewer = $('reviewer').value.trim();
+    var phone = $('phone').value.trim(), pin = $('pin').value.trim();
+    if (!/^\d{4,6}$/.test(pin)) { say($('login-error'), 'PIN igomba kuba imibare 4 kugeza kuri 6.'); btn.disabled = false; return; }
     try {
-      await call('/admin/stats');                     // a valid key is the only way this succeeds
-      store(KEY_STORE, apiKey); store(NAME_STORE, reviewer); store(ROLE_STORE, 'officer');
-      $('apikey').value = '';
-      enter();
-    } catch (err) { apiKey = ''; say($('login-error'), err.message); }
+      var r = await call('/officer/login', {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ phone: phone, pin: pin }), isLogin: true
+      });
+      $('pin').value = '';
+      signedIn(r);
+    } catch (err) {
+      apiKey = '';
+      say($('login-error'), err.status === 401 ? 'Nimero ya telefone cyangwa PIN si byo.' : err.message);
+      $('pin').value = '';
+    }
     finally { btn.disabled = false; }
   });
 
+  function sessionExpired() {
+    clear(KEY_STORE); apiKey = ''; current = null;
+    show($('app-view'), false); show($('login-view'), true);
+    say($('login-error'), 'Igihe cyo kwinjira cyarangiye. Ongera winjire.');
+  }
+
   $('logout').addEventListener('click', function () {
     clear(KEY_STORE); clear(NAME_STORE); apiKey = ''; reviewer = ''; current = null;
-    show($('app-view'), false); show($('login-view'), true); $('reviewer').focus();
+    show($('app-view'), false); show($('login-view'), true); $('phone').focus();
   });
 
   /* ---------- tabs ---------- */
@@ -207,7 +265,7 @@
   apiKey = load(KEY_STORE); reviewer = load(NAME_STORE);
   if (apiKey && reviewer) {
     call('/admin/stats').then(enter).catch(function () {
-      apiKey = ''; clear(KEY_STORE); show($('login-view'), true); $('reviewer').value = reviewer;
+      apiKey = ''; clear(KEY_STORE); show($('login-view'), true); $('phone').focus();
     });
-  } else { show($('login-view'), true); $('reviewer').focus(); }
+  } else { show($('login-view'), true); $('phone').focus(); }
 }());

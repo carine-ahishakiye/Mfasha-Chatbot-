@@ -41,7 +41,6 @@ def main() -> None:
          models / "classifier.joblib", "classifier")
     copy(drive / "models" / "kinya-e5-large" / "best", models / "kinya-e5-large" / "best", "fine-tuned e5 retriever")
     copy(drive / "models" / "mms-kin-adapter", models / "mms-kin-adapter", "speech-to-text adapter")
-    copy(drive / "models" / "mms-tts-kin-ft2", models / "mms-tts-kin-ft2", "text-to-speech voice")
     print("\nNow set in .env:\n  MFASHA_KNOWLEDGE_PATH=data/processed/passages.jsonl\n"
           "  MFASHA_REVIEWED_PATH=data/processed/officer_reviewed_passages.csv\n"
           "  MFASHA_LABELS_PATH=data/processed/category_labels_officer.csv\n"

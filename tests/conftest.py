@@ -9,8 +9,7 @@ from fastapi.testclient import TestClient
 from mfasha.api import create_app
 from mfasha.config import ROOT, Settings
 from mfasha.factory import build_knowledge_base, build_pipeline
-from mfasha.interfaces import SpeechToText, TextToSpeech
-from mfasha.speech.audio import encode_wav
+from mfasha.interfaces import SpeechToText
 
 SAMPLE = ROOT / "data" / "sample"
 
@@ -28,13 +27,6 @@ class FakeSpeechToText(SpeechToText):
 
     def transcribe(self, samples, sample_rate):
         return self.text
-
-
-class FakeTextToSpeech(TextToSpeech):
-    name = "fake-tts"
-
-    def synthesize(self, text):
-        return encode_wav(np.zeros(1600, dtype=np.float32), 16000)
 
 
 def make_wav(seconds=1.0, rate=16000, channels=1) -> bytes:
@@ -60,7 +52,7 @@ def knowledge_base(settings):
 @pytest.fixture()
 def pipeline(settings, knowledge_base):
     pipe, _ = build_pipeline(settings, knowledge_base)
-    pipe._stt, pipe._tts = FakeSpeechToText(), FakeTextToSpeech()
+    pipe._stt = FakeSpeechToText()
     return pipe
 
 

@@ -55,14 +55,11 @@ class PipelineResult:
     predicted_category: Optional[str] = None
     review_status: Optional[str] = None
     source: Optional[str] = None
-    audio: Optional[bytes] = None  # WAV bytes of the spoken answer, when TTS ran
     latency_ms: float = 0.0
     stage_ms: dict = field(default_factory=dict)
 
-    def to_dict(self, include_audio: bool = False) -> dict:
-        data = {k: v for k, v in asdict(self).items() if k != "audio"}
+    def to_dict(self) -> dict:
+        data = dict(asdict(self))
         data["status"] = self.status.value
         data["referral_reason"] = self.referral_reason.value if self.referral_reason else None
-        if include_audio:
-            data["audio"] = self.audio
         return data

@@ -11,14 +11,13 @@ import logging
 from mfasha.classification.keyword_labeler import KeywordCategoryLabeler
 from mfasha.classification.tfidf_classifier import TfidfCategoryClassifier
 from mfasha.config import Settings
-from mfasha.interfaces import Classifier, Retriever, SpeechToText, TextToSpeech
+from mfasha.interfaces import Classifier, Retriever, SpeechToText
 from mfasha.knowledge.base import KnowledgeBase, KnowledgeBaseLoader
 from mfasha.nlp.preprocessing import TextCleaner
 from mfasha.pipeline import MfashaPipeline
 from mfasha.referral.policy import ReferralPolicy
 from mfasha.retrieval import BM25Retriever, HybridRetriever, TfidfRetriever
 from mfasha.speech.stt import MmsSpeechToText, UnavailableSpeechToText
-from mfasha.speech.tts import MmsTextToSpeech, UnavailableTextToSpeech
 
 log = logging.getLogger(__name__)
 
@@ -65,13 +64,6 @@ def build_stt(settings: Settings) -> SpeechToText:
                            adapter_dir=settings.models_dir / "mms-kin-adapter")
 
 
-def build_tts(settings: Settings) -> TextToSpeech:
-    if not settings.enable_tts:
-        return UnavailableTextToSpeech()
-    tuned = settings.models_dir / "mms-tts-kin-ft2"
-    return MmsTextToSpeech(str(tuned if tuned.exists() else settings.tts_model))
-
-
 def build_pipeline(settings: Settings, kb: KnowledgeBase | None = None) -> tuple[MfashaPipeline, KnowledgeBase]:
     kb = kb or build_knowledge_base(settings)
     policy = ReferralPolicy.standard(settings.referral_threshold, settings.referral_margin,
@@ -79,7 +71,7 @@ def build_pipeline(settings: Settings, kb: KnowledgeBase | None = None) -> tuple
     pipeline = MfashaPipeline(
         cleaner=TextCleaner(), classifier=build_classifier(settings, kb),
         retriever=build_retriever(settings, kb), policy=policy,
-        stt=build_stt(settings), tts=build_tts(settings),
+        stt=build_stt(settings),
         referral_message=settings.referral_message, top_k=settings.top_k,
         source="C4IR-RW/kinya-ag-retrieval")
     return pipeline, kb

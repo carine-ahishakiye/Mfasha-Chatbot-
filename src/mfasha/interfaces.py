@@ -41,11 +41,3 @@ class SpeechToText(ABC):
     @abstractmethod
     def transcribe(self, samples, sample_rate: int) -> str:
         """`samples` is a mono float32 numpy array."""
-
-
-class TextToSpeech(ABC):
-    name: str = "tts"
-
-    @abstractmethod
-    def synthesize(self, text: str) -> bytes:
-        """Return a WAV file as bytes."""

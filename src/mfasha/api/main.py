@@ -1,6 +1,7 @@
 """FastAPI application factory. Routes live in `routes.py`; this file only wires things together."""
 from __future__ import annotations
 
+import secrets
 from typing import Optional
 
 from fastapi import FastAPI, Request
@@ -9,6 +10,7 @@ from fastapi.responses import JSONResponse
 from fastapi.staticfiles import StaticFiles
 
 from mfasha import __version__
+from mfasha.auth import LoginThrottle
 from mfasha.api.routes import router
 from mfasha.config import ROOT, Settings
 from mfasha.domain.errors import InvalidAudioError, KnowledgeBaseError, MfashaError, ServiceUnavailableError
@@ -32,6 +34,8 @@ def create_app(settings: Optional[Settings] = None, pipeline: Optional[MfashaPip
                   description="Kinyarwanda agriculture chatbot with text and voice support")
     app.state.settings, app.state.pipeline = settings, pipeline
     app.state.kb, app.state.repository = knowledge_base, repository
+    app.state.secret = settings.secret_key or secrets.token_hex(32)   # random: tokens end at restart
+    app.state.throttle = LoginThrottle()
 
     app.add_middleware(CORSMiddleware, allow_origins=list(settings.cors_origins),
                        allow_methods=["GET", "POST"], allow_headers=["*"])
