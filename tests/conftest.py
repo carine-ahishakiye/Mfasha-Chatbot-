@@ -1,4 +1,3 @@
-"""Shared fixtures. Heavy models are replaced by small fakes so the suite runs in seconds, offline."""
 import io
 import wave
 from dataclasses import replace
@@ -15,12 +14,16 @@ from mfasha.speech.audio import encode_wav
 
 SAMPLE = ROOT / "data" / "sample"
 
+# A real question from the test_unseen split and the passage it belongs to (rice harvest timing).
+IN_SCOPE_QUESTION = "igihe kiboneye cyo gusarura umuceri niryari?"
+IN_SCOPE_PID = "A187T168"
+
 
 class FakeSpeechToText(SpeechToText):
     """Returns a fixed sentence, whatever the audio is."""
     name = "fake-stt"
 
-    def __init__(self, text="Ni gute nahinga ibigori?"):
+    def __init__(self, text=IN_SCOPE_QUESTION):
         self.text = text
 
     def transcribe(self, samples, sample_rate):

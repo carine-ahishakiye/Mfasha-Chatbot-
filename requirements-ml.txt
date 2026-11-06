@@ -1,4 +1,4 @@
-# Add these for the fine-tuned e5 retriever, MMS speech-to-text and MMS text-to-speech.
+# i added this for the finetuned models
 torch
 transformers>=4.40
 sentence-transformers>=3.0
