@@ -1,7 +1,7 @@
 (function () {
   'use strict';
 
-  var API = window.MFASHA_API || '/api';
+  var API = window.MFASHA_API || ((location.pathname.indexOf('/mfasha/') === 0 ? '/mfasha' : '') + '/api');
   var KEY_STORE = 'mfasha-officer-token', NAME_STORE = 'mfasha-officer-name', ROLE_STORE = 'mfasha-role';
   var $ = function (id) { return document.getElementById(id); };
 

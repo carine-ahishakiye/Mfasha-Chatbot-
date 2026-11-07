@@ -1,7 +1,7 @@
 (function () {
   'use strict';
 
-  var API = '/api';
+  var API = (location.pathname.indexOf('/mfasha/') === 0 ? '/mfasha' : '') + '/api';
   var STORAGE_KEY = 'mfasha-conversations-v2';
   var MAX_CHARS = 500;
   // Confidence badge, derived from the retriever score (0..1) of an answered question.
