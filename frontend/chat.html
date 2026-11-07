@@ -4,13 +4,13 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="description" content="Mfasha igufasha gushaka amakuru ku buhinzi n’ubworozi mu Kinyarwanda. Baza wandike cyangwa uvuge, ubone igisubizo.">
-<meta name="theme-color" content="#0E1210">
+<meta name="theme-color" content="#140d24">
 <title>Mfasha – Umufasha wawe mu buhinzi n’ubworozi</title>
-<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%232E7D32'/%3E%3Cpath d='M30 46C22 40 22 26 32 16c9 9 8 24-2 30z' fill='%23fff'/%3E%3Cpath d='M36 44C32 30 40 18 52 12c3 16-5 28-16 32z' fill='%23A4C42B'/%3E%3C/svg%3E">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='16' fill='%235b4fe3'/%3E%3Ctext x='32' y='44' font-family='Arial' font-size='36' font-weight='700' text-anchor='middle' fill='%23fff'%3EM%3C/text%3E%3C/svg%3E">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="chat.css?v=4">
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="chat.css?v=5">
 </head>
 <body>
 <noscript><p class="noscript">Mfasha ikenera JavaScript kugira ngo ikore. Nyamuneka uyifungure muri murandasi yawe.</p></noscript>
@@ -19,14 +19,16 @@
 
   <aside class="sidebar" id="sidebar" aria-label="Ibiganiro">
     <div class="side-top">
-      <a class="brand" href="index.html" aria-label="Mfasha, subira ku rupapuro rwa mbere">
-        <svg viewBox="0 0 120 120" aria-hidden="true"><use href="#logo-mark"/></svg>
-        <span translate="no">Mfasha</span>
-      </a>
+      <a class="brand" href="index.html" translate="no" aria-label="Mfasha, subira ku rupapuro rwa mbere">Mfasha</a>
       <button class="icon-plain" id="collapse-sidebar" type="button" aria-controls="sidebar" aria-expanded="true" aria-label="Funga ibiganiro byashize" title="Funga ibiganiro byashize">
         <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="4" width="18" height="16" rx="3"/><path d="M9 4v16"/></svg>
       </button>
     </div>
+
+    <label class="search" for="history-search">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="6.5"/><path d="M20 20l-4.2-4.2"/></svg>
+      <input id="history-search" type="search" placeholder="Shakisha mu biganiro" autocomplete="off">
+    </label>
 
     <button class="btn-new" id="new-chat" type="button">
       <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>Ikiganiro gishya
@@ -36,8 +38,8 @@
     <nav class="history" id="history-list" aria-labelledby="history-title"></nav>
 
     <div class="side-foot">
-      <a href="index.html"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M19 12H5M11 6l-6 6 6 6"/></svg>Subira ku rupapuro rwa mbere</a>
-      <button id="clear-history" type="button"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 6h18M8 6V4h8v2M6 6l1 14h10l1-14M10 11v5M14 11v5"/></svg>Siba ibiganiro byose</button>
+      <a href="index.html">Rupapuro rwa mbere</a>
+      <button id="clear-history" type="button">Siba ibiganiro byose</button>
     </div>
   </aside>
   <button class="scrim" id="scrim" type="button" aria-label="Funga" tabindex="-1"></button>
@@ -50,14 +52,8 @@
     <div class="scroll" id="chat-scroll">
       <div class="column">
         <section class="welcome" id="empty-state" aria-label="Murakaza neza">
-          <h1>Muraho! Ndi <span translate="no">Mfasha</span>, umufasha wawe mu buhinzi n’ubworozi</h1>
-          <p>Mbaza ibibazo ku bihingwa, amatungo, ifumbire n’ubutaka. Wandike ikibazo cyawe, cyangwa ukande mikoro ukavuge.</p>
-          <div class="chips" role="group" aria-label="Ibibazo byo gutangirira">
-            <button class="chip" type="button" data-question="Ni gute nahinga ibigori?">Ni gute nahinga ibigori?</button>
-            <button class="chip" type="button" data-question="Nakora iki ngo inka yongere kurya neza?">Nakora iki ngo inka yongere kurya neza?</button>
-            <button class="chip" type="button" data-question="Ni ifumbire iki nakoresha ku bihingwa byanjye?">Ni ifumbire iki nakoresha ku bihingwa byanjye?</button>
-            <button class="chip" type="button" data-question="Ni ryari ngomba gutera imbuto?">Ni ryari ngomba gutera imbuto?</button>
-          </div>
+          <h1>Nagufasha iki uyu munsi?</h1>
+          <p>Mbaza ibibazo ku bihingwa, amatungo, ifumbire n’ubutaka, wandike cyangwa uvuge.</p>
         </section>
         <div id="thread" role="log" aria-live="polite" aria-label="Ikiganiro"></div>
       </div>
@@ -75,27 +71,18 @@
           <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 19V5M5 12l7-7 7 7"/></svg>
         </button>
       </form>
+      <div class="chips" role="group" aria-label="Ibibazo byo gutangirira">
+        <button class="chip" type="button" data-question="Ni gute nahinga ibigori?">Guhinga ibigori</button>
+        <button class="chip" type="button" data-question="Nakora iki ngo inka yongere kurya neza?">Inka zirya neza</button>
+        <button class="chip" type="button" data-question="Ni ifumbire iki nakoresha ku bihingwa byanjye?">Ifumbire</button>
+        <button class="chip" type="button" data-question="Ni ryari ngomba gutera imbuto?">Igihe cyo gutera</button>
+      </div>
       <p class="status" id="status-line" role="status" aria-live="polite"></p>
       <p class="disclaimer">Ikibazo cyihutirwa, baza umukozi w’ubuhinzi cyangwa veterineri.</p>
     </footer>
   </main>
 </div>
 
-<svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false">
-  <defs>
-    <symbol id="logo-mark" viewBox="0 0 120 120">
-      <clipPath id="lg-clip"><circle cx="58" cy="72" r="34"/></clipPath>
-      <path d="M31 56a34 34 0 1 0 54 -10" fill="none" stroke="#A4C42B" stroke-width="7" stroke-linecap="round"/>
-      <g clip-path="url(#lg-clip)">
-        <path d="M24 70q22-14 70-8v10q-40-6-70 8z" fill="#A4C42B"/>
-        <path d="M24 82q26-14 70-6v10q-42-8-70 8z" fill="#A4C42B"/>
-        <path d="M30 98q24-22 64-14v26H30z" fill="#7FA51F"/>
-      </g>
-      <path d="M52 62C44 56 44 42 54 32c9 9 8 24-2 30z" fill="#2E7D32"/>
-      <path d="M62 60C58 44 68 26 88 18c4 22-8 38-26 42z" fill="#2E7D32"/>
-    </symbol>
-  </defs>
-</svg>
-<script src="chat.js?v=4"></script>
+<script src="chat.js?v=5"></script>
 </body>
 </html>
