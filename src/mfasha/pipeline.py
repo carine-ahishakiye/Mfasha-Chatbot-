@@ -1,4 +1,3 @@
-
 from __future__ import annotations
 
 import logging
@@ -38,6 +37,11 @@ class StageTimer:
 
 
 class MfashaPipeline:
+    OFF_TOPIC_MESSAGE = (
+        "Mbabarira, nta gisubizo cyizewe mfite kuri iki kibazo. "
+        "Nyamuneka baza agoronome w'umurenge wawe cg umukozi w'ubuhinzi ukwegereye."
+    )
+
     def __init__(self, cleaner: TextCleaner, classifier: Classifier, retriever: Retriever,
                  policy: ReferralPolicy, stt: SpeechToText,
                  referral_message: str, top_k: int = 5, source: str = ""):
@@ -90,10 +94,6 @@ class MfashaPipeline:
         return PipelineResult(status=AnswerStatus.ANSWERED, answer=top.passage.text,
                               review_status="reviewed" if top.passage.reviewed else "unreviewed",
                               source=top.passage.source or self._source, **common)
-
-        OFF_TOPIC_MESSAGE = ("Mbabarira, iki kibazo ntikijyanye n'ibyo nshobora gusubiza. "
-                         "Mfasha isubiza ibibazo ku buhinzi n'ubworozi gusa. "
-                         "Nyamuneka baza ikibazo ku myaka, amatungo, indwara n'ibyonnyi cyangwa ifumbire.")
 
     def _referral(self, question: str, reason: ReferralReason, **extra) -> PipelineResult:
         off_topic = reason in (ReferralReason.LOW_RETRIEVAL_SCORE, ReferralReason.NO_RETRIEVAL_RESULT)

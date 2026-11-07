@@ -4,255 +4,311 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="description" content="Mfasha igufasha gushaka amakuru ku buhinzi n’ubworozi mu Kinyarwanda, wandika cyangwa uvuga.">
-<meta name="theme-color" content="#0b0612">
+<meta name="theme-color" content="#f4f6f1">
 <title>Mfasha – Umufasha wawe mu buhinzi n’ubworozi</title>
-<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='16' fill='%230b0612'/%3E%3Ctext x='32' y='44' font-family='Arial' font-size='36' font-weight='700' text-anchor='middle' fill='%23d9a3ff'%3EM%3C/text%3E%3C/svg%3E">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='16' fill='%230f2d1c'/%3E%3Ctext x='32' y='45' font-family='Arial' font-size='36' font-weight='700' text-anchor='middle' fill='%23d6f23d'%3EM%3C/text%3E%3C/svg%3E">
+<link rel="preload" as="image" href="img/hero-farmers.jpg">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@1&display=swap" rel="stylesheet">
 <style>
+  @font-face {
+    font-family: "Inter"; font-style: normal; font-weight: 100 900; font-display: swap;
+    src: url("fonts/inter.woff2") format("woff2");
+  }
+  /* Offline fallback for the italic serif (used only if Google Fonts cannot load) */
+  @font-face {
+    font-family: "Pagella"; font-style: italic; font-weight: 400; font-display: swap; size-adjust: 92%;
+    src: url("fonts/pagella-italic.woff") format("woff");
+  }
+
   :root {
-    --bg: #0b0612;
-    --ink: #f6f0ff;
-    --muted: #b7aac9;
-    --line: rgba(255, 255, 255, .14);
-    --violet: #a63fe0;
-    --lilac: #d9a3ff;
-    --pink: #e7b4ff;
-    --glass: rgba(255, 255, 255, .06);
-    --wrap: 1180px;
-    --gutter: clamp(20px, 5vw, 56px);
+    --paper: #f4f6f1;
+    --white: #fff;
+    --ink: #0f2d1c;
+    --soft: #4b6354;
+    --muted: #84988a;
+    --line: #e2e8de;
+    --card: #f1f4ee;
+    --lime: #d6f23d;
+    --leaf: #9be53b;
+    --forest: #0d2a19;
+    --serif: "Instrument Serif", "Pagella", Georgia, serif;
+    --page-max: 1480px;
+    --inset: clamp(8px, 1vw, 14px);
+    --pad: clamp(20px, 5.5vw, 84px);
+    --edge: calc(var(--inset) + var(--pad));
   }
   *, *::before, *::after { box-sizing: border-box; }
-  html { scroll-behavior: smooth; scroll-padding-top: 90px; }
+  html { scroll-behavior: smooth; scroll-padding-top: 24px; }
   body {
-    margin: 0; background: var(--bg); color: var(--ink);
-    font: 400 16px/1.6 "Plus Jakarta Sans", system-ui, -apple-system, "Segoe UI", Arial, sans-serif;
-    -webkit-font-smoothing: antialiased;
+    margin: 0; background: var(--paper); color: var(--ink);
+    font: 400 16px/1.55 "Inter", system-ui, -apple-system, "Segoe UI", Arial, sans-serif;
+    -webkit-font-smoothing: antialiased; font-feature-settings: "cv11", "ss03";
   }
+  .page { max-width: var(--page-max); margin: 0 auto; }
   a { color: inherit; text-decoration: none; }
   h1, h2, h3, p, ul, ol { margin: 0; padding: 0; }
   ul, ol { list-style: none; }
-  :focus-visible { outline: 2px solid var(--lilac); outline-offset: 3px; border-radius: 6px; }
+  button { font: inherit; color: inherit; }
+  :focus-visible { outline: 2px solid var(--leaf); outline-offset: 3px; border-radius: 8px; }
+  .serif { font-family: var(--serif); font-style: italic; font-weight: 400; letter-spacing: -.005em; }
 
   /* ---------- Hero ---------- */
   .hero {
-    position: relative; isolation: isolate; overflow: hidden;
-    min-height: 100vh; min-height: 100svh;
-    display: flex; flex-direction: column;
+    position: relative; isolation: isolate; overflow: hidden; color: #fff;
+    margin: var(--inset); border-radius: clamp(12px, 1.3vw, 18px);
+    height: calc(100vh - var(--inset) * 2); height: calc(100svh - var(--inset) * 2);
+    min-height: 620px; max-height: 900px;
+    display: flex; flex-direction: column; background: var(--forest);
+  }
+  .hero-img { position: absolute; inset: 0; z-index: -2; width: 100%; height: 100%; object-fit: cover; object-position: 62% 38%; filter: blur(5px); transform: scale(1.06); }
+  .shade {
+    position: absolute; inset: 0; z-index: -1;
     background:
-      radial-gradient(60% 55% at 50% 0%, rgba(166, 63, 224, .42), transparent 70%),
-      radial-gradient(40% 40% at 100% 20%, rgba(214, 90, 200, .22), transparent 70%),
-      var(--bg);
-  }
-  .lines {
-    position: absolute; z-index: -1; top: 0; left: 0; width: 100%; height: 640px;
-    fill: none; stroke: rgba(222, 150, 255, .30); stroke-width: 1;
-    -webkit-mask-image: linear-gradient(180deg, #000 0%, rgba(0, 0, 0, .5) 55%, transparent 100%);
-            mask-image: linear-gradient(180deg, #000 0%, rgba(0, 0, 0, .5) 55%, transparent 100%);
+      linear-gradient(180deg, rgba(6, 26, 14, .34) 0%, rgba(6, 26, 14, 0) 24%, rgba(6, 26, 14, .1) 46%, rgba(6, 26, 14, .78) 100%),
+      linear-gradient(90deg, rgba(6, 26, 14, .5) 0%, rgba(6, 26, 14, 0) 58%);
   }
 
-  .nav {
-    width: 100%; max-width: calc(var(--wrap) + var(--gutter) * 2); margin: 0 auto;
-    padding: 22px var(--gutter);
-    display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; gap: 16px;
+  .nav { display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; gap: 16px; padding: clamp(16px, 1.9vw, 26px) var(--pad); }
+  .word { display: inline-flex; align-items: center; gap: 9px; font-size: 1.02rem; font-weight: 500; letter-spacing: -.015em; }
+  .word svg { width: 28px; height: 28px; flex: none; }
+  .links {
+    display: flex; gap: 2px; padding: 4px; border-radius: 999px;
+    background: rgba(255, 255, 255, .14); border: 1px solid rgba(255, 255, 255, .2);
+    -webkit-backdrop-filter: blur(12px); backdrop-filter: blur(12px);
   }
-  .word { font-size: 1.35rem; font-weight: 800; letter-spacing: -.03em; }
-  .links { display: flex; gap: clamp(18px, 3vw, 38px); font-size: .88rem; font-weight: 500; color: #e6dcf5; }
-  .links a { padding: 6px 2px; transition: color .2s; }
+  .links a { display: inline-flex; align-items: center; gap: 7px; padding: 6px 15px; border-radius: 999px; font-size: .76rem; font-weight: 450; color: rgba(255, 255, 255, .72); transition: color .2s, background .2s; }
   .links a:hover { color: #fff; }
+  .links a[aria-current="page"] { background: #fff; color: var(--ink); }
+  .links a[aria-current="page"]::before { content: ""; width: 7px; height: 7px; border-radius: 50%; background: var(--ink); }
   .nav-end { justify-self: end; }
-  .pill {
-    display: inline-flex; align-items: center; justify-content: center; height: 42px; padding: 0 22px;
-    border-radius: 999px; font-size: .88rem; font-weight: 600; transition: background .2s, border-color .2s, transform .15s;
-  }
-  .pill:active { transform: scale(.97); }
-  .pill.violet { background: var(--violet); box-shadow: inset 0 0 0 1px rgba(255, 255, 255, .28), 0 6px 24px rgba(166, 63, 224, .4); }
-  .pill.violet:hover { background: #b650ee; }
-  .pill.lilac { background: var(--pink); color: #2a0b3d; }
-  .pill.lilac:hover { background: #f1caff; }
-  .pill.line { border: 1px solid rgba(255, 255, 255, .5); }
-  .pill.line:hover { background: rgba(255, 255, 255, .1); border-color: #fff; }
 
-  .hero-body {
-    flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center;
-    text-align: center; padding: 40px var(--gutter) 24px;
+  .btn {
+    display: inline-flex; align-items: center; justify-content: center; gap: 8px; height: 42px; padding: 0 20px;
+    border-radius: 999px; font-size: .8rem; font-weight: 500; white-space: nowrap; border: 0; cursor: pointer;
+    transition: background .2s, border-color .2s, transform .15s;
   }
-  .news {
-    display: inline-flex; align-items: center; gap: 10px; padding: 4px 14px 4px 4px;
-    border: 1px solid var(--line); border-radius: 999px; background: var(--glass);
-    font-size: .74rem; color: #e6dcf5; transition: border-color .2s;
-  }
-  .news:hover { border-color: rgba(255, 255, 255, .4); }
-  .news b { padding: 3px 11px; border-radius: 999px; background: var(--violet); color: #fff; font-weight: 600; }
-  h1 {
-    max-width: 15em; margin-top: 26px;
-    font-size: clamp(2.3rem, 5.4vw, 4.4rem); font-weight: 800; line-height: 1.04; letter-spacing: -.035em;
-    text-wrap: balance;
-  }
-  h1 span { color: var(--lilac); }
-  .lede { max-width: 38em; margin-top: 22px; font-size: clamp(.95rem, 1.5vw, 1.05rem); color: var(--muted); text-wrap: pretty; }
-  .cta { display: flex; flex-wrap: wrap; justify-content: center; gap: 12px; margin-top: 32px; }
+  .btn:active { transform: scale(.97); }
+  .btn svg { width: 11px; height: 11px; }
+  .btn.white { background: #fff; color: var(--ink); height: 38px; }
+  .btn.white:hover { background: var(--lime); }
+  .btn.lime { background: var(--lime); color: var(--forest); }
+  .btn.lime:hover { background: #e4f87a; }
+  .btn.ghost { color: #fff; border: 1px solid rgba(255, 255, 255, .5); background: rgba(255, 255, 255, .07); -webkit-backdrop-filter: blur(8px); backdrop-filter: blur(8px); }
+  .btn.ghost:hover { background: rgba(255, 255, 255, .18); border-color: #fff; }
 
-  .hero-foot {
-    width: 100%; max-width: calc(var(--wrap) + var(--gutter) * 2); margin: 0 auto;
-    padding: 36px var(--gutter) 0;
-    display: flex; align-items: flex-end; justify-content: space-between; gap: 28px; flex-wrap: wrap;
-  }
-  .facts { display: flex; gap: clamp(28px, 5vw, 56px); }
-  .facts dt { font-size: clamp(1.6rem, 3vw, 2.1rem); font-weight: 700; letter-spacing: -.02em; line-height: 1.1; }
-  .facts dd { max-width: 14em; margin: 6px 0 0; font-size: .8rem; line-height: 1.45; color: var(--muted); }
-  .facts div { margin: 0; }
-  .facts { margin: 0; }
-  .note {
-    max-width: 330px; padding: 16px 20px; border: 1px solid var(--line); border-radius: 16px;
-    background: var(--glass); -webkit-backdrop-filter: blur(14px); backdrop-filter: blur(14px);
-  }
-  .note h2 { font-size: .92rem; font-weight: 700; }
-  .note p { margin-top: 4px; font-size: .8rem; line-height: 1.55; color: var(--muted); }
+  .hero-copy { margin-top: auto; padding: 0 var(--pad); }
+  h1 { max-width: 14.5em; font-size: clamp(2rem, 3.9vw, 3.4rem); font-weight: 500; line-height: 1.07; letter-spacing: -.035em; text-wrap: balance; }
+  h1 .serif { font-size: 1.1em; letter-spacing: -.01em; }
+  .lede { max-width: 30em; margin-top: 16px; font-size: clamp(.82rem, 1vw, .92rem); line-height: 1.55; color: rgba(255, 255, 255, .76); text-wrap: pretty; }
+  .cta { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 24px; }
 
-  .topics { width: 100%; padding: 40px var(--gutter) 36px; text-align: center; }
-  .topics p { font-size: 1.05rem; font-weight: 600; }
-  .topics ul { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px 34px; margin-top: 12px; color: var(--muted); font-size: .9rem; }
+  .hero-foot { display: flex; align-items: center; justify-content: space-between; gap: 20px; padding: clamp(24px, 3.2vw, 44px) var(--pad) clamp(18px, 2.2vw, 28px); }
+  .scroll { display: inline-flex; align-items: center; gap: 8px; font-size: .66rem; font-weight: 500; letter-spacing: .1em; text-transform: uppercase; color: rgba(255, 255, 255, .85); }
+  .scroll svg { width: 11px; height: 11px; }
+  .scroll:hover { color: #fff; }
+  .proof { display: flex; align-items: center; gap: clamp(14px, 2vw, 26px); font-size: .76rem; color: rgba(255, 255, 255, .85); }
+  .proof .mic { display: inline-flex; align-items: center; gap: 7px; font-weight: 500; }
+  .proof .mic svg { width: 16px; height: 16px; color: var(--lime); }
+  .who { display: flex; align-items: center; gap: 10px; }
+  .faces { display: flex; }
+  .faces i { width: 32px; height: 32px; margin-left: -9px; border-radius: 50%; border: 2px solid rgba(255, 255, 255, .95); background: url("img/hero-farmers.jpg") no-repeat; background-size: 350px 218px; }
+  .faces i:first-child { margin-left: 0; }
+  .faces i:nth-child(1) { background-position: -190px -80px; }
+  .faces i:nth-child(2) { background-position: -115px -63px; }
+  .faces i:nth-child(3) { background-position: -42px -62px; }
 
-  /* ---------- How it works ---------- */
-  .band { padding: clamp(72px, 10vw, 120px) var(--gutter); border-top: 1px solid var(--line); }
-  .wrap { max-width: var(--wrap); margin: 0 auto; }
-  h2.big { max-width: 16em; font-size: clamp(1.8rem, 3.8vw, 2.9rem); font-weight: 700; line-height: 1.12; letter-spacing: -.03em; text-wrap: balance; }
-  .steps { display: grid; grid-template-columns: repeat(3, 1fr); gap: clamp(24px, 4vw, 56px); margin-top: clamp(40px, 6vw, 64px); }
-  .steps li { padding-top: 20px; border-top: 1px solid var(--line); }
-  .steps .n { display: block; margin-bottom: 14px; font-size: .85rem; font-weight: 600; color: var(--lilac); }
-  .steps h3 { font-size: 1.2rem; font-weight: 700; letter-spacing: -.015em; }
-  .steps p { margin-top: 8px; max-width: 24em; font-size: .93rem; color: var(--muted); }
+  /* ---------- Topics strip + intro (paper) ---------- */
+  .band { background: var(--paper); margin: 0 var(--inset); }
+  .band .in { padding: 0 var(--pad); }
+  .strip { display: flex; align-items: center; justify-content: space-between; gap: 20px 40px; flex-wrap: wrap; padding: clamp(24px, 3.4vw, 40px) 0; }
+  .strip > p { max-width: 11em; font-size: .7rem; line-height: 1.35; color: var(--muted); }
+  .strip > p b { font-weight: 650; color: var(--ink); }
+  .strip ul { flex: 1; display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px 28px; min-width: min(100%, 440px); }
+  .strip li { display: inline-flex; align-items: center; gap: 8px; font-size: clamp(.85rem, 1.15vw, 1rem); font-weight: 600; letter-spacing: -.015em; color: var(--soft); }
+  .strip li svg { width: 18px; height: 18px; flex: none; color: var(--ink); }
 
-  /* ---------- Roles ---------- */
-  .roles { display: grid; grid-template-columns: 5fr 7fr; gap: clamp(28px, 6vw, 80px); align-items: start; }
-  .roles .rows { border-top: 1px solid var(--line); }
-  .row {
-    display: grid; grid-template-columns: 1fr auto; align-items: center; gap: 20px;
-    padding: 28px 0; border-bottom: 1px solid var(--line);
-  }
-  .row h3 { font-size: 1.3rem; font-weight: 700; letter-spacing: -.02em; }
-  .row p { margin-top: 6px; max-width: 30em; font-size: .92rem; color: var(--muted); }
+  .tag { display: inline-flex; align-items: center; gap: 7px; font-size: .68rem; font-weight: 450; color: var(--soft); }
+  .tag svg { width: 10px; height: 10px; }
+  .intro { padding: clamp(28px, 4vw, 52px) 0 clamp(56px, 8vw, 104px); }
+  .intro p.big { margin-top: 18px; max-width: 30em; font-size: clamp(1.45rem, 2.9vw, 2.6rem); font-weight: 450; line-height: 1.2; letter-spacing: -.03em; text-wrap: pretty; color: var(--ink); }
+  .intro .dim { color: var(--muted); }
+
+  /* ---------- About (white) ---------- */
+  .about { background: var(--white); margin: 0 var(--inset); padding: clamp(44px, 6vw, 80px) var(--pad) clamp(56px, 8vw, 100px); }
+  .about-head { display: grid; grid-template-columns: 1fr 1fr; gap: 20px clamp(28px, 6vw, 90px); align-items: end; }
+  h2.title { margin-top: 16px; font-size: clamp(1.9rem, 3.6vw, 3.1rem); font-weight: 450; line-height: 1.08; letter-spacing: -.035em; }
+  h2.title .serif { display: block; font-size: 1.12em; line-height: 1; margin-top: 4px; letter-spacing: -.01em; }
+  .about-head > p { max-width: 24em; justify-self: start; padding-bottom: 6px; font-size: .82rem; line-height: 1.6; color: var(--soft); }
+  .about-body { display: grid; grid-template-columns: .92fr 1fr; gap: clamp(18px, 2.6vw, 36px); margin-top: clamp(28px, 4.4vw, 52px); align-items: start; }
+
+  .acc { display: flex; flex-direction: column; gap: 8px; }
+  .acc-item { border-radius: 12px; background: var(--card); border: 1px solid #ebefe7; }
+  .acc-btn { width: 100%; display: flex; align-items: center; gap: 12px; padding: 17px 18px; text-align: left; background: none; border: 0; cursor: pointer; font-size: .86rem; font-weight: 450; letter-spacing: -.01em; border-radius: 12px; }
+  .acc-btn .ico { width: 16px; height: 16px; flex: none; color: var(--ink); }
+  .acc-btn .t { flex: 1; }
+  .acc-btn .plus { position: relative; width: 11px; height: 11px; flex: none; }
+  .acc-btn .plus::before, .acc-btn .plus::after { content: ""; position: absolute; background: var(--soft); border-radius: 1px; transition: transform .25s; }
+  .acc-btn .plus::before { left: 0; right: 0; top: 4.75px; height: 1.5px; }
+  .acc-btn .plus::after { top: 0; bottom: 0; left: 4.75px; width: 1.5px; }
+  .acc-item.open .plus::after { transform: scaleY(0); }
+  .acc-panel { display: grid; grid-template-rows: 0fr; transition: grid-template-rows .3s ease; }
+  .acc-item.open .acc-panel { grid-template-rows: 1fr; }
+  .acc-panel > div { overflow: hidden; }
+  .acc-panel p { margin: 0 8px 8px; padding: 14px 16px; border-radius: 9px; background: #fff; box-shadow: 0 1px 6px rgba(15, 45, 28, .06); font-size: .8rem; line-height: 1.65; color: var(--soft); }
+
+  .photo { position: relative; aspect-ratio: 1.22; min-height: 300px; }
+  .photo img { width: 100%; height: 100%; object-fit: cover; object-position: 74% 50%; border-radius: clamp(14px, 1.6vw, 22px); display: block; }
+
+  /* ---------- Entry points (dark green) ---------- */
+  .enter { margin: var(--inset); border-radius: clamp(16px, 2vw, 26px); background: var(--forest); color: #fff; padding: clamp(44px, 6vw, 84px) var(--pad); display: grid; grid-template-columns: 5fr 7fr; gap: clamp(28px, 6vw, 90px); align-items: start; }
+  .enter h2.title { margin-top: 0; }
+  .rows { border-top: 1px solid rgba(255, 255, 255, .18); }
+  .row { display: grid; grid-template-columns: 1fr auto; align-items: center; gap: 20px; padding: 26px 0; border-bottom: 1px solid rgba(255, 255, 255, .18); }
+  .row h3 { font-size: 1.15rem; font-weight: 500; letter-spacing: -.02em; }
+  .row p { margin-top: 6px; max-width: 30em; font-size: .86rem; color: rgba(255, 255, 255, .66); }
+  .btn.outline-w { color: #fff; border: 1px solid rgba(255, 255, 255, .4); }
+  .btn.outline-w:hover { border-color: #fff; background: rgba(255, 255, 255, .1); }
 
   /* ---------- Footer ---------- */
-  .foot {
-    display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 14px 28px;
-    padding: 28px var(--gutter) 36px; border-top: 1px solid var(--line); font-size: .85rem; color: var(--muted);
-  }
-  .foot .word { color: var(--ink); font-size: 1.15rem; }
+  .foot { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 14px 28px; padding: 18px calc(var(--inset) + 4px) 34px; font-size: .82rem; color: var(--soft); }
+  .foot .word { color: var(--ink); }
   .foot nav { display: flex; gap: 24px; }
-  .foot a:hover { color: #fff; }
+  .foot a:hover { color: var(--ink); }
 
   @media (max-width: 900px) {
     .links { display: none; }
     .nav { grid-template-columns: 1fr auto; }
-    .steps { grid-template-columns: 1fr; }
-    .roles { grid-template-columns: 1fr; }
+    .about-head, .about-body, .enter { grid-template-columns: minmax(0, 1fr); }
+    .photo { order: -1; aspect-ratio: 4 / 3; min-height: 0; }
   }
   @media (max-width: 560px) {
-    .hero-foot { flex-direction: column; align-items: flex-start; }
-    .note { max-width: none; width: 100%; }
-    .facts { flex-direction: column; gap: 18px; }
+    .hero { min-height: 640px; }
+    .hero-img { object-position: 60% 30%; }
+    .cta .btn { flex: 1 1 100%; }
+    .proof .mic { display: none; }
+    .strip ul { justify-content: flex-start; gap: 10px 22px; }
     .row { grid-template-columns: 1fr; }
-    .row .pill { justify-self: start; }
-    .cta .pill { flex: 1 1 100%; }
+    .row .btn { justify-self: start; }
   }
   @media (prefers-reduced-motion: reduce) { * { transition: none !important; scroll-behavior: auto !important; } }
 </style>
 </head>
 <body>
-<noscript><p style="margin:0;padding:12px;text-align:center;background:#3a2150">Mfasha ikenera JavaScript kugira ngo ikore.</p></noscript>
+<noscript><p style="margin:0;padding:12px;text-align:center;background:#d6f23d;color:#0f2d1c">Mfasha ikenera JavaScript kugira ngo ikore.</p></noscript>
 
+<div class="page">
 <header class="hero" id="top">
-  <svg class="lines" viewBox="0 0 1440 640" preserveAspectRatio="xMidYMin slice" aria-hidden="true" focusable="false">
-<path d="M-100 40.0 C-11 36.5 69 61.5 134 80.5 C223 101.9 303 114.9 369 120.4 C458 120.2 537 113.1 603 103.3 C692 86.4 772 70.2 837 57.8 C926 45.0 1006 39.3 1071 39.6 C1160 47.8 1240 62.2 1306 78.4 C1395 104.4 1474 129.5 1540 149.6"/>
-<path d="M-100 57.2 C-11 53.5 69 79.7 134 99.2 C223 120.5 303 132.8 369 137.3 C458 135.4 537 126.6 603 115.5 C692 97.2 772 80.2 837 67.8 C926 55.6 1006 51.1 1071 52.8 C1160 63.4 1240 80.1 1306 98.1 C1395 126.4 1474 152.9 1540 173.8"/>
-<path d="M-100 74.9 C-11 71.0 69 98.2 134 118.1 C223 139.0 303 150.3 369 153.7 C458 149.9 537 139.4 603 127.0 C692 107.4 772 89.9 837 77.5 C926 66.2 1006 63.1 1071 66.4 C1160 79.5 1240 98.6 1306 118.4 C1395 148.9 1474 176.8 1540 198.2"/>
-<path d="M-100 93.0 C-11 89.0 69 117.0 134 137.0 C223 157.4 303 167.6 369 169.6 C458 163.9 537 151.6 603 138.0 C692 117.2 772 99.3 837 87.1 C926 76.8 1006 75.4 1071 80.5 C1160 96.2 1240 117.7 1306 139.4 C1395 171.9 1474 201.0 1540 222.9"/>
-<path d="M-100 111.5 C-11 107.4 69 136.0 134 156.0 C223 175.6 303 184.4 369 185.1 C458 177.2 537 163.1 603 148.3 C692 126.4 772 108.3 837 96.6 C926 87.6 1006 88.1 1071 95.0 C1160 113.5 1240 137.5 1306 161.0 C1395 195.4 1474 225.5 1540 247.7"/>
-<path d="M-100 130.4 C-11 126.2 69 155.3 134 175.0 C223 193.6 303 200.8 369 199.9 C458 189.8 537 174.0 603 158.0 C692 135.3 772 117.2 837 106.0 C926 98.6 1006 101.1 1071 110.1 C1160 131.5 1240 157.9 1306 183.2 C1395 219.4 1474 250.4 1540 272.7"/>
-<path d="M-100 149.6 C-11 145.3 69 174.6 134 194.0 C223 211.2 303 216.7 369 214.2 C458 201.8 537 184.2 603 167.2 C692 143.7 772 125.8 837 115.4 C926 109.9 1006 114.7 1071 125.7 C1160 150.1 1240 179.0 1306 206.0 C1395 243.8 1474 275.4 1540 297.6"/>
-<path d="M-100 169.0 C-11 164.6 69 194.0 134 212.8 C223 228.4 303 232.0 369 227.8 C458 213.1 537 193.9 603 175.8 C692 151.9 772 134.4 837 124.9 C926 121.5 1006 128.7 1071 142.0 C1160 169.4 1240 200.8 1306 229.4 C1395 268.7 1474 300.7 1540 322.6"/>
-<path d="M-100 188.7 C-11 184.3 69 213.4 134 231.3 C223 245.2 303 246.7 369 240.7 C458 223.7 537 202.8 603 184.0 C692 159.7 772 142.9 837 134.6 C926 133.5 1006 143.3 1071 159.0 C1160 189.4 1240 223.2 1306 253.3 C1395 293.8 1474 326.0 1540 347.4"/>
-<path d="M-100 208.4 C-11 204.0 69 232.7 134 249.6 C223 261.5 303 260.8 369 252.9 C458 233.7 537 211.2 603 191.6 C692 167.4 772 151.4 837 144.5 C926 146.0 1006 158.6 1071 176.6 C1160 210.1 1240 246.2 1306 277.8 C1395 319.2 1474 351.4 1540 372.1"/>
-<path d="M-100 228.2 C-11 223.9 69 251.8 134 267.6 C223 277.2 303 274.2 369 264.4 C458 242.9 537 219.1 603 198.9 C692 174.8 772 160.0 837 154.7 C926 159.0 1006 174.5 1071 194.9 C1160 231.6 1240 269.9 1306 302.6 C1395 344.9 1474 376.7 1540 396.6"/>
-<path d="M-100 248.0 C-11 243.8 69 270.7 134 285.1 C223 292.3 303 286.9 369 275.1 C458 251.4 537 226.4 603 205.8 C692 182.2 772 168.8 837 165.2 C926 172.5 1006 191.1 1071 214.0 C1160 253.7 1240 294.1 1306 327.9 C1395 370.6 1474 401.9 1540 420.7"/>
-<path d="M-100 267.8 C-11 263.7 69 289.3 134 302.2 C223 306.7 303 298.8 369 285.1 C458 259.3 537 233.2 603 212.4 C692 189.6 772 177.9 837 176.2 C926 186.7 1006 208.4 1071 233.9 C1160 276.5 1240 318.8 1306 353.6 C1395 396.5 1474 427.0 1540 444.5"/>
-<path d="M-100 287.4 C-11 283.4 69 307.6 134 318.7 C223 320.4 303 309.9 369 294.3 C458 266.6 537 239.5 603 218.7 C692 197.0 772 187.2 837 187.7 C926 201.6 1006 226.5 1071 254.5 C1160 300.0 1240 344.0 1306 379.6 C1395 422.4 1474 451.8 1540 467.8"/>
-<path d="M-100 306.7 C-11 302.9 69 325.4 134 334.6 C223 333.4 303 320.3 369 302.8 C458 273.3 537 245.5 603 224.9 C692 204.5 772 196.9 837 199.7 C926 217.2 1006 245.4 1071 275.9 C1160 324.1 1240 369.7 1306 405.8 C1395 448.3 1474 476.3 1540 490.7"/>
-<path d="M-100 325.8 C-11 322.2 69 342.7 134 349.8 C223 345.6 303 329.9 369 310.6 C458 279.4 537 251.2 603 231.0 C692 212.2 772 207.0 837 212.3 C926 233.6 1006 265.1 1071 298.0 C1160 348.8 1240 395.8 1306 432.2 C1395 474.0 1474 500.5 1540 512.9"/>
-<path d="M-100 344.5 C-11 341.2 69 359.4 134 364.4 C223 357.0 303 338.6 369 317.6 C458 285.0 537 256.5 603 237.0 C692 220.2 772 217.7 837 225.6 C926 250.8 1006 285.6 1071 320.9 C1160 374.1 1240 422.2 1306 458.7 C1395 499.5 1474 524.1 1540 534.6"/>
-<path d="M-100 362.7 C-11 359.8 69 375.6 134 378.2 C223 367.5 303 346.6 369 324.0 C458 290.1 537 261.7 603 243.0 C692 228.5 772 229.0 837 239.7 C926 268.8 1006 306.9 1071 344.5 C1160 399.9 1240 448.9 1306 485.3 C1395 524.7 1474 547.2 1540 555.5"/>
-<path d="M-100 380.5 C-11 377.8 69 391.0 134 391.1 C223 377.2 303 353.8 369 329.7 C458 294.8 537 266.8 603 249.2 C692 237.3 772 240.8 837 254.5 C926 287.6 1006 329.0 1071 368.8 C1160 426.2 1240 475.8 1306 511.8 C1395 549.6 1474 569.8 1540 575.7"/>
-<path d="M-100 397.6 C-11 395.3 69 405.7 134 403.3 C223 386.1 303 360.3 369 334.8 C458 299.2 537 271.7 603 255.5 C692 246.5 772 253.4 837 270.1 C926 307.3 1006 351.9 1071 393.8 C1160 452.9 1240 502.8 1306 538.2 C1395 574.1 1474 591.6 1540 595.1"/>
-<path d="M-100 414.1 C-11 412.2 69 419.6 134 414.6 C223 394.1 303 366.0 369 339.3 C458 303.3 537 276.8 603 262.1 C692 256.4 772 266.8 837 286.6 C926 327.9 1006 375.6 1071 419.4 C1160 479.9 1240 529.8 1306 564.4 C1395 598.0 1474 612.8 1540 613.7"/>
-<path d="M-100 429.9 C-11 428.5 69 432.6 134 425.0 C223 401.2 303 371.0 369 343.3 C458 307.2 537 281.9 603 269.1 C692 266.8 772 281.0 837 303.9 C926 349.3 1006 400.0 1071 445.6 C1160 507.2 1240 556.8 1306 590.3 C1395 621.4 1474 633.2 1540 631.4"/>
-  </svg>
+  <img class="hero-img" src="img/hero-farmers.jpg" alt="Abahinzi b’icyayi basoroma icyayi mu murima" width="701" height="436" fetchpriority="high">
+  <div class="shade" aria-hidden="true"></div>
 
   <div class="nav">
-    <a class="word" href="index.html" translate="no" aria-label="Mfasha, urupapuro rwa mbere">Mfasha</a>
+    <a class="word" href="index.html" translate="no" aria-label="Mfasha, urupapuro rwa mbere">
+      <svg viewBox="0 0 28 28" aria-hidden="true"><rect width="28" height="28" rx="8" fill="#9be53b"/><path d="M14 21v-7.5M14 13.5c0-3.6 2.4-5.8 6-5.8 0 3.6-2.4 5.8-6 5.8zM14 16c0-2.8-1.9-4.4-5-4.4 0 2.8 1.9 4.4 5 4.4z" fill="none" stroke="#0f2d1c" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      Mfasha
+    </a>
     <nav class="links" aria-label="Ibice by’urupapuro">
+      <a href="index.html" aria-current="page">Ahabanza</a>
+      <a href="#ibyo-ifasha">Ibyo ifasha</a>
       <a href="#uko-ikora">Uko ikora</a>
       <a href="#abayikoresha">Abayikoresha</a>
       <a href="officer.html">Abakozi</a>
     </nav>
-    <div class="nav-end"><a class="pill violet" href="chat.html">Tangira</a></div>
+    <div class="nav-end"><a class="btn white" href="chat.html">Tangira</a></div>
   </div>
 
-  <div class="hero-body">
-    <a class="news" href="chat.html"><b>Bishya</b>Baza wandika cyangwa uvuge</a>
-    <h1>Ibisubizo byizewe ku buhinzi n’ubworozi <span>mu Kinyarwanda</span></h1>
-    <p class="lede">Mfasha igusubiza ku bibazo by’imyaka n’amatungo ikoresheje ubumenyi bwasuzumwe n’abakozi b’ubuhinzi. Iyo itizeye igisubizo, ikwerekeza ku mukozi aho kukuyobya.</p>
+  <div class="hero-copy">
+    <h1>Baza ibijyanye n’ubuhinzi n’ubworozi mu <span class="serif">Kinyarwanda</span></h1>
+    <p class="lede">Wandike cyangwa uvuge ikibazo cyawe, Mfasha igusubize ikoresheje ubumenyi bw’abakozi b’ubuhinzi.</p>
     <div class="cta">
-      <a class="pill lilac" href="chat.html">Baza Mfasha</a>
-      <a class="pill line" href="officer.html">Ndi umukozi w’ubuhinzi</a>
+      <a class="btn lime" href="chat.html">Baza Mfasha
+        <svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3.5 10.5l7-7M4.5 3.5h6v6"/></svg>
+      </a>
+      <a class="btn ghost" href="officer.html">Ndi umukozi w’ubuhinzi</a>
     </div>
   </div>
 
   <div class="hero-foot">
-    <dl class="facts">
-      <div><dt>Kinyarwanda</dt><dd>Ibibazo n’ibisubizo byose biri mu rurimi rwawe</dd></div>
-      <div><dt>70%</dt><dd>Intego y’ibisubizo byemewe n’abakozi b’ubuhinzi</dd></div>
-    </dl>
-    <div class="note">
-      <h2>Ikibazo gikomeye?</h2>
-      <p>Mfasha ntihimbira inama. Iyo igisubizo kidahagije, ikwerekeza ku mukozi w’ubuhinzi ukwegereye.</p>
+    <a class="scroll" href="#ibyo-ifasha">Manuka
+      <svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 1.5v9M2.5 7l3.5 3.5L9.5 7"/></svg>
+    </a>
+    <div class="proof">
+      <span class="mic">Wandika cyangwa uvuge</span>
+      <span class="who"><span class="faces" aria-hidden="true"><i></i><i></i><i></i></span>Abahinzi n’aborozi</span>
     </div>
-  </div>
-
-  <div class="topics">
-    <p>Mfasha igufasha kuri</p>
-    <ul>
-      <li>Ibihingwa</li><li>Amatungo</li><li>Ifumbire</li><li>Indwara n’ibyonnyi</li><li>Ubutaka</li><li>Imbuto</li>
-    </ul>
   </div>
 </header>
 
 <main>
-  <section class="band" id="uko-ikora">
-    <div class="wrap">
-      <h2 class="big">Uko Mfasha ikubonera igisubizo</h2>
-      <ol class="steps">
-        <li><span class="n">1</span><h3>Baza ikibazo</h3><p>Andika ikibazo cyawe, cyangwa ukande mikoro uvuge mu Kinyarwanda.</p></li>
-        <li><span class="n">2</span><h3>Mfasha irashakisha</h3><p>Ishakisha igisubizo mu bumenyi bwasuzumwe kandi bwemejwe n’abakozi b’ubuhinzi.</p></li>
-        <li><span class="n">3</span><h3>Ubona igisubizo</h3><p>Iyo itizeye, ikwerekeza ku mukozi w’ubuhinzi aho guhimba inama.</p></li>
-      </ol>
+  <div class="band">
+    <div class="in">
+      <div class="strip" id="ibyo-ifasha">
+        <p><b>Mfasha igufasha</b> ku bibazo bya</p>
+        <ul>
+          <li>Ibihingwa</li>
+          <li>Amatungo</li>
+          <li>Ifumbire</li>
+          <li>Indwara n’ibyonnyi</li>
+          <li>Ubutaka</li>
+          <li>Imbuto</li>
+        </ul>
+      </div>
+
+      <section class="intro" id="intro">
+        <span class="tag"><svg viewBox="0 0 11 11" fill="none" stroke="currentColor" stroke-width="1.3" aria-hidden="true"><circle cx="5.5" cy="5.5" r="4"/></svg>Mfasha ni iki?</span>
+        <p class="big">Mfasha yubatswe gufasha abahinzi, aborozi n’abakozi b’ubuhinzi <span class="dim">kubona ibisubizo byizewe mu Kinyarwanda, nta konti kandi nta nama zihimbwe.</span></p>
+      </section>
+    </div>
+  </div>
+
+  <section class="about" id="uko-ikora">
+    <div class="about-head">
+      <div>
+        <span class="tag"><svg viewBox="0 0 11 11" fill="currentColor" aria-hidden="true"><circle cx="5.5" cy="5.5" r="2.5"/></svg>Uko ikora</span>
+        <h2 class="title">Uko Mfasha <span class="serif">iguha igisubizo</span></h2>
+      </div>
+      <p>Ikibazo cyawe gisubizwa hakurikijwe ibyo abakozi b’ubuhinzi bamaze gusuzuma. Iyo bidahagije, Mfasha ntiguha inama itizeye.</p>
+    </div>
+
+    <div class="about-body">
+      <div class="acc" id="acc">
+        <div class="acc-item">
+          <button class="acc-btn" type="button" aria-expanded="false" aria-controls="p1" id="b1">
+            <span class="t">Ibisubizo bisuzumwa n’abakozi b’ubuhinzi</span><span class="plus" aria-hidden="true"></span>
+          </button>
+          <div class="acc-panel" id="p1" role="region" aria-labelledby="b1"><div><p>Igisubizo cyose gikomoka ku makuru yasuzumwe kandi yemejwe n’abakozi b’ubuhinzi.</p></div></div>
+        </div>
+        <div class="acc-item open">
+          <button class="acc-btn" type="button" aria-expanded="true" aria-controls="p2" id="b2">
+            <span class="t">Wandika cyangwa ukavuga</span><span class="plus" aria-hidden="true"></span>
+          </button>
+          <div class="acc-panel" id="p2" role="region" aria-labelledby="b2"><div><p>Andika ikibazo cyawe, cyangwa ukande mikoro uvuge mu Kinyarwanda. Ntukeneye konti.</p></div></div>
+        </div>
+        <div class="acc-item">
+          <button class="acc-btn" type="button" aria-expanded="false" aria-controls="p3" id="b3">
+            <span class="t">Iyo itazi, ikwereka umukozi</span><span class="plus" aria-hidden="true"></span>
+          </button>
+          <div class="acc-panel" id="p3" role="region" aria-labelledby="b3"><div><p>Iyo Mfasha itizeye igisubizo ntihimbira inama. Ikwerekeza ku mukozi w’ubuhinzi ukwegereye.</p></div></div>
+        </div>
+      </div>
+
+      <div class="photo">
+        <img src="img/hero-farmers.jpg" alt="Umuhinzi w’umugore asoroma icyayi mu murima, abandi bakorera inyuma ye" loading="lazy" width="701" height="436">
+      </div>
     </div>
   </section>
 
-  <section class="band" id="abayikoresha">
-    <div class="wrap roles">
-      <h2 class="big">Hitamo uko winjira</h2>
-      <div class="rows">
-        <div class="row">
-          <div><h3>Ndi umuhinzi</h3><p>Baza ikibazo ku buhinzi cyangwa ubworozi, ubone igisubizo cyizewe nta konti ukeneye.</p></div>
-          <a class="pill lilac" href="chat.html">Tangira ubaze</a>
-        </div>
-        <div class="row">
-          <div><h3>Ndi umukozi w’ubuhinzi</h3><p>Injira usuzume ibisubizo bya Mfasha, wemeze ibikwiye kandi ufashe abahinzi bakeneye inama zihariye.</p></div>
-          <a class="pill line" href="officer.html">Injira</a>
-        </div>
+  <section class="enter" id="abayikoresha">
+    <h2 class="title">Winjira ute?</h2>
+    <div class="rows">
+      <div class="row">
+        <div><h3>Ndi umuhinzi</h3><p>Baza ikibazo ku buhinzi cyangwa ubworozi. Nta konti ukeneye.</p></div>
+        <a class="btn lime" href="chat.html">Tangira ubaze</a>
+      </div>
+      <div class="row">
+        <div><h3>Ndi umukozi w’ubuhinzi</h3><p>Injira usuzume ibisubizo bya Mfasha, wemeze ibikwiye, ufashe abahinzi bakeneye inama zihariye.</p></div>
+        <a class="btn outline-w" href="officer.html">Injira</a>
       </div>
     </div>
   </section>
@@ -260,8 +316,28 @@
 
 <footer class="foot">
   <a class="word" href="#top" translate="no">Mfasha</a>
-  <span>Umufasha wawe mu buhinzi n’ubworozi</span>
+  <span>Umufasha mu buhinzi n’ubworozi</span>
   <nav aria-label="Ahandi"><a href="chat.html">Umuhinzi</a><a href="officer.html">Umukozi w’ubuhinzi</a></nav>
 </footer>
+</div>
+
+<script>
+  (function () {
+    var items = document.querySelectorAll('#acc .acc-item');
+    items.forEach(function (item) {
+      item.querySelector('.acc-btn').addEventListener('click', function () {
+        var willOpen = !item.classList.contains('open');
+        items.forEach(function (o) {
+          o.classList.remove('open');
+          o.querySelector('.acc-btn').setAttribute('aria-expanded', 'false');
+        });
+        if (willOpen) {
+          item.classList.add('open');
+          item.querySelector('.acc-btn').setAttribute('aria-expanded', 'true');
+        }
+      });
+    });
+  })();
+</script>
 </body>
 </html>
