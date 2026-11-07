@@ -88,8 +88,8 @@ def test_admin_disabled_without_configured_key(settings, knowledge_base, pipelin
 
 def test_frontend_is_served(client):
     r = client.get("/")                                  # welcome page: who are you?
-    assert r.status_code == 200 and "MFASHA" in r.text
-    assert 'href="chat.html#chat"' in r.text and 'href="officer.html"' in r.text
+    assert r.status_code == 200 and "Mfasha" in r.text
+    assert 'href="chat.html"' in r.text and 'href="officer.html"' in r.text
     assert "Fungura konti" in client.get("/officer.html").text            # officer sign-up / sign-in page
     assert client.get("/chat.html").status_code == 200                    # farmer chat, no login
 
