@@ -91,9 +91,15 @@ class MfashaPipeline:
                               review_status="reviewed" if top.passage.reviewed else "unreviewed",
                               source=top.passage.source or self._source, **common)
 
+        OFF_TOPIC_MESSAGE = ("Mbabarira, iki kibazo ntikijyanye n'ibyo nshobora gusubiza. "
+                         "Mfasha isubiza ibibazo ku buhinzi n'ubworozi gusa. "
+                         "Nyamuneka baza ikibazo ku myaka, amatungo, indwara n'ibyonnyi cyangwa ifumbire.")
+
     def _referral(self, question: str, reason: ReferralReason, **extra) -> PipelineResult:
+        off_topic = reason in (ReferralReason.LOW_RETRIEVAL_SCORE, ReferralReason.NO_RETRIEVAL_RESULT)
+        message = self.OFF_TOPIC_MESSAGE if off_topic else self._referral_message
         return PipelineResult(question=question, status=AnswerStatus.REFERRED,
-                              answer=self._referral_message, referral_reason=reason, **extra)
+                              answer=message, referral_reason=reason, **extra)
 
     # ------------------------------------------------------------------ stages 7 and 8
     def _finish(self, result: PipelineResult, timer: StageTimer) -> PipelineResult:
