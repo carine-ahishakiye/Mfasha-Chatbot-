@@ -4,104 +4,158 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="robots" content="noindex">
+<meta name="theme-color" content="#140d24">
 <title>Mfasha – Abakozi b’ubuhinzi</title>
-<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%232E7D32'/%3E%3Cpath d='M30 46C22 40 22 26 32 16c9 9 8 24-2 30z' fill='%23fff'/%3E%3Cpath d='M36 44C32 30 40 18 52 12c3 16-5 28-16 32z' fill='%23A4C42B'/%3E%3C/svg%3E">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='16' fill='%235b4fe3'/%3E%3Ctext x='32' y='44' font-family='Arial' font-size='36' font-weight='700' text-anchor='middle' fill='%23fff'%3EM%3C/text%3E%3C/svg%3E">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600&family=Inter:wght@400;500;600&family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="style.css?v=3">
-<link rel="stylesheet" href="officer.css?v=4">
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="officer.css?v=5">
 </head>
 <body class="o-body">
 <noscript><p class="noscript">Mfasha ikenera JavaScript kugira ngo ikore.</p></noscript>
 
 <!-- Login -->
 <main class="lg" id="login-view">
-  <span class="lg-blob b1" aria-hidden="true"></span><span class="lg-blob b2" aria-hidden="true"></span><span class="lg-blob b3" aria-hidden="true"></span>
   <div class="lg-card">
-    <section class="lg-form">
-      <a class="lg-back" href="index.html" id="switch-role-login"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M19 12H5M11 6l-6 6 6 6"/></svg>Subira ku rupapuro rwa mbere</a>
+    <a class="lg-back" href="index.html" id="switch-role-login"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 6l-6 6 6 6"/></svg>Subira</a>
 
-      <p class="lg-welcome">Murakaza neza</p>
-      <h1 id="lg-title">Injira</h1>
+    <h1 id="lg-title">Injira</h1>
+    <p class="lg-sub">Ahagenewe abakozi b’ubuhinzi.</p>
 
-      <div class="o-switch" role="tablist" aria-label="Injira cyangwa ufungure konti">
-        <button type="button" role="tab" id="tab-login" aria-selected="true">Injira</button>
-        <button type="button" role="tab" id="tab-register" aria-selected="false">Fungura konti</button>
+    <div class="o-switch" role="tablist" aria-label="Injira cyangwa ufungure konti">
+      <button type="button" role="tab" id="tab-login" aria-selected="true">Injira</button>
+      <button type="button" role="tab" id="tab-register" aria-selected="false">Fungura konti</button>
+    </div>
+
+    <!-- sign in -->
+    <form id="login-form" autocomplete="off">
+      <label for="phone">Nimero ya telefone</label>
+      <input id="phone" type="tel" inputmode="tel" placeholder="0788 123 456" maxlength="20" required autocomplete="tel">
+
+      <label for="pin">PIN</label>
+      <div class="lg-pass">
+        <input id="pin" type="password" inputmode="numeric" pattern="[0-9]{4,6}" minlength="4" maxlength="6" placeholder="Imibare 4 kugeza kuri 6" required autocomplete="current-password">
+        <button type="button" class="lg-eye" data-for="pin" aria-label="Erekana PIN"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></svg></button>
       </div>
 
-      <!-- sign in -->
-      <form id="login-form" autocomplete="off">
-        <label for="phone">Nimero ya telefone</label>
-        <input id="phone" type="tel" inputmode="tel" placeholder="0788 123 456" maxlength="20" required autocomplete="tel">
+      <p class="o-error" id="login-error" role="alert" hidden></p>
+      <button class="o-btn" id="login-btn" type="submit">Injira</button>
+      <p class="lg-legal">Winjiye, wemeye <a href="#" data-doc="privacy">Politiki y’ibanga</a> n’<a href="#" data-doc="terms">Amabwiriza yo gukoresha</a>.</p>
+    </form>
 
-        <label for="pin">PIN (imibare 4 kugeza kuri 6)</label>
-        <div class="lg-pass">
-          <input id="pin" type="password" inputmode="numeric" pattern="[0-9]{4,6}" minlength="4" maxlength="6" placeholder="••••" required autocomplete="current-password">
-          <button type="button" class="lg-eye" data-for="pin" aria-label="Erekana PIN"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M2 12s3.500-7 10-7 10 7 10 7-3.500 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></svg></button>
+    <!-- create account -->
+    <form id="register-form" autocomplete="off" hidden>
+      <label for="reg-name">Amazina yawe yose</label>
+      <input id="reg-name" type="text" minlength="2" maxlength="80" required autocomplete="name">
+
+      <label for="reg-phone">Nimero ya telefone</label>
+      <input id="reg-phone" type="tel" inputmode="tel" placeholder="0788 123 456" maxlength="20" required autocomplete="tel">
+
+      <div class="lg-two">
+        <div>
+          <label for="reg-pin">PIN (imibare 4–6)</label>
+          <input id="reg-pin" type="password" inputmode="numeric" pattern="[0-9]{4,6}" minlength="4" maxlength="6" required autocomplete="new-password">
         </div>
-
-        <p class="o-error" id="login-error" role="alert" hidden></p>
-        <button class="o-btn" id="login-btn" type="submit">Injira</button>
-      </form>
-
-      <!-- create account -->
-      <form id="register-form" autocomplete="off" hidden>
-        <p class="o-muted">Fungura konti nshya. Uzakenera kode wahawe n’umuyobozi wawe.</p>
-
-        <label for="reg-name">Amazina yawe yose</label>
-        <input id="reg-name" type="text" minlength="2" maxlength="80" required autocomplete="name">
-
-        <label for="reg-phone">Nimero ya telefone</label>
-        <input id="reg-phone" type="tel" inputmode="tel" placeholder="0788 123 456" maxlength="20" required autocomplete="tel">
-
-        <label for="reg-pin">Hitamo PIN (imibare 4 kugeza kuri 6)</label>
-        <input id="reg-pin" type="password" inputmode="numeric" pattern="[0-9]{4,6}" minlength="4" maxlength="6" required autocomplete="new-password">
-
-        <label for="reg-pin2">Ongera wandike PIN</label>
-        <input id="reg-pin2" type="password" inputmode="numeric" pattern="[0-9]{4,6}" minlength="4" maxlength="6" required autocomplete="new-password">
-
-        <label for="reg-code">Kode yo kwiyandikisha</label>
-        <input id="reg-code" type="password" required autocomplete="off">
-
-        <p class="o-error" id="register-error" role="alert" hidden></p>
-        <button class="o-btn" id="register-btn" type="submit">Fungura konti</button>
-      </form>
-    </section>
-
-    <aside class="lg-side">
-      <div class="lg-brand"><svg viewBox="0 0 120 120" aria-hidden="true"><use href="#logo-mark"/></svg><span><b translate="no">Mfasha</b><small>[ Abakozi b’ubuhinzi ]</small></span></div>
-      <div class="lg-art">
-        <i class="cloud c1" aria-hidden="true"></i><i class="cloud c2" aria-hidden="true"></i>
-        <img src="img/greenhouse-farmer.png" width="678" height="452" alt="Umuhinzi akoresha telefone mu busitani">
+        <div>
+          <label for="reg-pin2">Ongera wandike PIN</label>
+          <input id="reg-pin2" type="password" inputmode="numeric" pattern="[0-9]{4,6}" minlength="4" maxlength="6" required autocomplete="new-password">
+        </div>
       </div>
-      <h2>Fasha abahinzi kubona ibisubizo byizewe</h2>
-      <p>Suzuma ibisubizo bya Mfasha, wemeze ibikwiye, kandi usubize abahinzi bakeneye inama zihariye.</p>
-    </aside>
+
+      <label for="reg-code">Kode wahawe n’umuyobozi wawe</label>
+      <input id="reg-code" type="password" required autocomplete="off">
+
+      <div class="lg-consent">
+        <label class="lg-check" for="reg-consent">
+          <input id="reg-consent" type="checkbox" required>
+          <span>Nasomye kandi nemeye <a href="#" data-doc="privacy">Politiki y’ibanga</a> n’<a href="#" data-doc="terms">Amabwiriza yo gukoresha</a>.</span>
+        </label>
+        <p>Ufunguye konti, wemeye uko dukusanya, tubika kandi dukoresha amakuru yawe.</p>
+      </div>
+
+      <p class="o-error" id="register-error" role="alert" hidden></p>
+      <button class="o-btn" id="register-btn" type="submit" disabled>Fungura konti</button>
+    </form>
   </div>
 </main>
 
+<dialog class="lg-dialog" id="legal-dialog" aria-labelledby="legal-title">
+  <div class="lg-dialog-head">
+    <h2 id="legal-title">Politiki y’ibanga</h2>
+    <button type="button" class="lg-close" id="legal-close" aria-label="Funga">Funga</button>
+  </div>
+  <div class="lg-dialog-body">
+    <article id="doc-privacy">
+      <p>Iyi politiki isobanura amakuru Mfasha ikusanya n’uko ikoreshwa.</p>
+      <h3>Amakuru dukusanya</h3>
+      <p>Iyo ufunguye konti y’umukozi, tubika amazina yawe na nimero ya telefone. PIN yawe ntibikwa uko yanditse: ibikwa ni ikimenyetso cyayo gifunze, kidashobora gusubizwamo PIN.</p>
+      <p>Iyo usuzumye igisubizo, tubika icyemezo cyawe n’icyo wongeyeho. Ku bahinzi, tubika ibibazo n’ibisubizo kugira ngo abakozi babisuzume.</p>
+      <h3>Icyo tuyakoresha</h3>
+      <p>Tuyakoresha kukwinjiza muri konti yawe, kwerekana imikorere ya Mfasha no kunoza ibisubizo. Ntabwo tuyagurisha.</p>
+      <h3>Uko tuyabika</h3>
+      <p>Amakuru abikwa kuri seriveri ya Mfasha, kandi abona gusa abafite uburenganzira.</p>
+      <h3>Uburenganzira bwawe</h3>
+      <p>Ushobora gusaba kureba, gukosora cyangwa gusiba amakuru yawe. Baza umuyobozi wawe.</p>
+    </article>
+    <article id="doc-terms" hidden>
+      <p>Aya mabwiriza agenga ikoreshwa rya Mfasha n’abakozi b’ubuhinzi.</p>
+      <h3>Konti yawe</h3>
+      <p>Konti ni iyawe. Ntugire uwo uha PIN yawe.</p>
+      <h3>Isuzuma</h3>
+      <p>Suzuma ibisubizo mu kuri kandi ushingiye ku bumenyi bw’ubuhinzi. Ibyemezo byawe bifasha kunoza Mfasha.</p>
+      <h3>Imikoreshereze</h3>
+      <p>Koresha Mfasha mu kazi k’ubuhinzi gusa. Ntugerageze kugera ku makuru atari ayawe cyangwa kwangiza serivisi.</p>
+      <h3>Aho bigarukira</h3>
+      <p>Mfasha itanga amakuru y’ibanze. Ntisimbura inama y’umukozi w’ubuhinzi cyangwa veterineri.</p>
+      <h3>Guhagarika konti</h3>
+      <p>Konti ikoreshejwe nabi ishobora guhagarikwa. Aya mabwiriza ashobora guhinduka; nihaba impinduka tuzabibamenyesha.</p>
+    </article>
+  </div>
+</dialog>
+
 <script>
-/* Login view only: show/hide PIN and match the heading to the selected tab. */
+/* Login view only: show/hide PIN, heading per tab, consent gate and the policy dialog. */
 (function () {
-  var eye = document.querySelector('.lg-eye'), title = document.getElementById('lg-title');
-  eye.addEventListener('click', function () {
-    var i = document.getElementById(eye.dataset['for']), show = i.type === 'password';
+  var title = document.getElementById('lg-title'), dlg = document.getElementById('legal-dialog');
+  var consent = document.getElementById('reg-consent'), regBtn = document.getElementById('register-btn');
+
+  document.querySelector('.lg-eye').addEventListener('click', function () {
+    var eye = this, i = document.getElementById(eye.dataset['for']), show = i.type === 'password';
     i.type = show ? 'text' : 'password';
     eye.setAttribute('aria-label', show ? 'Hisha PIN' : 'Erekana PIN');
   });
   document.getElementById('tab-login').addEventListener('click', function () { title.textContent = 'Injira'; });
   document.getElementById('tab-register').addEventListener('click', function () { title.textContent = 'Fungura konti'; });
+
+  function sync() { regBtn.disabled = !consent.checked; }
+  consent.addEventListener('change', sync);
+  document.getElementById('register-form').addEventListener('reset', function () { setTimeout(sync, 0); });
+
+  function openDoc(which) {
+    var privacy = which === 'privacy';
+    document.getElementById('doc-privacy').hidden = !privacy;
+    document.getElementById('doc-terms').hidden = privacy;
+    document.getElementById('legal-title').textContent = privacy ? 'Politiki y’ibanga' : 'Amabwiriza yo gukoresha';
+    dlg.querySelector('.lg-dialog-body').scrollTop = 0;
+    if (typeof dlg.showModal === 'function') dlg.showModal(); else dlg.setAttribute('open', '');
+  }
+  document.querySelectorAll('[data-doc]').forEach(function (a) {
+    a.addEventListener('click', function (e) { e.preventDefault(); openDoc(a.getAttribute('data-doc')); });
+  });
+  function closeDoc() { if (typeof dlg.close === 'function') dlg.close(); else dlg.removeAttribute('open'); }
+  document.getElementById('legal-close').addEventListener('click', closeDoc);
+  dlg.addEventListener('click', function (e) { if (e.target === dlg) closeDoc(); });
 })();
 </script>
 
 <!-- Dashboard -->
 <div class="o-app" id="app-view" hidden>
   <aside class="o-rail">
-    <div class="o-brand"><span class="o-mark"><svg viewBox="0 0 120 120" aria-hidden="true"><use href="#logo-mark"/></svg></span><div><b translate="no">Mfasha</b><small>Abakozi b’ubuhinzi</small></div></div>
+    <div class="o-brand"><b translate="no">Mfasha</b><small>Abakozi b’ubuhinzi</small></div>
     <nav class="o-tabs" role="tablist" aria-label="Ibice" aria-orientation="vertical">
-      <button role="tab" id="tab-overview" aria-controls="overview-view" aria-selected="true" type="button"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg>Incamake</button>
-      <button role="tab" id="tab-review" aria-controls="review-view" aria-selected="false" type="button"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 6h12M8 12h12M8 18h12M3.5 6h.01M3.5 12h.01M3.5 18h.01"/></svg>Suzuma ibisubizo</button>
+      <button role="tab" id="tab-overview" aria-controls="overview-view" aria-selected="true" type="button">Incamake</button>
+      <button role="tab" id="tab-review" aria-controls="review-view" aria-selected="false" type="button">Suzuma ibisubizo</button>
     </nav>
     <div class="o-who">
       <span class="o-who-label">Winjiye nka</span>
@@ -114,12 +168,8 @@
     <!-- Overview -->
     <section id="overview-view" role="tabpanel" aria-labelledby="tab-overview">
       <div class="o-welcome">
-        <div>
-          <p class="o-kicker">Incamake</p>
-          <h1 id="hello">Muraho</h1>
-          <p class="o-muted">Dore uko Mfasha ikora n’ibisubizo bitegereje gusuzumwa.</p>
-        </div>
-        <img class="o-field" src="img/hillside.png" width="275" height="183" alt="Abakozi b’ubuhinzi baganira mu murima ku musozi">
+        <h1 id="hello">Muraho</h1>
+        <p class="o-muted">Dore uko Mfasha ikora n’ibisubizo bitegereje gusuzumwa.</p>
       </div>
 
       <div class="o-row"><h2>Imikorere ya Mfasha</h2>
@@ -174,9 +224,9 @@
             <fieldset class="o-verdicts">
               <legend>Icyemezo cyawe</legend>
               <div class="o-tiles">
-              <label class="o-radio good"><input type="radio" name="verdict" value="correct" required><span>Ni ukuri</span></label>
-              <label class="o-radio mid"><input type="radio" name="verdict" value="partially_correct"><span>Ni ukuri igice</span></label>
-              <label class="o-radio bad"><input type="radio" name="verdict" value="incorrect"><span>Si ukuri</span></label>
+                <label class="o-radio good"><input type="radio" name="verdict" value="correct" required><span>Ni ukuri</span></label>
+                <label class="o-radio mid"><input type="radio" name="verdict" value="partially_correct"><span>Ni ukuri igice</span></label>
+                <label class="o-radio bad"><input type="radio" name="verdict" value="incorrect"><span>Si ukuri</span></label>
               </div>
             </fieldset>
 
@@ -200,21 +250,6 @@
   </main>
 </div>
 
-<svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false">
-  <defs>
-    <symbol id="logo-mark" viewBox="0 0 120 120">
-      <clipPath id="lg-clip"><circle cx="58" cy="72" r="34"/></clipPath>
-      <path d="M31 56a34 34 0 1 0 54 -10" fill="none" stroke="#1F6B35" stroke-width="7" stroke-linecap="round"/>
-      <g clip-path="url(#lg-clip)">
-        <path d="M24 70q22-14 70-8v10q-40-6-70 8z" fill="#A4C42B"/>
-        <path d="M24 82q26-14 70-6v10q-42-8-70 8z" fill="#A4C42B"/>
-        <path d="M30 98q24-22 64-14v26H30z" fill="#7FA51F"/>
-      </g>
-      <path d="M52 62C44 56 44 42 54 32c9 9 8 24-2 30z" fill="#1F6B35"/>
-      <path d="M62 60C58 44 68 26 88 18c4 22-8 38-26 42z" fill="#1F6B35"/>
-    </symbol>
-  </defs>
-</svg>
-<script src="officer.js?v=3"></script>
+<script src="officer.js?v=5"></script>
 </body>
 </html>

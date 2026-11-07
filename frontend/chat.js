@@ -12,7 +12,7 @@
   var app = $('app'), chatForm = $('chat-form'), questionBox = $('question'), sendButton = $('send-button'),
       microphoneButton = $('microphone'), micIcon = $('mic-icon'), micLabel = $('mic-label'),
       statusLine = $('status-line'), thread = $('thread'), emptyState = $('empty-state'),
-      historyList = $('history-list'), chatScroll = $('chat-scroll');
+      historyList = $('history-list'), chatScroll = $('chat-scroll'), historySearch = $('history-search');
 
   var conversations = [], activeConversationId = null, isBusy = false;
   var recorder = null, micStream = null, recordTimer = null;
@@ -60,7 +60,14 @@
       empty.className = 'no-history'; empty.textContent = 'Nta kiganiro kiraboneka.';
       historyList.appendChild(empty); return;
     }
-    conversations.slice().sort(function (a, b) {
+    var term = (historySearch.value || '').trim().toLowerCase();
+    var shown = conversations.filter(function (c) { return !term || (c.title || '').toLowerCase().indexOf(term) !== -1; });
+    if (!shown.length) {
+      var none = document.createElement('p');
+      none.className = 'no-history'; none.textContent = 'Nta kiganiro cyabonetse.';
+      historyList.appendChild(none); return;
+    }
+    shown.sort(function (a, b) {
       return (b.updated || b.created || 0) - (a.updated || a.created || 0);
     }).forEach(function (c) {
       var row = document.createElement('div'); row.className = 'history-row';
@@ -356,6 +363,7 @@
     else if (!recorder && !microphoneButton.disabled) startRecording();
   });
   $('new-chat').addEventListener('click', beginNewChat);
+  historySearch.addEventListener('input', renderHistory);
 
   var menuButtons = [$('toggle-history'), $('collapse-sidebar')];
   var desktopQuery = window.matchMedia('(min-width:821px)');
