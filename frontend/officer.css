@@ -205,3 +205,6 @@
   .lg-two label { white-space: normal; }
 }
 @media (prefers-reduced-motion: reduce) { .o-body * { transition: none !important; } .o-refresh.busy svg { animation-duration: 1.6s; } }
+.lg-dialog-body ul { margin: 6px 0 8px; padding-left: 20px; font-size: .9rem; color: #4a4768; }
+.lg-dialog-body li { margin: 4px 0; }
+.lg-dialog-body li strong { color: #1b1936; }
