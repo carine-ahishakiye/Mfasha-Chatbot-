@@ -10,7 +10,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="chat.css?v=5">
+<link rel="stylesheet" href="chat.css?v=8">
 </head>
 <body>
 <noscript><p class="noscript">Mfasha ikenera JavaScript kugira ngo ikore. Nyamuneka uyifungure muri murandasi yawe.</p></noscript>
@@ -39,6 +39,7 @@
 
     <div class="side-foot">
       <a href="index.html">Subira ahabanza</a>
+      <button id="privacy-link" type="button" data-open-privacy>Politiki y’ibanga</button>
       <button id="clear-history" type="button">Siba ibiganiro byose</button>
     </div>
   </aside>
@@ -54,6 +55,8 @@
         <section class="welcome" id="empty-state" aria-label="Murakaza neza">
           <h1>Nagufasha iki uyu munsi?</h1>
           <p>Mbaza ibibazo ku bihingwa, amatungo, ifumbire n’ubutaka, wandike cyangwa uvuge.</p>
+          <p class="consent-note" id="consent-note">Ibibazo byawe n’ibisubizo bibikwa kuri seriveri kugira ngo abakozi b’ubuhinzi babisuzume. Irinde kwandika amazina yawe cyangwa nimero ya telefone.</p>
+          <p class="urgent-note">Ikibazo cyihutirwa? Baza umukozi w’ubuhinzi cyangwa veterineri. Ku miti, imiti y’amatungo n’indwara, ntukishingikirize kuri Mfasha yonyine.</p>
         </section>
         <div id="thread" role="log" aria-live="polite" aria-label="Ikiganiro"></div>
       </div>
@@ -72,16 +75,32 @@
         </button>
       </form>
       <div class="chips" role="group" aria-label="Ibibazo byo gutangirira">
-        <button class="chip" type="button" data-question="nubuhe butaka bwagenewe guhingwaho ibirayi">nubuhe butaka bwagenewe guhingwaho ibirayi</button>
-        <button class="chip" type="button" data-question="nshaka kumenya ni gute intama zororoka">nshaka kumenya ni gute intama zororoka</button>
-        <button class="chip" type="button" data-question="Soya ihunikwa he ?">Soya ihunikwa he </button>
+        <button class="chip" type="button" data-question="Ni ubuhe butaka bwagenewe guhingwaho ibirayi?">Ubutaka bw’ibirayi</button>
+        <button class="chip" type="button" data-question="Nshaka kumenya uko intama zororoka.">Intama zororoka</button>
+        <button class="chip" type="button" data-question="Soya ihunikwa he?">Aho soya ihunikwa</button>
       </div>
       <p class="status" id="status-line" role="status" aria-live="polite"></p>
-      <p class="disclaimer">Ikibazo cyihutirwa, baza umukozi w’ubuhinzi cyangwa veterineri.</p>
     </footer>
   </main>
 </div>
 
-<script src="chat.js?v=5"></script>
+
+<dialog id="privacy-dialog" aria-labelledby="privacy-title">
+  <div class="pv-head"><h2 id="privacy-title">Politiki y’ibanga</h2><button type="button" id="privacy-close" class="tool">Funga</button></div>
+  <div class="pv-body">
+    <h3>Icyo tubika</h3>
+    <p>Iyo ubajije, tubika ikibazo cyawe, igisubizo wahawe n’igihe wabajijeho. Ku jwi, tubika inyandiko y’ibyo wavuze. Ntabwo tugusaba amazina, nimero ya telefone cyangwa konti.</p>
+    <p>Ibibazo bishobora kuba birimo amakuru bwite wanditse ubwawe. Irinde kuyandika.</p>
+    <h3>Icyo tubikira</h3>
+    <p>Abakozi b’ubuhinzi basuzuma ibisubizo kugira ngo bibe byiza kandi bitagira ingaruka mbi. Ntabwo tugurisha amakuru yawe.</p>
+    <h3>Ibiganiro biri kuri telefone yawe</h3>
+    <p>Ibiganiro ubona ku ruhande rw’ibumoso bibikwa kuri telefone yawe. “Siba ibiganiro byose” isiba gusa kopi iri kuri telefone yawe. Kopi iri kuri seriveri ya Mfasha ntisibwa kuri iyo buto.</p>
+    <h3>Nta konti, nta bumenyi bukwerekeyeho</h3>
+    <p>Ntukeneye konti, bityo ntituzi uwo uri we. Ibibazo byawe ntibihuzwa n’izina ryawe cyangwa nimero ya telefone. Ku mpamvu imwe, ntidushobora kubona ibibazo byawe byihariye mu bindi byose.</p>
+    <p id="privacy-contact-row" hidden>Niba wanditse amakuru bwite mu kibazo kandi ushaka ko dusiba icyo kibazo, tubwire icyo wanditse: <strong id="privacy-contact"></strong></p>
+  </div>
+</dialog>
+
+<script src="chat.js?v=8"></script>
 </body>
 </html>

@@ -3,6 +3,8 @@
 
   var API = (location.pathname.indexOf('/mfasha/') === 0 ? '/mfasha' : '') + '/api';
   var STORAGE_KEY = 'mfasha-conversations-v2';
+  // Put a real email address or phone number here. While it is empty, the deletion-request line stays hidden.
+  var PRIVACY_CONTACT = '';
   var MAX_CHARS = 500;
   // Confidence badge, derived from the retriever score (0..1) of an answered question.
   // Anything below the server's referral threshold is already referred, so "low" is rare.
@@ -86,7 +88,7 @@
   }
 
   function deleteConversation(id) {
-    if (!window.confirm('Urashaka gusiba iki kiganiro?')) return;
+    if (!window.confirm('Iki kiganiro kiraseswa kuri telefone yawe gusa. Kopi iri kuri seriveri ya Mfasha ntisibwa. Komeza?')) return;
     conversations = conversations.filter(function (c) { return c.id !== id; });
     saveConversations();
     if (id === activeConversationId) beginNewChat(); else renderHistory();
@@ -168,6 +170,16 @@
       }
     }
 
+    if (answer.status === 'answered') {
+      var rv = document.createElement('p');
+      var reviewed = answer.review_status === 'reviewed';
+      rv.className = 'review-label ' + (reviewed ? 'ok' : 'pending');
+      rv.textContent = reviewed
+        ? 'Cyasuzumwe n’umukozi w’ubuhinzi'
+        : 'Ntikirasuzumwa n’umukozi w’ubuhinzi. Ntukishingikirize kuri cyo wenyine.';
+      turn.body.appendChild(rv);
+    }
+
     var text = document.createElement('p'); text.className = 'answer-text';
     text.textContent = answer.answer || 'Nta gisubizo cyagarutse.'; turn.body.appendChild(text);
 
@@ -190,6 +202,11 @@
       tools.appendChild(yes); tools.appendChild(no); tools.appendChild(copy);
     }
     turn.body.appendChild(tools);
+    if (answer.status === 'answered') {
+      var urgent = document.createElement('p'); urgent.className = 'urgent-note';
+      urgent.textContent = 'Ikibazo cyihutirwa? Baza umukozi w’ubuhinzi cyangwa veterineri. Ku miti, imiti y’amatungo n’indwara, ntukishingikirize kuri Mfasha yonyine.';
+      turn.body.appendChild(urgent);
+    }
     if (!quiet) turn.article.scrollIntoView({ behavior: 'smooth', block: 'start' });
   }
   function showAnswerError(turn, message) {
@@ -387,11 +404,23 @@
   $('scrim').addEventListener('click', function () { app.classList.remove('open'); });
   $('clear-history').addEventListener('click', function () {
     if (!conversations.length) { setStatus('Nta biganiro bihari byo gusiba.'); return; }
-    if (!window.confirm('Urashaka gusiba ibiganiro byose?')) return;
+    if (!window.confirm('Ibiganiro byose biraseswa kuri telefone yawe gusa. Kopi ziri kuri seriveri ya Mfasha ntizisibwa. Komeza?')) return;
     conversations = []; activeConversationId = null; saveConversations(); beginNewChat(); renderHistory();
   });
   document.addEventListener('keydown', function (e) {
     if (e.key === 'Escape' && app.classList.contains('open')) { app.classList.remove('open'); $('toggle-history').focus(); }
+  });
+
+  var pv = $('privacy-dialog');
+  if (PRIVACY_CONTACT) { $('privacy-contact').textContent = PRIVACY_CONTACT; $('privacy-contact-row').hidden = false; }
+  document.querySelectorAll('[data-open-privacy]').forEach(function (a) {
+    a.addEventListener('click', function (e) {
+      e.preventDefault(); app.classList.remove('open');
+      if (pv.showModal) pv.showModal(); else pv.setAttribute('open', '');
+    });
+  });
+  $('privacy-close').addEventListener('click', function () {
+    if (pv.close) pv.close(); else pv.removeAttribute('open');
   });
 
   document.title = 'Baza Mfasha – Umufasha wawe mu buhinzi n’ubworozi';
