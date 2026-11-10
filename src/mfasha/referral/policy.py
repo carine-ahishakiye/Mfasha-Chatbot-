@@ -1,9 +1,4 @@
-"""When to answer and when to refer the farmer to an officer (proposal sections 3.5 and 3.13).
 
-Each rule is a small class with a single check (Single Responsibility). Rules are tried in order and
-the first one that fires decides the reason (chain of responsibility). A new safety rule is added by
-writing one class and adding it to the list: no existing code changes (Open/Closed).
-"""
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
