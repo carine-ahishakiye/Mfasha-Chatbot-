@@ -12,6 +12,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from fastapi.staticfiles import StaticFiles
 from starlette.exceptions import HTTPException as StarletteHTTPException
+from starlette.routing import Match, Mount
 
 from mfasha import __version__
 from mfasha.auth import LoginThrottle
@@ -30,11 +31,38 @@ logger = logging.getLogger("mfasha")
 
 
 class FreshStaticFiles(StaticFiles):
-    """Serves the web pages with `no-cache`, so a browser always re-checks and never keeps an old design."""
+    """Serves the web pages with `no-cache`, so a browser always re-checks and never keeps an old design.
+
+    The pages are mounted at "/", which would swallow a request such as GET /api/ask/text (a POST-only route)
+    and answer 404. For paths under /api/ we first check whether an API route matches the path with a
+    different method, and if so answer 405 with an Allow header, as HTTP requires."""
+
+    async def __call__(self, scope, receive, send):
+        if scope["type"] == "http" and scope["path"].startswith("/api/"):
+            allowed = _allowed_methods(scope)
+            if allowed and scope["method"] not in allowed:
+                response = JSONResponse({"detail": "Method Not Allowed"}, status_code=405,
+                                        headers={"Allow": ", ".join(sorted(allowed))})
+                await response(scope, receive, send)
+                return
+        await super().__call__(scope, receive, send)
+
     async def get_response(self, path, scope):
         response = await super().get_response(path, scope)
         response.headers["Cache-Control"] = "no-cache"
         return response
+
+
+def _allowed_methods(scope) -> set[str]:
+    """HTTP methods that an API route accepts on this exact path (empty when the path does not exist)."""
+    allowed: set[str] = set()
+    for method in ("GET", "POST", "PUT", "PATCH", "DELETE"):
+        probe = {**scope, "method": method}
+        for route in scope["app"].router.routes:
+            if not isinstance(route, Mount) and route.matches(probe)[0] == Match.FULL:
+                allowed.add(method)
+                break
+    return allowed
 
 
 def create_app(settings: Optional[Settings] = None, pipeline: Optional[MfashaPipeline] = None,

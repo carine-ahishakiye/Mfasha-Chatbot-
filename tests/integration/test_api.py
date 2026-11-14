@@ -179,3 +179,12 @@ def test_signup_is_closed_without_a_code_and_locks_after_wrong_codes(client, set
     for _ in range(5):
         assert client.post("/api/officer/register", json=new).status_code == 401
     assert client.post("/api/officer/register", json={**new, "code": "open-sesame"}).status_code == 429
+
+def test_wrong_method_returns_405_not_404(client):
+    """A GET on a POST-only route is a wrong method (405 with an Allow header), not a missing page."""
+    r = client.get("/api/ask/text")
+    assert r.status_code == 405 and "POST" in r.headers["allow"]
+
+
+def test_unknown_api_route_still_returns_404(client):
+    assert client.get("/api/nope").status_code == 404

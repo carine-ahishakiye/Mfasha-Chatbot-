@@ -41,7 +41,7 @@ $tests = @(
   (T "T10" "501 characters"               "POST" $ask @{question=("a" * 501)} $null 422 "" $false)
   (T "T11" "Script tag as question"       "POST" $ask @{question="<script>alert(1)</script>"} $null 200 "" $false)
   (T "T12" "Malformed JSON body"          "POST" $ask $null "{bad json" 422 "" $false)
-  (T "T13" "Wrong method on ask route"    "GET"  $ask $null $null 404 "" $false)
+  (T "T13" "Wrong method on ask route"    "GET"  $ask $null $null 405 "" $false)
   (T "T14" "Unknown route"                "GET"  "/api/nope" $null $null 404 "" $true)
   (T "T15" "Feedback, valid"              "POST" "/api/feedback" @{answer_id=-1; rating=5; is_useful=$true; comment="test1"} $null 201 "" $false)
   (T "T16" "Feedback, unknown answer id"  "POST" "/api/feedback" @{answer_id=999999; rating=3; is_useful=$true} $null 404 "" $false)
