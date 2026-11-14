@@ -1,13 +1,17 @@
 """FastAPI application factory. Routes live in `routes.py`; this file only wires things together."""
 from __future__ import annotations
 
+import logging
 import secrets
 from typing import Optional
 
 from fastapi import FastAPI, Request
+from fastapi.exception_handlers import http_exception_handler, request_validation_exception_handler
+from fastapi.exceptions import RequestValidationError
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from fastapi.staticfiles import StaticFiles
+from starlette.exceptions import HTTPException as StarletteHTTPException
 
 from mfasha import __version__
 from mfasha.auth import LoginThrottle
@@ -18,6 +22,11 @@ from mfasha.factory import build_pipeline
 from mfasha.knowledge.base import KnowledgeBase
 from mfasha.pipeline import MfashaPipeline
 from mfasha.storage import InteractionRepository, create_session_factory
+
+logging.basicConfig(
+    filename="mfasha.log", encoding="utf-8", level=logging.INFO,
+    format="%(asctime)s %(levelname)s %(name)s %(message)s")
+logger = logging.getLogger("mfasha")
 
 
 class FreshStaticFiles(StaticFiles):
@@ -66,3 +75,16 @@ def _register_error_handlers(app: FastAPI) -> None:
     app.add_exception_handler(InvalidAudioError, respond(422, "invalid_audio"))
     app.add_exception_handler(ServiceUnavailableError, respond(503, "service_unavailable"))
     app.add_exception_handler(KnowledgeBaseError, respond(500, "knowledge_base_error"))
+
+    # Error tracking: every rejected request is written to mfasha.log with its status code and reason.
+    # The question text, phone number and PIN are never logged.
+    @app.exception_handler(StarletteHTTPException)
+    async def log_http_error(request: Request, exc: StarletteHTTPException):
+        logger.warning("%s %s -> %s %s", request.method, request.url.path, exc.status_code, exc.detail)
+        return await http_exception_handler(request, exc)
+
+    @app.exception_handler(RequestValidationError)
+    async def log_validation_error(request: Request, exc: RequestValidationError):
+        first = exc.errors()[0]
+        logger.warning("%s %s -> 422 invalid input (%s)", request.method, request.url.path, first.get("msg", ""))
+        return await request_validation_exception_handler(request, exc)

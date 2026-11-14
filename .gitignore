@@ -15,3 +15,6 @@ results/tts_samples/
 results/tts_rating_pack/
 results/voice_test/
 mfasha-kinyarwanda-agri-bot/
+
+*.log
+*.bak
