@@ -1,0 +1,30 @@
+{
+  "machine": {
+    "os": "Windows-10-10.0.19045-SP0",
+    "python": "3.13.3",
+    "cpu_count": 4,
+    "processor": "Intel64 Family 6 Model 78 Stepping 3, GenuineIntel"
+  },
+  "components": {
+    "classifier": "tfidf-classifier",
+    "retriever": "embedding",
+    "stt": "stt-unavailable"
+  },
+  "passages": 941,
+  "startup_s": 0.41,
+  "latency_ms": {
+    "p50": 853.31,
+    "p95": 2603.82,
+    "p99": 14359.22,
+    "max": 157844.97
+  },
+  "stage_p50_ms": {
+    "preprocess": 0.08,
+    "classify": 5.145,
+    "retrieve": 845.765,
+    "referral_policy": 0.01
+  },
+  "throughput_req_per_s": 1.4,
+  "threads": 8,
+  "peak_memory_mb": null
+}

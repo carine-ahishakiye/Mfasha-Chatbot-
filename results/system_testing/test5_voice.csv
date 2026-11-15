@@ -1,13 +1,13 @@
 ﻿ID,Test,Expected,HTTP,Result,RoundTripMs,SttMs,Status,Reason,Heard,SizeKB,Detail,Note
-V01,"Valid WAV, 3 s of silence",HTTP 200,200,OBSERVE,7569,6222.87,referred,speech_not_understood,,93,,
-V02,"Valid WAV, 2 s tone",HTTP 200,200,OBSERVE,1570,211.59,referred,speech_not_understood,,62,,
-V03,"Valid WAV, 3 s low noise",HTTP 200,200,OBSERVE,1674,370.01,referred,low_retrieval_score,eeeee,93,,
-V04,"Stereo 44.1 kHz WAV, 3 s",HTTP 200,200,PASS,2469,249.88,referred,speech_not_understood,,516,,tests the resampling path
-V05,"Valid WAV, 10 s (timing)",HTTP 200,200,PASS,2911,1014.94,referred,low_retrieval_score,eeeieee,312,,speech-to-text time for 10 s
-V06,"Valid WAV, 29 s (timing, near limit)",HTTP 200,200,PASS,5085,2149.34,referred,low_retrieval_score,ieeeeeeeeie,906,,speech-to-text time for 29 s
-V07,WAV of 31 s (over the 30 s limit),HTTP 422,422,PASS,2898,,,,,968,audio is longer than 30 seconds,
-V08,8-bit WAV,HTTP 422,422,PASS,1022,,,,,31,only 16-bit PCM WAV is supported,only 16-bit is supported
-V09,Not a WAV file (plain text),HTTP 422,422,PASS,703,,,,,0,the file is not a valid WAV recording,
-V10,Empty file,HTTP 422,422,PASS,752,,,,,0,the file is not a valid WAV recording,
-V11,WAV over 5 MB,HTTP 413,413,PASS,6726,,,,,5156,audio file is too large,the 413 may come from the app or from the Vercel proxy
-V12,Request with no audio field,HTTP 422,422,PASS,1329,,,,,62,"[{""type"": ""missing"", ""loc"": [""body"", ""audio""], ""msg"": ""Field required"", ""input"": null}]",
+V01,"Valid WAV, 3 s of silence",HTTP 200,200,OBSERVE,1836,389.27,referred,speech_not_understood,,93,,
+V02,"Valid WAV, 2 s tone",HTTP 200,200,OBSERVE,1504,292.34,referred,speech_not_understood,,62,,
+V03,"Valid WAV, 3 s low noise",HTTP 200,200,OBSERVE,1715,380.51,referred,low_retrieval_score,eeeee,93,,
+V04,"Stereo 44.1 kHz WAV, 3 s",HTTP 200,200,PASS,2972,273.86,referred,speech_not_understood,,516,,tests the resampling path
+V05,"Valid WAV, 10 s (timing)",HTTP 200,200,PASS,2836,713.66,referred,low_retrieval_score,eeeieee,312,,speech-to-text time for 10 s
+V06,"Valid WAV, 29 s (timing, near limit)",HTTP 200,200,PASS,6973,3621.75,referred,low_retrieval_score,ieeeeeeeeie,906,,speech-to-text time for 29 s
+V07,WAV of 31 s (over the 30 s limit),HTTP 422,422,PASS,3444,,,,,968,audio is longer than 30 seconds,
+V08,8-bit WAV,HTTP 422,422,PASS,919,,,,,31,only 16-bit PCM WAV is supported,only 16-bit is supported
+V09,Not a WAV file (plain text),HTTP 422,422,PASS,622,,,,,0,the file is not a valid WAV recording,
+V10,Empty file,HTTP 422,422,PASS,612,,,,,0,the file is not a valid WAV recording,
+V11,WAV over 5 MB,HTTP 413,413,PASS,9727,,,,,5156,audio file is too large,the 413 may come from the app or from the Vercel proxy
+V12,Request with no audio field,HTTP 422,422,PASS,1290,,,,,62,"[{""type"": ""missing"", ""loc"": [""body"", ""audio""], ""msg"": ""Field required"", ""input"": null}]",

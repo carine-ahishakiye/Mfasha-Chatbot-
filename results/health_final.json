@@ -1,0 +1,11 @@
+﻿{
+    "status":  "ok",
+    "version":  "0.1.0",
+    "passages":  941,
+    "reviewed_passages":  941,
+    "components":  {
+                       "classifier":  "tfidf-classifier",
+                       "retriever":  "embedding",
+                       "stt":  "mms-kin"
+                   }
+}
