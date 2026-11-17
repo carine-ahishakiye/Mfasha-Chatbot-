@@ -51,7 +51,7 @@ class AgreementRule(ReferralRule):
 
 
 class ReviewedRule(ReferralRule):
-    """Only passages signed off by an agricultural officer may be shown (proposal section 3.6)."""
+    """Only passages carrying the review flag may be shown (flag set by one reviewer; not a specialist review)."""
 
     def __init__(self, serve_unreviewed: bool = False):
         self.serve_unreviewed = serve_unreviewed
