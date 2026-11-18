@@ -4,7 +4,7 @@
   var API = (location.pathname.indexOf('/mfasha/') === 0 ? '/mfasha' : '') + '/api';
   var STORAGE_KEY = 'mfasha-conversations-v2';
   // Put a real email address or phone number here. While it is empty, the deletion-request line stays hidden.
-  var PRIVACY_CONTACT = '';
+  var PRIVACY_CONTACT = 'carineyib@gmail.com';
   var MAX_CHARS = 500;
   // Confidence badge, derived from the retriever score (0..1) of an answered question.
   // Anything below the server's referral threshold is already referred, so "low" is rare.
