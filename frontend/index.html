@@ -7,7 +7,6 @@
 <meta name="theme-color" content="#f4f6f1">
 <title>Mfasha – Umufasha wawe mu buhinzi n’ubworozi</title>
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='16' fill='%230f2d1c'/%3E%3Ctext x='32' y='45' font-family='Arial' font-size='36' font-weight='700' text-anchor='middle' fill='%23d6f23d'%3EM%3C/text%3E%3C/svg%3E">
-<link rel="preload" as="image" href="img/hero-farmers.jpg">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@1&display=swap" rel="stylesheet">
@@ -112,12 +111,6 @@
   .proof .mic { display: inline-flex; align-items: center; gap: 7px; font-weight: 500; }
   .proof .mic svg { width: 16px; height: 16px; color: var(--lime); }
   .who { display: flex; align-items: center; gap: 10px; }
-  .faces { display: flex; }
-  .faces i { width: 32px; height: 32px; margin-left: -9px; border-radius: 50%; border: 2px solid rgba(255, 255, 255, .95); background: url("img/hero-farmers.jpg") no-repeat; background-size: 350px 218px; }
-  .faces i:first-child { margin-left: 0; }
-  .faces i:nth-child(1) { background-position: -190px -80px; }
-  .faces i:nth-child(2) { background-position: -115px -63px; }
-  .faces i:nth-child(3) { background-position: -42px -62px; }
 
   /* ---------- Topics strip + intro (paper) ---------- */
   .band { background: var(--paper); margin: 0 var(--inset); }
@@ -193,6 +186,46 @@
     .row .btn { justify-self: start; }
   }
   @media (prefers-reduced-motion: reduce) { * { transition: none !important; scroll-behavior: auto !important; } }
+
+/* November 2026 refresh: quiet, image-free cream and green interface */
+:root{--paper:#f5f2e9;--white:#fffdf8;--ink:#24231f;--soft:#625f57;--muted:#88847b;--line:#e5e0d5;--card:#fbf9f3;--lime:#2e7467;--leaf:#2e7467;--forest:#2e7467;--pad:clamp(22px,5vw,76px);--inset:0px}
+body{background:var(--paper);color:var(--ink)}
+.hero{height:auto;min-height:100svh;max-height:none;margin:0;border-radius:0;background:var(--paper);color:var(--ink);overflow:visible;display:flex}
+.hero-img,.shade{display:none!important}
+.nav{width:100%;grid-template-columns:1fr auto 1fr;padding:14px clamp(18px,3vw,48px);border-bottom:1px solid var(--line);background:rgba(255,253,248,.9)}
+.word{font-size:1.05rem;font-weight:750;color:var(--ink)}
+.word svg{background:#c69b36;border-radius:50%;padding:5px}
+.links{background:transparent;border:0;backdrop-filter:none;gap:4px}
+.links a{color:var(--soft);font-size:.82rem;padding:9px 12px}
+.links a[aria-current=page]{background:#eee9dc;color:var(--ink)}
+.links a[aria-current=page]::before{display:none}
+.btn{height:48px;border-radius:13px;font-size:.9rem;font-weight:650;padding:0 24px}
+.btn.white{height:42px;border:1px solid var(--line);background:transparent}
+.btn.lime{background:#2e7467;color:white}
+.btn.lime:hover{background:#245f55}
+.btn.ghost{color:#2e7467;border:1.5px solid #2e7467;background:transparent;backdrop-filter:none}
+.hero-copy{width:min(780px,calc(100% - 40px));margin:auto;padding:75px 0 36px;color:var(--ink)}
+h1{max-width:760px;font-size:clamp(2.45rem,5.2vw,4.2rem);font-weight:780;line-height:1.05;letter-spacing:-.055em}
+h1 .serif{font:inherit;letter-spacing:inherit}
+.lede{max-width:680px;color:#68645c;font-size:clamp(1rem,1.6vw,1.22rem);line-height:1.75;margin-top:22px}
+.cta{margin-top:30px;gap:14px}
+.hero-foot{width:min(780px,calc(100% - 40px));margin:0 auto;padding:18px 0 36px;color:var(--soft);border-top:1px solid var(--line)}
+.scroll{color:var(--soft)}.proof{color:var(--soft)}.proof .mic svg{color:#2e7467}
+.band{background:var(--paper);margin:0}.band .in{max-width:1100px;margin:auto}
+.strip{border-top:1px solid var(--line);border-bottom:1px solid var(--line)}
+.strip li{color:var(--ink)}
+.intro p.big{color:var(--ink)}.intro .dim{color:#77736b}
+.about{background:#fffdf8;margin:0;padding-left:max(var(--pad),calc((100vw - 1100px)/2));padding-right:max(var(--pad),calc((100vw - 1100px)/2))}
+.about-head{max-width:1100px;margin:auto}.about-body{max-width:1100px;margin-left:auto;margin-right:auto;grid-template-columns:1fr}
+.photo{display:none!important}
+.acc-item{background:#f5f2e9;border-color:#e9e3d8}
+.enter{background:#2e7467;color:white;margin:0;padding:clamp(42px,6vw,76px) max(var(--pad),calc((100vw - 1100px)/2))}
+.enter .title,.enter h3,.enter p{color:white}.enter .row{border-color:rgba(255,255,255,.24)}
+.enter .btn.lime{background:#fff;color:#2e7467}.enter .btn.outline-w{border-color:white;color:white}
+.foot{background:#f5f2e9;color:var(--soft);padding:24px clamp(20px,5vw,76px)}
+@media(max-width:850px){.nav{grid-template-columns:1fr auto}.links{display:none}.hero-copy{padding-top:56px}.hero-foot{flex-wrap:wrap}.proof{flex-wrap:wrap}}
+@media(max-width:560px){h1{font-size:2.45rem}.hero-copy{padding-top:42px}.cta{flex-direction:column;align-items:stretch}.cta .btn{width:100%}.hero-foot{align-items:flex-start}.strip ul{justify-content:flex-start}}
+
 </style>
 </head>
 <body>
@@ -200,7 +233,6 @@
 
 <div class="page">
 <header class="hero" id="top">
-  <img class="hero-img" src="img/hero-farmers.jpg" alt="Abahinzi b’icyayi basoroma icyayi mu murima" width="701" height="436" fetchpriority="high">
   <div class="shade" aria-hidden="true"></div>
 
   <div class="nav">
@@ -235,7 +267,7 @@
     </a>
     <div class="proof">
       <span class="mic">Wandika cyangwa uvuge</span>
-      <span class="who"><span class="faces" aria-hidden="true"><i></i><i></i><i></i></span>Abahinzi n’aborozi</span>
+      <span class="who">Abahinzi n’aborozi</span>
     </div>
   </div>
 </header>
@@ -293,9 +325,6 @@
         </div>
       </div>
 
-      <div class="photo">
-        <img src="img/hero-farmers.jpg" alt="Umuhinzi w’umugore asoroma icyayi mu murima, abandi bakorera inyuma ye" loading="lazy" width="701" height="436">
-      </div>
     </div>
   </section>
 

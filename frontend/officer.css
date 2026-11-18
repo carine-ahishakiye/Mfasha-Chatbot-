@@ -208,3 +208,45 @@
 .lg-dialog-body ul { margin: 6px 0 8px; padding-left: 20px; font-size: .9rem; color: #4a4768; }
 .lg-dialog-body li { margin: 4px 0; }
 .lg-dialog-body li strong { color: #1b1936; }
+
+/* Officer portal visual refresh: aligned with Mfasha's cream and green identity */
+:root{--ink:#26251f;--muted:#6f6b62;--sub:#6f6b62;--faint:#918b80;--line:#e5e0d5;--accent:#2e7467;--accent-d:#245f55;--dark:#2e7467;--tint:#e8f0eb;--green:#2e7467;--green-bg:#e3f0e9;--amber:#8a5a00;--amber-bg:#fff3d6;--red:#b3261e;--red-bg:#fce8e6}
+.o-body{background:#f5f2e9;color:#26251f;font-family:Inter,system-ui,-apple-system,"Segoe UI",Arial,sans-serif}
+.lg{min-height:100vh;display:grid;place-items:center;padding:32px 18px;background:#f5f2e9}
+.lg-card{width:min(100%,480px);padding:clamp(26px,5vw,44px);border:1px solid #e5e0d5;border-radius:22px;background:#fffdf8;box-shadow:0 18px 55px rgba(48,42,29,.08)}
+.lg-back{color:#625f57;font-weight:600}
+.lg h1{margin:24px 0 7px;color:#26251f;font-size:2.2rem;font-weight:750;letter-spacing:-.045em}
+.lg-sub{color:#77736b;font-size:.95rem}
+.o-switch{display:grid;grid-template-columns:1fr 1fr;gap:5px;padding:5px;margin:25px 0 23px;border-radius:13px;background:#f0ede5}
+.o-switch button{min-height:42px;border:0;border-radius:10px;background:transparent;color:#6f6b62;font-weight:650}
+.o-switch button[aria-selected=true]{background:#2e7467;color:#fff;box-shadow:none}
+.o-body form>label,.o-body .lg-two label{color:#403e37;font-weight:650;font-size:.84rem}
+.o-body input:not([type=checkbox]):not([type=radio]){min-height:48px;border:1px solid #ddd7cb;border-radius:11px;background:#fff;color:#26251f;padding:0 14px;outline:none}
+.o-body input:focus{border-color:#2e7467;box-shadow:0 0 0 3px rgba(46,116,103,.12)}
+.lg-pass{border-color:#ddd7cb;border-radius:11px;background:#fff}
+.lg-pass input{border:0!important;box-shadow:none!important}
+.lg-eye{color:#6f6b62}
+.o-btn{min-height:48px;border:0;border-radius:12px;background:#2e7467;color:#fff;font-weight:700;box-shadow:none}
+.o-btn:hover{background:#245f55}
+.o-btn:disabled{opacity:.5}
+.o-btn.ghost{background:transparent;border:1px solid #d7d1c5;color:#4d4941}
+.lg-legal,.lg-consent p{color:#77736b}
+.lg-dialog{border:1px solid #e5e0d5;border-radius:18px;background:#fffdf8;color:#26251f}
+.lg-dialog::backdrop{background:rgba(34,31,24,.45)}
+.o-app{max-width:none;min-height:100vh;margin:0;border-radius:0;background:#f5f2e9;box-shadow:none;grid-template-columns:260px minmax(0,1fr)}
+.o-rail{background:#eeeadf;border-right:1px solid #e5e0d5;border-radius:0}
+.o-brand b{color:#26251f}.o-brand small,.o-muted{color:#77736b}
+.o-tabs button[aria-selected=true]{background:#2e7467;color:#fff}
+.o-tabs button:hover{background:#e4e0d6}
+.o-main{padding:clamp(24px,4vw,52px)}
+.o-big,.o-target,.o-queue,.o-form{border:1px solid #e8e2d7;background:#fffdf8;box-shadow:0 8px 28px rgba(48,42,29,.045);border-radius:17px}
+.o-ledger{background:#eeeadf;border-radius:16px}
+.o-filter{background:#eeeadf}
+.o-filter button[aria-checked=true]{background:#fffdf8;color:#2e7467;box-shadow:0 1px 5px rgba(40,35,25,.1)}
+.o-item{background:#f8f6f0}.o-item.active{background:#e8f0eb;border-color:#2e7467}
+.o-chip{background:#e8f0eb;color:#245f55}
+.o-answer{background:#f1f5f1}
+.o-radio span{border-color:#ddd7cb;background:#fffdf8}
+.o-radio.good input:checked+span{background:#e3f0e9;border-color:#2e7467;color:#245f55}
+.o-check input{accent-color:#2e7467}
+@media(max-width:900px){.o-app{grid-template-columns:1fr}.o-rail{background:#eeeadf}}
