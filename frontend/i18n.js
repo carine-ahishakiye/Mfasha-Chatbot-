@@ -239,7 +239,7 @@ function mfashaI18nBoot() {
     [/^Isuzuma ry’igisubizo #(\d+) ryabitswe\. Murakoze!(?: (.*))?$/, function (m, id, rest) { return 'Review of answer #' + id + ' saved. Thank you!' + (rest ? ' ' + T(rest) : ''); }]
   ];
 
-  function norm(s) { return s.replace(/\s+/g, ' ').trim(); }
+  function norm(s) { return String(s == null ? '' : s).replace(/\s+/g, ' ').trim(); }
   function T(s) {
     if (!s) return s;
     var lead = s.match(/^\s*/)[0], trail = s.match(/\s*$/)[0], k = norm(s);
@@ -294,12 +294,18 @@ function mfashaI18nBoot() {
     return !(SAFE[v] || v.indexOf('Ikibazo ntikigaragara') === 0);
   }
   function doText(n) {
+    if (!n || n.nodeType !== 3) return;
     var v = n.nodeValue;
+    // If this node currently contains our English translation, keep the original Kinyarwanda.
     if (n.__en !== undefined && v === n.__en) return;
-    n.__rw = v; n.__en = undefined;
+    n.__rw = v;
+    n.__en = undefined;
     if (lang !== 'en' || isData(n)) return;
     var o = T(v);
-    if (o !== v) { n.__en = o; n.nodeValue = o; }
+    if (o !== v) {
+      n.__en = o;
+      n.nodeValue = o;
+    }
   }
   function doAttr(el, a) {
     var v = el.getAttribute(a); if (v == null) return;
@@ -311,22 +317,45 @@ function mfashaI18nBoot() {
     if (o !== v) { r.en = o; el.setAttribute(a, o); }
   }
   function walk(root) {
+    if (!root) return;
     if (root.nodeType === 3) { doText(root); return; }
-    if (root.nodeType !== 1 || /^(SCRIPT|STYLE)$/.test(root.tagName)) return;
+    if (root.nodeType !== 1 || /^(SCRIPT|STYLE|TEXTAREA|INPUT)$/.test(root.tagName)) return;
     var els = [root].concat([].slice.call(root.querySelectorAll('[placeholder],[aria-label],[title]')));
     els.forEach(function (el) { ATTRS.forEach(function (a) { if (el.hasAttribute(a)) doAttr(el, a); }); });
     var w = document.createTreeWalker(root, NodeFilter.SHOW_TEXT, {
-      acceptNode: function (n) { return /^(SCRIPT|STYLE|TEXTAREA)$/.test(n.parentNode.tagName) ? NodeFilter.FILTER_REJECT : NodeFilter.FILTER_ACCEPT; }
+      acceptNode: function (n) { return /^(SCRIPT|STYLE|TEXTAREA|INPUT)$/.test(n.parentNode.tagName) ? NodeFilter.FILTER_REJECT : NodeFilter.FILTER_ACCEPT; }
     }), n, list = [];
     while ((n = w.nextNode())) list.push(n);
     list.forEach(doText);
   }
   function restore(root) {
+    if (root && root.nodeType === 3) {
+      if (root.__en !== undefined && root.nodeValue === root.__en) {
+        root.nodeValue = root.__rw;
+        root.__en = undefined;
+      }
+      return;
+    }
+    if (!root || root.nodeType !== 1 && root.nodeType !== 9) return;
     var w = document.createTreeWalker(root, NodeFilter.SHOW_TEXT), n, list = [];
     while ((n = w.nextNode())) list.push(n);
-    list.forEach(function (t) { if (t.__en !== undefined && t.nodeValue === t.__en) { var rw = t.__rw; t.__en = undefined; t.nodeValue = rw; } });
-    root.querySelectorAll('[placeholder],[aria-label],[title]').forEach(function (el) {
-      ATTRS.forEach(function (a) { var r = el.__a && el.__a[a]; if (r && r.en !== undefined && el.getAttribute(a) === r.en) { el.setAttribute(a, r.rw); r.en = undefined; } });
+    list.forEach(function (t) {
+      if (t.__en !== undefined && t.nodeValue === t.__en) {
+        t.nodeValue = t.__rw;
+        t.__en = undefined;
+      }
+    });
+    var attrs = [];
+    if (root.nodeType === 1 && root.matches && root.matches('[placeholder],[aria-label],[title]')) attrs.push(root);
+    if (root.querySelectorAll) attrs = attrs.concat([].slice.call(root.querySelectorAll('[placeholder],[aria-label],[title]')));
+    attrs.forEach(function (el) {
+      ATTRS.forEach(function (a) {
+        var r = el.__a && el.__a[a];
+        if (r && r.en !== undefined && el.getAttribute(a) === r.en) {
+          el.setAttribute(a, r.rw);
+          r.en = undefined;
+        }
+      });
     });
   }
   function swapBlocks() {
@@ -344,9 +373,13 @@ function mfashaI18nBoot() {
     });
   }
   function set(next) {
-    lang = next; try { localStorage.setItem(KEY, lang); } catch (e) {}
+    next = next === 'en' ? 'en' : 'rw';
+    // Restore first so switching back and forth never translates translated text.
+    restore(document.body);
+    lang = next;
+    try { localStorage.setItem(KEY, lang); } catch (e) {}
     swapBlocks();
-    if (lang === 'en') walk(document.body); else restore(document.body);
+    if (lang === 'en') walk(document.body);
     labels();
   }
 
@@ -367,13 +400,15 @@ function mfashaI18nBoot() {
     else { b.classList.add('mf-lang-fixed'); document.body.appendChild(b); }
   }
 
-  new MutationObserver(function (list) {
-    list.forEach(function (m) {
-      if (m.type === 'characterData') doText(m.target);
-      else if (m.type === 'attributes') doAttr(m.target, m.attributeName);
-      else m.addedNodes.forEach(walk);
-    });
-  }).observe(document.body, { childList: true, subtree: true, characterData: true, attributes: true, attributeFilter: ATTRS });
+  if (document.body) {
+    new MutationObserver(function (list) {
+      list.forEach(function (m) {
+        if (m.type === 'characterData') doText(m.target);
+        else if (m.type === 'attributes') doAttr(m.target, m.attributeName);
+        else Array.prototype.forEach.call(m.addedNodes, walk);
+      });
+    }).observe(document.body, { childList: true, subtree: true, characterData: true, attributes: true, attributeFilter: ATTRS });
+  }
 
   document.addEventListener('click', function (e) {
     var b = e.target.closest && e.target.closest('[data-lang-toggle]');
