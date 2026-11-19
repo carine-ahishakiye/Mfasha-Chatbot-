@@ -7,7 +7,6 @@
   var PRIVACY_CONTACT = '';
   var MAX_CHARS = 500;
   // Confidence badge, derived from the retriever score (0..1) of an answered question.
-  // Anything below the server's referral threshold is already referred, so "low" is rare.
   var HIGH_SCORE = 0.6, MEDIUM_SCORE = 0.35;
 
   var $ = function (id) { return document.getElementById(id); };
@@ -19,7 +18,7 @@
   var conversations = [], activeConversationId = null, isBusy = false;
   var recorder = null, micStream = null, recordTimer = null;
 
-  /*  helpers */
+  /* helpers */
   function setStatus(text) { statusLine.textContent = text || ''; }
 
   async function api(path, options, fallbackMessage) {
@@ -37,7 +36,7 @@
     return answer.retrieval_score >= HIGH_SCORE ? 'high' : answer.retrieval_score >= MEDIUM_SCORE ? 'medium' : 'low';
   }
 
-  /*  storage  */
+  /* storage */
   function saveConversations() {
     try { localStorage.setItem(STORAGE_KEY, JSON.stringify(conversations)); }
     catch (e) { setStatus('Ntabwo amateka yabitswe kuri iki gikoresho.'); }
@@ -54,7 +53,7 @@
     return conversations.find(function (c) { return c.id === activeConversationId; }) || null;
   }
 
-  /* history sidebar  */
+  /* history sidebar */
   function renderHistory() {
     historyList.replaceChildren();
     if (!conversations.length) {
@@ -110,7 +109,7 @@
     renderHistory(); chatScroll.scrollTop = chatScroll.scrollHeight; app.classList.remove('open');
   }
 
-  /* ---------- rendering ---------- */
+  /* rendering */
   function createTurn(question) {
     var article = document.createElement('article'); article.className = 'turn';
     var row = document.createElement('div'); row.className = 'question';
@@ -126,7 +125,6 @@
     turn.body.appendChild(p); chatScroll.scrollTop = chatScroll.scrollHeight;
   }
   var THUMB = '<svg class="%C" viewBox="0 0 24 24" aria-hidden="true"><path d="M14 9V5a3 3 0 0 0-3-3l-4 9v11h11.28a2 2 0 0 0 2-1.7l1.38-9a2 2 0 0 0-2-2.3zM7 22H4a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h3"/></svg>';
-  // thumb: 'up' | 'down' | undefined (plain text button)
   function makeButton(text, thumb) {
     var b = document.createElement('button'); b.type = 'button'; b.className = 'tool';
     if (thumb) b.innerHTML = THUMB.replace('%C', thumb);
@@ -214,7 +212,7 @@
     var p = document.createElement('p'); p.className = 'error'; p.textContent = message; turn.body.appendChild(p);
   }
 
-  /* ---------- composer ---------- */
+  /* composer */
   function resizeQuestion() {
     questionBox.style.height = 'auto';
     questionBox.style.height = Math.min(questionBox.scrollHeight, 140) + 'px';
@@ -311,8 +309,7 @@
     }
   }
 
-  /* ---------- asking ---------- */
-  // Shared by text and voice: creates the turn, runs `request`, renders the result.
+  /* asking */
   async function runTurn(initialQuestion, request) {
     setStatus(''); isBusy = true; sendButton.disabled = true; microphoneButton.disabled = true;
     emptyState.hidden = true; questionBox.value = ''; resizeQuestion();
@@ -331,7 +328,7 @@
 
     try {
       var answer = await request();
-      if (answer.heard) {                       // voice: show what the server understood
+      if (answer.heard) {
         item.question = answer.heard; turn.bubble.textContent = answer.heard;
         if (conversation.items.length === 1) conversation.title = answer.heard.slice(0, 70);
       }
@@ -366,7 +363,7 @@
     });
   }
 
-  /* ---------- wiring ---------- */
+  /* wiring */
   document.querySelectorAll('[data-question]').forEach(function (button) {
     button.addEventListener('click', function () { askQuestion(button.getAttribute('data-question') || ''); });
   });

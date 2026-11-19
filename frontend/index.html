@@ -1,372 +1,131 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="rw">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="description" content="Mfasha igufasha gushaka amakuru ku buhinzi n’ubworozi mu Kinyarwanda, wandika cyangwa uvuga.">
-<meta name="theme-color" content="#f4f6f1">
-<title>Mfasha – Umufasha wawe mu buhinzi n’ubworozi</title>
-<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='16' fill='%230f2d1c'/%3E%3Ctext x='32' y='45' font-family='Arial' font-size='36' font-weight='700' text-anchor='middle' fill='%23d6f23d'%3EM%3C/text%3E%3C/svg%3E">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@1&display=swap" rel="stylesheet">
-<style>
-  @font-face {
-    font-family: "Inter"; font-style: normal; font-weight: 100 900; font-display: swap;
-    src: url("fonts/inter.woff2") format("woff2");
-  }
-  /* Offline fallback for the italic serif (used only if Google Fonts cannot load) */
-  @font-face {
-    font-family: "Pagella"; font-style: italic; font-weight: 400; font-display: swap; size-adjust: 92%;
-    src: url("fonts/pagella-italic.woff") format("woff");
-  }
-
-  :root {
-    --paper: #f4f6f1;
-    --white: #fff;
-    --ink: #0f2d1c;
-    --soft: #4b6354;
-    --muted: #84988a;
-    --line: #e2e8de;
-    --card: #f1f4ee;
-    --lime: #d6f23d;
-    --leaf: #9be53b;
-    --forest: #0d2a19;
-    --serif: "Instrument Serif", "Pagella", Georgia, serif;
-    --page-max: 1480px;
-    --inset: clamp(8px, 1vw, 14px);
-    --pad: clamp(20px, 5.5vw, 84px);
-    --edge: calc(var(--inset) + var(--pad));
-  }
-  *, *::before, *::after { box-sizing: border-box; }
-  html { scroll-behavior: smooth; scroll-padding-top: 24px; }
-  body {
-    margin: 0; background: var(--paper); color: var(--ink);
-    font: 400 16px/1.55 "Inter", system-ui, -apple-system, "Segoe UI", Arial, sans-serif;
-    -webkit-font-smoothing: antialiased; font-feature-settings: "cv11", "ss03";
-  }
-  .page { max-width: var(--page-max); margin: 0 auto; }
-  a { color: inherit; text-decoration: none; }
-  h1, h2, h3, p, ul, ol { margin: 0; padding: 0; }
-  ul, ol { list-style: none; }
-  button { font: inherit; color: inherit; }
-  :focus-visible { outline: 2px solid var(--leaf); outline-offset: 3px; border-radius: 8px; }
-  .serif { font-family: var(--serif); font-style: italic; font-weight: 400; letter-spacing: -.005em; }
-
-  /* ---------- Hero ---------- */
-  .hero {
-    position: relative; isolation: isolate; overflow: hidden; color: #fff;
-    margin: var(--inset); border-radius: clamp(12px, 1.3vw, 18px);
-    height: calc(100vh - var(--inset) * 2); height: calc(100svh - var(--inset) * 2);
-    min-height: 620px; max-height: 900px;
-    display: flex; flex-direction: column; background: var(--forest);
-  }
-  .hero-img { position: absolute; inset: 0; z-index: -2; width: 100%; height: 100%; object-fit: cover; object-position: 62% 38%; filter: blur(5px); transform: scale(1.06); }
-  .shade {
-    position: absolute; inset: 0; z-index: -1;
-    background:
-      linear-gradient(180deg, rgba(6, 26, 14, .34) 0%, rgba(6, 26, 14, 0) 24%, rgba(6, 26, 14, .1) 46%, rgba(6, 26, 14, .78) 100%),
-      linear-gradient(90deg, rgba(6, 26, 14, .5) 0%, rgba(6, 26, 14, 0) 58%);
-  }
-
-  .nav { display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; gap: 16px; padding: clamp(16px, 1.9vw, 26px) var(--pad); }
-  .word { display: inline-flex; align-items: center; gap: 9px; font-size: 1.02rem; font-weight: 500; letter-spacing: -.015em; }
-  .word svg { width: 28px; height: 28px; flex: none; }
-  .links {
-    display: flex; gap: 2px; padding: 4px; border-radius: 999px;
-    background: rgba(255, 255, 255, .14); border: 1px solid rgba(255, 255, 255, .2);
-    -webkit-backdrop-filter: blur(12px); backdrop-filter: blur(12px);
-  }
-  .links a { display: inline-flex; align-items: center; gap: 7px; padding: 6px 15px; border-radius: 999px; font-size: .76rem; font-weight: 450; color: rgba(255, 255, 255, .72); transition: color .2s, background .2s; }
-  .links a:hover { color: #fff; }
-  .links a[aria-current="page"] { background: #fff; color: var(--ink); }
-  .links a[aria-current="page"]::before { content: ""; width: 7px; height: 7px; border-radius: 50%; background: var(--ink); }
-  .nav-end { justify-self: end; }
-
-  .btn {
-    display: inline-flex; align-items: center; justify-content: center; gap: 8px; height: 42px; padding: 0 20px;
-    border-radius: 999px; font-size: .8rem; font-weight: 500; white-space: nowrap; border: 0; cursor: pointer;
-    transition: background .2s, border-color .2s, transform .15s;
-  }
-  .btn:active { transform: scale(.97); }
-  .btn svg { width: 11px; height: 11px; }
-  .btn.white { background: #fff; color: var(--ink); height: 38px; }
-  .btn.white:hover { background: var(--lime); }
-  .btn.lime { background: var(--lime); color: var(--forest); }
-  .btn.lime:hover { background: #e4f87a; }
-  .btn.ghost { color: #fff; border: 1px solid rgba(255, 255, 255, .5); background: rgba(255, 255, 255, .07); -webkit-backdrop-filter: blur(8px); backdrop-filter: blur(8px); }
-  .btn.ghost:hover { background: rgba(255, 255, 255, .18); border-color: #fff; }
-
-  .hero-copy { margin-top: auto; padding: 0 var(--pad); }
-  h1 { max-width: 14.5em; font-size: clamp(2rem, 3.9vw, 3.4rem); font-weight: 500; line-height: 1.07; letter-spacing: -.035em; text-wrap: balance; }
-  h1 .serif { font-size: 1.1em; letter-spacing: -.01em; }
-  .lede { max-width: 30em; margin-top: 16px; font-size: clamp(.82rem, 1vw, .92rem); line-height: 1.55; color: rgba(255, 255, 255, .76); text-wrap: pretty; }
-  .cta { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 24px; }
-
-  .hero-foot { display: flex; align-items: center; justify-content: space-between; gap: 20px; padding: clamp(24px, 3.2vw, 44px) var(--pad) clamp(18px, 2.2vw, 28px); }
-  .scroll { display: inline-flex; align-items: center; gap: 8px; font-size: .66rem; font-weight: 500; letter-spacing: .1em; text-transform: uppercase; color: rgba(255, 255, 255, .85); }
-  .scroll svg { width: 11px; height: 11px; }
-  .scroll:hover { color: #fff; }
-  .proof { display: flex; align-items: center; gap: clamp(14px, 2vw, 26px); font-size: .76rem; color: rgba(255, 255, 255, .85); }
-  .proof .mic { display: inline-flex; align-items: center; gap: 7px; font-weight: 500; }
-  .proof .mic svg { width: 16px; height: 16px; color: var(--lime); }
-  .who { display: flex; align-items: center; gap: 10px; }
-
-  /* ---------- Topics strip + intro (paper) ---------- */
-  .band { background: var(--paper); margin: 0 var(--inset); }
-  .band .in { padding: 0 var(--pad); }
-  .strip { display: flex; align-items: center; justify-content: space-between; gap: 20px 40px; flex-wrap: wrap; padding: clamp(24px, 3.4vw, 40px) 0; }
-  .strip > p { max-width: 11em; font-size: .7rem; line-height: 1.35; color: var(--muted); }
-  .strip > p b { font-weight: 650; color: var(--ink); }
-  .strip ul { flex: 1; display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px 28px; min-width: min(100%, 440px); }
-  .strip li { display: inline-flex; align-items: center; gap: 8px; font-size: clamp(.85rem, 1.15vw, 1rem); font-weight: 600; letter-spacing: -.015em; color: var(--soft); }
-  .strip li svg { width: 18px; height: 18px; flex: none; color: var(--ink); }
-
-  .tag { display: inline-flex; align-items: center; gap: 7px; font-size: .68rem; font-weight: 450; color: var(--soft); }
-  .tag svg { width: 10px; height: 10px; }
-  .intro { padding: clamp(28px, 4vw, 52px) 0 clamp(56px, 8vw, 104px); }
-  .intro p.big { margin-top: 18px; max-width: 30em; font-size: clamp(1.45rem, 2.9vw, 2.6rem); font-weight: 450; line-height: 1.2; letter-spacing: -.03em; text-wrap: pretty; color: var(--ink); }
-  .intro .dim { color: var(--muted); }
-
-  /* ---------- About (white) ---------- */
-  .about { background: var(--white); margin: 0 var(--inset); padding: clamp(44px, 6vw, 80px) var(--pad) clamp(56px, 8vw, 100px); }
-  .about-head { display: grid; grid-template-columns: 1fr 1fr; gap: 20px clamp(28px, 6vw, 90px); align-items: end; }
-  h2.title { margin-top: 16px; font-size: clamp(1.9rem, 3.6vw, 3.1rem); font-weight: 450; line-height: 1.08; letter-spacing: -.035em; }
-  h2.title .serif { display: block; font-size: 1.12em; line-height: 1; margin-top: 4px; letter-spacing: -.01em; }
-  .about-head > p { max-width: 24em; justify-self: start; padding-bottom: 6px; font-size: .82rem; line-height: 1.6; color: var(--soft); }
-  .about-body { display: grid; grid-template-columns: .92fr 1fr; gap: clamp(18px, 2.6vw, 36px); margin-top: clamp(28px, 4.4vw, 52px); align-items: start; }
-
-  .acc { display: flex; flex-direction: column; gap: 8px; }
-  .acc-item { border-radius: 12px; background: var(--card); border: 1px solid #ebefe7; }
-  .acc-btn { width: 100%; display: flex; align-items: center; gap: 12px; padding: 17px 18px; text-align: left; background: none; border: 0; cursor: pointer; font-size: .86rem; font-weight: 450; letter-spacing: -.01em; border-radius: 12px; }
-  .acc-btn .ico { width: 16px; height: 16px; flex: none; color: var(--ink); }
-  .acc-btn .t { flex: 1; }
-  .acc-btn .plus { position: relative; width: 11px; height: 11px; flex: none; }
-  .acc-btn .plus::before, .acc-btn .plus::after { content: ""; position: absolute; background: var(--soft); border-radius: 1px; transition: transform .25s; }
-  .acc-btn .plus::before { left: 0; right: 0; top: 4.75px; height: 1.5px; }
-  .acc-btn .plus::after { top: 0; bottom: 0; left: 4.75px; width: 1.5px; }
-  .acc-item.open .plus::after { transform: scaleY(0); }
-  .acc-panel { display: grid; grid-template-rows: 0fr; transition: grid-template-rows .3s ease; }
-  .acc-item.open .acc-panel { grid-template-rows: 1fr; }
-  .acc-panel > div { overflow: hidden; }
-  .acc-panel p { margin: 0 8px 8px; padding: 14px 16px; border-radius: 9px; background: #fff; box-shadow: 0 1px 6px rgba(15, 45, 28, .06); font-size: .8rem; line-height: 1.65; color: var(--soft); }
-
-  .photo { position: relative; aspect-ratio: 1.22; min-height: 300px; }
-  .photo img { width: 100%; height: 100%; object-fit: cover; object-position: 74% 50%; border-radius: clamp(14px, 1.6vw, 22px); display: block; }
-
-  /* ---------- Entry points (dark green) ---------- */
-  .enter { margin: var(--inset); border-radius: clamp(16px, 2vw, 26px); background: var(--forest); color: #fff; padding: clamp(44px, 6vw, 84px) var(--pad); display: grid; grid-template-columns: 5fr 7fr; gap: clamp(28px, 6vw, 90px); align-items: start; }
-  .enter h2.title { margin-top: 0; }
-  .rows { border-top: 1px solid rgba(255, 255, 255, .18); }
-  .row { display: grid; grid-template-columns: 1fr auto; align-items: center; gap: 20px; padding: 26px 0; border-bottom: 1px solid rgba(255, 255, 255, .18); }
-  .row h3 { font-size: 1.15rem; font-weight: 500; letter-spacing: -.02em; }
-  .row p { margin-top: 6px; max-width: 30em; font-size: .86rem; color: rgba(255, 255, 255, .66); }
-  .btn.outline-w { color: #fff; border: 1px solid rgba(255, 255, 255, .4); }
-  .btn.outline-w:hover { border-color: #fff; background: rgba(255, 255, 255, .1); }
-
-  /* ---------- Footer ---------- */
-  .foot { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 14px 28px; padding: 18px calc(var(--inset) + 4px) 34px; font-size: .82rem; color: var(--soft); }
-  .foot .word { color: var(--ink); }
-  .foot nav { display: flex; gap: 24px; }
-  .foot a:hover { color: var(--ink); }
-
-  @media (max-width: 900px) {
-    .links { display: none; }
-    .nav { grid-template-columns: 1fr auto; }
-    .about-head, .about-body, .enter { grid-template-columns: minmax(0, 1fr); }
-    .photo { order: -1; aspect-ratio: 4 / 3; min-height: 0; }
-  }
-  @media (max-width: 560px) {
-    .hero { min-height: 640px; }
-    .hero-img { object-position: 60% 30%; }
-    .cta .btn { flex: 1 1 100%; }
-    .proof .mic { display: none; }
-    .strip ul { justify-content: flex-start; gap: 10px 22px; }
-    .row { grid-template-columns: 1fr; }
-    .row .btn { justify-self: start; }
-  }
-  @media (prefers-reduced-motion: reduce) { * { transition: none !important; scroll-behavior: auto !important; } }
-
-/* November 2026 refresh: quiet, image-free cream and green interface */
-:root{--paper:#f5f2e9;--white:#fffdf8;--ink:#24231f;--soft:#625f57;--muted:#88847b;--line:#e5e0d5;--card:#fbf9f3;--lime:#2e7467;--leaf:#2e7467;--forest:#2e7467;--pad:clamp(22px,5vw,76px);--inset:0px}
-body{background:var(--paper);color:var(--ink)}
-.hero{height:auto;min-height:100svh;max-height:none;margin:0;border-radius:0;background:var(--paper);color:var(--ink);overflow:visible;display:flex}
-.hero-img,.shade{display:none!important}
-.nav{width:100%;grid-template-columns:1fr auto 1fr;padding:14px clamp(18px,3vw,48px);border-bottom:1px solid var(--line);background:rgba(255,253,248,.9)}
-.word{font-size:1.05rem;font-weight:750;color:var(--ink)}
-.word svg{background:#c69b36;border-radius:50%;padding:5px}
-.links{background:transparent;border:0;backdrop-filter:none;gap:4px}
-.links a{color:var(--soft);font-size:.82rem;padding:9px 12px}
-.links a[aria-current=page]{background:#eee9dc;color:var(--ink)}
-.links a[aria-current=page]::before{display:none}
-.btn{height:48px;border-radius:13px;font-size:.9rem;font-weight:650;padding:0 24px}
-.btn.white{height:42px;border:1px solid var(--line);background:transparent}
-.btn.lime{background:#2e7467;color:white}
-.btn.lime:hover{background:#245f55}
-.btn.ghost{color:#2e7467;border:1.5px solid #2e7467;background:transparent;backdrop-filter:none}
-.hero-copy{width:min(780px,calc(100% - 40px));margin:auto;padding:75px 0 36px;color:var(--ink)}
-h1{max-width:760px;font-size:clamp(2.45rem,5.2vw,4.2rem);font-weight:780;line-height:1.05;letter-spacing:-.055em}
-h1 .serif{font:inherit;letter-spacing:inherit}
-.lede{max-width:680px;color:#68645c;font-size:clamp(1rem,1.6vw,1.22rem);line-height:1.75;margin-top:22px}
-.cta{margin-top:30px;gap:14px}
-.hero-foot{width:min(780px,calc(100% - 40px));margin:0 auto;padding:18px 0 36px;color:var(--soft);border-top:1px solid var(--line)}
-.scroll{color:var(--soft)}.proof{color:var(--soft)}.proof .mic svg{color:#2e7467}
-.band{background:var(--paper);margin:0}.band .in{max-width:1100px;margin:auto}
-.strip{border-top:1px solid var(--line);border-bottom:1px solid var(--line)}
-.strip li{color:var(--ink)}
-.intro p.big{color:var(--ink)}.intro .dim{color:#77736b}
-.about{background:#fffdf8;margin:0;padding-left:max(var(--pad),calc((100vw - 1100px)/2));padding-right:max(var(--pad),calc((100vw - 1100px)/2))}
-.about-head{max-width:1100px;margin:auto}.about-body{max-width:1100px;margin-left:auto;margin-right:auto;grid-template-columns:1fr}
-.photo{display:none!important}
-.acc-item{background:#f5f2e9;border-color:#e9e3d8}
-.enter{background:#2e7467;color:white;margin:0;padding:clamp(42px,6vw,76px) max(var(--pad),calc((100vw - 1100px)/2))}
-.enter .title,.enter h3,.enter p{color:white}.enter .row{border-color:rgba(255,255,255,.24)}
-.enter .btn.lime{background:#fff;color:#2e7467}.enter .btn.outline-w{border-color:white;color:white}
-.foot{background:#f5f2e9;color:var(--soft);padding:24px clamp(20px,5vw,76px)}
-@media(max-width:850px){.nav{grid-template-columns:1fr auto}.links{display:none}.hero-copy{padding-top:56px}.hero-foot{flex-wrap:wrap}.proof{flex-wrap:wrap}}
-@media(max-width:560px){h1{font-size:2.45rem}.hero-copy{padding-top:42px}.cta{flex-direction:column;align-items:stretch}.cta .btn{width:100%}.hero-foot{align-items:flex-start}.strip ul{justify-content:flex-start}}
-
-</style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#0f6b57">
+  <meta name="description" content="Mfasha - Umufasha mu buhinzi n'ubworozi mu Kinyarwanda.">
+  <title>Mfasha | Umufasha mu buhinzi n'ubworozi</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='16' fill='%230f6b57'/%3E%3Ctext x='32' y='44' font-family='Arial' font-size='36' font-weight='700' text-anchor='middle' fill='%23fff'%3EM%3C/text%3E%3C/svg%3E">
+  <link rel="stylesheet" href="style.css">
+  <script src="i18n.js"></script>
 </head>
 <body>
-<noscript><p style="margin:0;padding:12px;text-align:center;background:#d6f23d;color:#0f2d1c">Mfasha ikenera JavaScript kugira ngo ikore.</p></noscript>
 
-<div class="page">
-<header class="hero" id="top">
-  <div class="shade" aria-hidden="true"></div>
-
-  <div class="nav">
-    <a class="word" href="index.html" translate="no" aria-label="Mfasha, urupapuro rwa mbere">
-      <svg viewBox="0 0 28 28" aria-hidden="true"><rect width="28" height="28" rx="8" fill="#9be53b"/><path d="M14 21v-7.5M14 13.5c0-3.6 2.4-5.8 6-5.8 0 3.6-2.4 5.8-6 5.8zM14 16c0-2.8-1.9-4.4-5-4.4 0 2.8 1.9 4.4 5 4.4z" fill="none" stroke="#0f2d1c" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"/></svg>
-      Mfasha
-    </a>
-    <nav class="links" aria-label="Ibice by’urupapuro">
-      <a href="index.html" aria-current="page">Ahabanza</a>
-      <a href="#ibyo-ifasha">Ibyo ifasha</a>
-      <a href="#uko-ikora">Uko ikora</a>
-      <a href="#abayikoresha">Abayikoresha</a>
+  <header class="navbar">
+    <a href="index.html" class="logo"><span class="logo-icon">M</span>Mfasha</a>
+    <nav class="nav-links">
+      <a href="#topics">Ibyo ifasha</a>
+      <a href="#how">Uko ikora</a>
       <a href="officer.html">Abakozi</a>
     </nav>
-    <div class="nav-end"><a class="btn white" href="chat.html">Tangira</a></div>
-  </div>
+    <a href="chat.html" class="nav-action">Tangira</a>
+  </header>
 
-  <div class="hero-copy">
-    <h1>Baza ibijyanye n’ubuhinzi n’ubworozi mu <span class="serif">Kinyarwanda</span></h1>
-    <p class="lede">Wandike cyangwa uvuge ikibazo cyawe, Mfasha igusubize ikoresheje ubumenyi bw’abakozi b’ubuhinzi.</p>
-    <div class="cta">
-      <a class="btn lime" href="chat.html">Baza Mfasha
-        <svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3.5 10.5l7-7M4.5 3.5h6v6"/></svg>
-      </a>
-      <a class="btn ghost" href="officer.html">Ndi umukozi w’ubuhinzi</a>
-    </div>
-  </div>
-
-  <div class="hero-foot">
-    <a class="scroll" href="#ibyo-ifasha">Manuka
-      <svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 1.5v9M2.5 7l3.5 3.5L9.5 7"/></svg>
-    </a>
-    <div class="proof">
-      <span class="mic">Wandika cyangwa uvuge</span>
-      <span class="who">Abahinzi n’aborozi</span>
-    </div>
-  </div>
-</header>
-
-<main>
-  <div class="band">
-    <div class="in">
-      <div class="strip" id="ibyo-ifasha">
-        <p><b>Mfasha igufasha</b> ku bibazo bikurikira</p>
-        <ul>
-          <li>Ibihingwa</li>
-          <li>Amatungo</li>
-          <li>Ifumbire</li>
-          <li>Indwara n’ibyonnyi</li>
-          <li>Ubutaka</li>
-          <li>Imbuto</li>
-        </ul>
-      </div>
-
-      <section class="intro" id="intro">
-        <span class="tag"><svg viewBox="0 0 11 11" fill="none" stroke="currentColor" stroke-width="1.3" aria-hidden="true"><circle cx="5.5" cy="5.5" r="4"/></svg>Mfasha ni iki?</span>
-        <p class="big">Mfasha yubatswe gufasha abahinzi, aborozi n’abakozi b’ubuhinzi <span class="dim">kubona ibisubizo byizewe mu Kinyarwanda, nta konti kandi nta nama zihimbwe.</span></p>
-      </section>
-    </div>
-  </div>
-
-  <section class="about" id="uko-ikora">
-    <div class="about-head">
-      <div>
-        <span class="tag"><svg viewBox="0 0 11 11" fill="currentColor" aria-hidden="true"><circle cx="5.5" cy="5.5" r="2.5"/></svg>Uko ikora</span>
-        <h2 class="title">Uko Mfasha <span class="serif">iguha igisubizo</span></h2>
-      </div>
-      <p>Ikibazo cyawe gisubizwa hakurikijwe ibyo abakozi b’ubuhinzi bamaze gusuzuma. Iyo bidahagije, Mfasha ntiguha inama itizeye.</p>
-    </div>
-
-    <div class="about-body">
-      <div class="acc" id="acc">
-        <div class="acc-item">
-          <button class="acc-btn" type="button" aria-expanded="false" aria-controls="p1" id="b1">
-            <span class="t">Ibisubizo bisuzumwa n’abakozi b’ubuhinzi</span><span class="plus" aria-hidden="true"></span>
-          </button>
-          <div class="acc-panel" id="p1" role="region" aria-labelledby="b1"><div><p>Igisubizo cyose gikomoka ku makuru yasuzumwe kandi yemejwe n’abakozi b’ubuhinzi.</p></div></div>
-        </div>
-        <div class="acc-item open">
-          <button class="acc-btn" type="button" aria-expanded="true" aria-controls="p2" id="b2">
-            <span class="t">Wandika cyangwa ukavuga</span><span class="plus" aria-hidden="true"></span>
-          </button>
-          <div class="acc-panel" id="p2" role="region" aria-labelledby="b2"><div><p>Andika ikibazo cyawe, cyangwa ukande mikoro uvuge mu Kinyarwanda. Ntukeneye konti.</p></div></div>
-        </div>
-        <div class="acc-item">
-          <button class="acc-btn" type="button" aria-expanded="false" aria-controls="p3" id="b3">
-            <span class="t">Iyo itazi, ikwereka umukozi</span><span class="plus" aria-hidden="true"></span>
-          </button>
-          <div class="acc-panel" id="p3" role="region" aria-labelledby="b3"><div><p>Iyo Mfasha itizeye igisubizo ntihimbira inama. Ikwerekeza ku mukozi w’ubuhinzi ukwegereye.</p></div></div>
+  <main>
+    <section class="hero">
+      <div class="hero-copy">
+        <span class="eyebrow">UBUHINZI N'UBWOROZI • MU KINYARWANDA</span>
+        <h1>Ubufasha ku buhinzi n'ubworozi, mu <span>Kinyarwanda.</span></h1>
+        <p class="description">Baza ikibazo cyawe wanditse cyangwa ukoreshe ijwi. Mfasha igushakira igisubizo mu makuru y'ubuhinzi yasuzumwe.</p>
+        <div class="hero-buttons">
+          <a href="chat.html" class="button button-primary">Baza Mfasha →</a>
+          <a href="officer.html" class="button button-secondary">Ndi umukozi w'ubuhinzi</a>
         </div>
       </div>
 
-    </div>
-  </section>
+      <aside class="question-card">
+        <div class="card-label"><span class="live-dot"></span>MFASHA • UBUFASHA MU BUHINZI</div>
+        <h2>Ibibazo ushobora kubaza</h2>
+        <p>Reba ingero z'ibibazo ushobora kubaza:</p>
+        <div class="typing-box" aria-live="polite">
+          <span class="quote">“</span>
+          <span id="typing-question"></span>
+          <span class="cursor"></span>
+        </div>
+        <div class="card-bottom">
+          <span>Andika cyangwa uvuge ikibazo cyawe</span>
+          <a href="chat.html">Baza Mfasha ↗</a>
+        </div>
+      </aside>
+    </section>
 
-  <section class="enter" id="abayikoresha">
-    <h2 class="title">Winjira ute?</h2>
-    <div class="rows">
-      <div class="row">
-        <div><h3>Ndi umuhinzi</h3><p>Baza ikibazo ku buhinzi cyangwa ubworozi. Nta konti ukeneye.</p></div>
-        <a class="btn lime" href="chat.html">Tangira ubaze</a>
+    <section class="topics" id="topics">
+      <div class="topics-inner">
+        <p class="topics-title">MFASHA IGUFASHA KURI:</p>
+        <div class="topic-list">
+          <span class="topic">Ibihingwa</span>
+          <span class="topic">Amatungo</span>
+          <span class="topic">Indwara</span>
+          <span class="topic">Ifumbire</span>
+          <span class="topic">Ubutaka</span>
+          <span class="topic">Imbuto</span>
+        </div>
       </div>
-      <div class="row">
-        <div><h3>Ndi umukozi w’ubuhinzi</h3><p>Injira usuzume ibisubizo bya Mfasha, wemeze ibikwiye, ufashe abahinzi bakeneye inama zihariye.</p></div>
-        <a class="btn outline-w" href="officer.html">Injira</a>
+    </section>
+
+    <section class="how" id="how">
+      <div class="section-heading">
+        <span>BYOROSHYE GUKORESHA</span>
+        <h2>Uko Mfasha ikora</h2>
       </div>
+      <div class="steps">
+        <article class="step">
+          <div class="step-number">01</div>
+          <h3>Baza ikibazo</h3>
+          <p>Andika ikibazo cyawe cyangwa ugikoreshe ijwi mu Kinyarwanda.</p>
+        </article>
+        <article class="step">
+          <div class="step-number">02</div>
+          <h3>Shaka igisubizo</h3>
+          <p>Mfasha ishakisha amakuru ajyanye n'ikibazo cyawe mu bubiko bw'amakuru.</p>
+        </article>
+        <article class="step">
+          <div class="step-number">03</div>
+          <h3>Kurikiza inama</h3>
+          <p>Reba igisubizo cyabonetse. Iyo amakuru adahagije, saba ubufasha bw'umukozi w'ubuhinzi.</p>
+        </article>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+      <a href="index.html" class="logo" style="color:white"><span class="logo-icon">M</span>Mfasha</a>
+      <p>Umufasha mu buhinzi n'ubworozi.</p>
+      <nav class="footer-links">
+        <a href="chat.html">Umuhinzi</a>
+        <a href="officer.html">Umukozi w'ubuhinzi</a>
+      </nav>
     </div>
-  </section>
-</main>
+  </footer>
 
-<footer class="foot">
-  <a class="word" href="#top" translate="no">Mfasha</a>
-  <span>Umufasha mu buhinzi n’ubworozi</span>
-  <nav aria-label="Ahandi"><a href="chat.html">Umuhinzi</a><a href="officer.html">Umukozi w’ubuhinzi</a></nav>
-</footer>
-</div>
-
-<script>
-  (function () {
-    var items = document.querySelectorAll('#acc .acc-item');
-    items.forEach(function (item) {
-      item.querySelector('.acc-btn').addEventListener('click', function () {
-        var willOpen = !item.classList.contains('open');
-        items.forEach(function (o) {
-          o.classList.remove('open');
-          o.querySelector('.acc-btn').setAttribute('aria-expanded', 'false');
-        });
-        if (willOpen) {
-          item.classList.add('open');
-          item.querySelector('.acc-btn').setAttribute('aria-expanded', 'true');
-        }
-      });
-    });
-  })();
-</script>
+  <script>
+    (function () {
+      var target = document.getElementById("typing-question");
+      if (!target) return;
+      var questions = [
+        "Ni ryari nateka imbuto z'ibishyimbo?",
+        "Nakora iki kugira ngo inyanya zanjye zitandura indwara?",
+        "Ni iyihe fumbire nakoresha mu bigori?",
+        "Nakumira nte indwara z'amatungo?",
+        "Ni gute nabika umusaruro wanjye neza?"
+      ];
+      if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+        target.textContent = questions[0];
+        return;
+      }
+      var q = 0, c = 0, deleting = false;
+      function tick() {
+        var current = questions[q];
+        target.textContent = current.substring(0, c);
+        if (!deleting && c < current.length) { c++; setTimeout(tick, 48); }
+        else if (!deleting) { deleting = true; setTimeout(tick, 1900); }
+        else if (c > 0) { c--; setTimeout(tick, 25); }
+        else { deleting = false; q = (q + 1) % questions.length; setTimeout(tick, 350); }
+      }
+      tick();
+    })();
+  </script>
 </body>
 </html>
