@@ -18,7 +18,6 @@ and hands the question to a human agricultural officer whenever it is not sure.
 ![Tests](https://img.shields.io/badge/tests-76%20passing-2E7D32)
 ![R@1](https://img.shields.io/badge/retrieval%20R%401-0.87%E2%80%930.89-2E7D32)
 
-[Live demo]([Walkthrough video](https://drive.google.com/file/d/1N05pvkpc0Gw7WNd84RpU5AIwFGZdmdD1/view?usp=sharing)) &nbsp;·&nbsp;
 [Walkthrough video](https://drive.google.com/file/d/1dX1bElXRN0jQPMJG-gUhC0-cSth29_TQ/view?usp=sharing) &nbsp;·&nbsp;
 [Technical report](https://drive.google.com/file/d/1fCGWlLDgnMNojanflFUv4JIrvKef4C1B/view?usp=sharing) &nbsp;·&nbsp;
 [API reference](#api-reference)
