@@ -1,113 +1,114 @@
 <div align="center">
 
-# MFASHA
+<h1>MFASHA</h1>
 
-### A verified Kinyarwanda agriculture assistant for text and voice
+<h3>A verified Kinyarwanda farming assistant, for text and voice</h3>
 
-Answers farmers' questions from an officer-reviewed knowledge base, and refers them to an agricultural officer whenever it is not sure.
+<p>
+Farmers ask in their own language. MFASHA answers only from officer-reviewed knowledge,<br>
+and hands the question to a human agricultural officer whenever it is not sure.
+</p>
 
-[![Live app](https://img.shields.io/badge/live%20app-mfasha--chatbot.vercel.app-2E7D32)](https://mfasha-chatbot.vercel.app)
-[![Hugging Face Space](https://img.shields.io/badge/%F0%9F%A4%97%20Space-mfasha--kinyarwanda--agri--bot-yellow)](https://huggingface.co/spaces/carine01/mfasha-kinyarwanda-agri-bot)
-[![Model](https://img.shields.io/badge/%F0%9F%A4%97%20Model-kinya--e5--large-blue)](https://huggingface.co/carine01/kinya-e5-large)
-![Python](https://img.shields.io/badge/python-3.10%2B-3776AB)
-![FastAPI](https://img.shields.io/badge/FastAPI-009688)
+[![Live app](https://img.shields.io/badge/live%20app-mfasha--chatbot.vercel.app-2E7D32?style=for-the-badge)](https://mfasha-chatbot.vercel.app)
 
-[Live demo](https://mfasha-chatbot.vercel.app) Â· [Walkthrough video](https://drive.google.com/file/d/1dX1bElXRN0jQPMJG-gUhC0-cSth29_TQ/view?usp=sharing) Â· [Technical report](https://drive.google.com/file/d/1fCGWlLDgnMNojanflFUv4JIrvKef4C1B/view?usp=sharing) Â· [API docs](#api-reference)
+[![Hugging Face Space](https://img.shields.io/badge/%F0%9F%A4%97%20Space-mfasha--kinyarwanda--agri--bot-FFD21E)](https://huggingface.co/spaces/carine01/mfasha-kinyarwanda-agri-bot)
+[![Model](https://img.shields.io/badge/%F0%9F%A4%97%20Model-kinya--e5--large-3B82F6)](https://huggingface.co/carine01/kinya-e5-large)
+![Python](https://img.shields.io/badge/python-3.10%2B-3776AB?logo=python&logoColor=white)
+![FastAPI](https://img.shields.io/badge/FastAPI-009688?logo=fastapi&logoColor=white)
+![Tests](https://img.shields.io/badge/tests-76%20passing-2E7D32)
+![R@1](https://img.shields.io/badge/retrieval%20R%401-0.87%E2%80%930.89-2E7D32)
+
+[Live demo]([Walkthrough video](https://drive.google.com/file/d/1N05pvkpc0Gw7WNd84RpU5AIwFGZdmdD1/view?usp=sharing)) &nbsp;·&nbsp;
+[Walkthrough video](https://drive.google.com/file/d/1dX1bElXRN0jQPMJG-gUhC0-cSth29_TQ/view?usp=sharing) &nbsp;·&nbsp;
+[Technical report](https://drive.google.com/file/d/1fCGWlLDgnMNojanflFUv4JIrvKef4C1B/view?usp=sharing) &nbsp;·&nbsp;
+[API reference](#api-reference)
+
+<br>
+
+<img src="docs/screenshots/chat-page.png" alt="MFASHA chat: a Kinyarwanda question answered with a confidence badge and an officer-review badge" width="860">
 
 </div>
 
 ---
 
-## Table of contents
+## Contents
 
-- [Overview](#overview)
-- [Key features](#key-features)
-- [Screenshots](#screenshots)
-- [Live deployment](#live-deployment)
-- [How it works](#how-it-works)
-- [Quick start](#quick-start)
-- [Configuration](#configuration)
-- [Officer access](#officer-access)
-- [API reference](#api-reference)
-- [Deployment](#deployment)
-- [Repository structure](#repository-structure)
-- [Results](#results)
-- [Testing and code quality](#testing-and-code-quality)
-- [Data and model sources](#data-and-model-sources)
+[Overview](#overview) · [Features](#features) · [Screenshots](#screenshots) · [How it works](#how-it-works) · [Quick start](#quick-start) · [Configuration](#configuration) · [Officer access](#officer-access) · [API reference](#api-reference) · [Deployment](#deployment) · [Repository structure](#repository-structure) · [Results](#results) · [Testing](#testing-and-quality) · [Data and model sources](#data-and-model-sources)
 
 ---
 
 ## Overview
 
-Smallholder farmers often need quick, trustworthy answers about crops, livestock, pests and fertiliser, in their own language. MFASHA lets a farmer type a question or record a voice message in **Kinyarwanda** and receive a written answer.
+Smallholder farmers need quick, trustworthy answers about crops, livestock, pests and fertiliser, in the language they speak. MFASHA lets a farmer **type or record a question in Kinyarwanda** and get a written answer in seconds.
 
-The system is deliberately **retrieval-only**. It never generates advice. It looks up passages in a knowledge base that agricultural officers have reviewed, and when it is not confident, it says so and **refers the farmer to an officer**. Questions unrelated to farming receive a clear reply in Kinyarwanda explaining what MFASHA can and cannot answer.
+The system is deliberately **retrieval-only**. It never generates advice. It finds the best passage in a knowledge base that agricultural officers have reviewed, and if it is not confident, it says so and **refers the farmer to an officer**. Questions unrelated to farming get a clear Kinyarwanda reply explaining what MFASHA can and cannot answer.
 
 ```
-voice -> speech-to-text -> preprocessing -> classification -> retrieval -> referral policy -> answer
+voice ─▶ speech-to-text ─▶ preprocessing ─▶ classification ─▶ retrieval ─▶ referral policy ─▶ answer or referral
 ```
 
-## Key features
+> **Why retrieval-only?** A generative model can sound confident while being wrong, which is unacceptable for advice on animal health or chemicals. Every answer MFASHA gives is a passage a human expert has already approved.
+
+## Features
 
 | | |
 |---|---|
-| **Text and voice input** | Farmers type or speak; speech is transcribed with MMS (`facebook/mms-1b-all`, Kinyarwanda adapter). |
-| **Verified answers only** | Passages are served only if an officer has signed them off. |
-| **Safe by design** | A chain of referral rules sends uncertain, ambiguous or off-topic questions to a human. |
-| **Fine-tuned retrieval** | A Kinyarwanda-tuned e5 model reaches R@1 of 0.87 to 0.89 on held-out questions (see [Results](#results)). |
-| **Officer dashboard** | Officers sign in with a phone number and PIN, review logged answers, and mark them correct or incorrect. |
-| **Operational visibility** | Every answer is logged with per-stage latency; an admin endpoint reports referral rate, ratings and officer-correct rate. |
-| **Swappable components** | Retrievers, classifier and speech-to-text sit behind interfaces and are chosen by configuration. |
-| **No-build frontend** | Plain HTML, CSS and JavaScript in Kinyarwanda. |
+| 🎙️ **Text and voice** | Type or speak. Speech is transcribed with MMS (`facebook/mms-1b-all`, Kinyarwanda adapter). |
+| ✅ **Verified answers only** | A passage is served only if an officer has signed it off. |
+| 🛡️ **Safe by design** | A chain of referral rules sends uncertain, ambiguous or off-topic questions to a human. All 40 out-of-scope test questions were referred. |
+| 🎯 **Fine-tuned retrieval** | A Kinyarwanda-tuned e5 model reaches R@1 of 0.87 to 0.89 on held-out questions ([results](#results)). |
+| 👩‍🌾 **Officer dashboard** | Officers sign in with a phone number and PIN, review logged answers, and mark them correct or incorrect. |
+| 📊 **Operational visibility** | Every answer is logged with per-stage latency. An admin endpoint reports referral rate, ratings and officer-correct rate. |
+| 🔌 **Swappable components** | Retrievers, classifier and speech-to-text sit behind interfaces and are chosen by configuration. |
+| 🪶 **No-build frontend** | Plain HTML, CSS and JavaScript in Kinyarwanda, with an English toggle. |
 
 ## Screenshots
 
-**Landing page.** Farmers can start asking questions straight away or read how MFASHA works first.
+<table>
+<tr>
+<td width="50%" valign="top">
+<img src="docs/screenshots/landing-page.png" alt="MFASHA landing page">
+<p><b>Landing page.</b> Farmers can start asking straight away, or read how MFASHA works first. Officers have their own entry point.</p>
+</td>
+<td width="50%" valign="top">
+<img src="docs/screenshots/chat-page.png" alt="MFASHA chat page">
+<p><b>Chat.</b> Each answer carries a confidence badge and its review status, with helpful / not helpful and copy buttons. Past conversations are searchable, and questions can be typed or spoken.</p>
+</td>
+</tr>
+</table>
 
-![MFASHA landing page](docs/screenshots/landing-page.png)
-
-**Chat page.** A question in Kinyarwanda gets a verified answer with a confidence badge, feedback and copy buttons, and a list of past conversations. Questions can be typed or spoken.
-
-![MFASHA chat page](docs/screenshots/chat-page.png)
-
-## Live deployment
-
-| Resource | Link |
-|---|---|
-| Web app | https://mfasha-chatbot.vercel.app |
-| Farmer chat | https://mfasha-chatbot.vercel.app/chat.html |
-| Officer page | https://mfasha-chatbot.vercel.app/officer.html |
-| Backend (Hugging Face Space) | https://huggingface.co/spaces/carine01/mfasha-kinyarwanda-agri-bot |
-| Fine-tuned retrieval model | https://huggingface.co/carine01/kinya-e5-large |
-| Source code | https://github.com/carine-ahishakiye/Mfasha-Chatbot- |
-
+**Live links:** [Web app](https://mfasha-chatbot.vercel.app) · [Farmer chat](https://mfasha-chatbot.vercel.app/chat.html) · [Officer page](https://mfasha-chatbot.vercel.app/officer.html) · [Backend Space](https://huggingface.co/spaces/carine01/mfasha-kinyarwanda-agri-bot) · [Retrieval model](https://huggingface.co/carine01/kinya-e5-large) · [Source](https://github.com/carine-ahishakiye/Mfasha-Chatbot-)
 
 ## How it works
 
-MFASHA is a FastAPI application with a Kinyarwanda web interface for farmers and officers. The model work (retrieval fine-tuning, speech recognition, evaluation) lives in `Notebooks/mfasha_notebook.ipynb`; this repository turns those results into a deployable service.
+MFASHA is a FastAPI application with a Kinyarwanda web interface for farmers and officers. The model work (retrieval fine-tuning, speech recognition, evaluation) lives in `Notebooks/mfasha_notebook.ipynb`. This repository turns those results into a deployable service.
 
-### Answer pipeline (`src/mfasha/pipeline.py`)
+### Answer pipeline
 
-1. **Speech-to-text** (voice only). The browser records audio and converts it to 16 kHz mono WAV; the server transcribes it with MMS.
-2. **Preprocessing.** Text cleaning and tokenising.
-3. **Classification.** The question is assigned to one of 8 topic categories (TF-IDF with SVM or logistic regression, with a keyword labeller as fallback).
-4. **Retrieval.** The top passages are retrieved with BM25, TF-IDF, a weighted hybrid of the two, or dense e5 embeddings.
-5. **Referral policy.** A chain of rules decides whether to answer or refer.
-6. **Answer.** The best passage is returned with its review status and source.
+Implemented in `src/mfasha/pipeline.py`.
 
-### When MFASHA refers instead of answering (`src/mfasha/referral/policy.py`)
+| # | Stage | What happens |
+|---|---|---|
+| 1 | **Speech-to-text** *(voice only)* | The browser records audio and converts it to 16 kHz mono WAV. The server transcribes it with MMS. |
+| 2 | **Preprocessing** | Text is cleaned and tokenised. |
+| 3 | **Classification** | The question is assigned to one of 8 topic categories (TF-IDF with SVM or logistic regression, with a keyword labeller as fallback). |
+| 4 | **Retrieval** | Top passages are found with BM25, TF-IDF, a weighted hybrid of the two, or dense e5 embeddings. |
+| 5 | **Referral policy** | A chain of rules decides whether to answer or refer. |
+| 6 | **Answer** | The best passage is returned with its review status and source. |
 
-Rules are evaluated in order; the first that fires supplies the reason, which is logged with the answer.
+### When MFASHA refers instead of answering
+
+Implemented in `src/mfasha/referral/policy.py`. Rules run in order. The first one that fires supplies the reason, which is logged with the answer.
 
 | Reason | Meaning |
 |---|---|
 | `low_retrieval_score` | Best passage scores below the threshold (default 0.20). |
 | `ambiguous_top_passages` | Top two passages are almost tied (default margin 0.02). |
-| `classifier_retriever_disagree` | Classifier category differs from the passage category. |
-| `passage_not_reviewed` | Passage has no officer sign-off (unless `MFASHA_SERVE_UNREVIEWED=true`). |
+| `classifier_retriever_disagree` | The classifier's category differs from the passage's category. |
+| `passage_not_reviewed` | The passage has no officer sign-off (unless `MFASHA_SERVE_UNREVIEWED=true`). |
 | `empty_question`, `no_retrieval_result`, `speech_not_understood` | Input problems. |
 
-**What the farmer sees.** For `speech_not_understood` and `empty_question`, MFASHA says it has no reliable answer and points the farmer to the sector agronomist (`referral_message` in `src/mfasha/config.py`). For every other reason, it replies in Kinyarwanda that the question is outside what it can answer, that it only covers crops and livestock, and invites the farmer to ask about crops, animals, diseases and pests, or fertiliser (see `MfashaPipeline._referral`). A genuine farming question that the knowledge base does not cover is also refused with this message.
+**What the farmer sees.** For `speech_not_understood` and `empty_question`, MFASHA says it has no reliable answer and points the farmer to the sector agronomist (`referral_message` in `src/mfasha/config.py`). For every other reason, it replies in Kinyarwanda that the question is outside what it can answer, that it only covers crops and livestock, and invites the farmer to ask about crops, animals, diseases and pests, or fertiliser (see `MfashaPipeline._referral`). A genuine farming question that the knowledge base does not cover is refused the same way.
 
 ### Design notes
 
@@ -123,11 +124,11 @@ Rules are evaluated in order; the first that fires supplies the reason, which is
 | Component | Requirement |
 |---|---|
 | Python | 3.10 or newer (the Docker image uses 3.11) |
-| Core runtime | FastAPI, Uvicorn, Pydantic, SQLAlchemy, NumPy, scikit-learn, joblib (see `requirements.txt`) |
+| Core runtime | FastAPI, Uvicorn, Pydantic, SQLAlchemy, NumPy, scikit-learn, joblib (`requirements.txt`) |
 | Optional ML (voice, e5 retriever) | PyTorch, Transformers, sentence-transformers (`requirements-ml.txt`) |
-| Database | SQLite by default; PostgreSQL via `DATABASE_URL` |
-| Containers (optional) | Docker; Compose uses `postgres:16-alpine` |
-| Browser | Any modern browser; microphone access for voice |
+| Database | SQLite by default, PostgreSQL via `DATABASE_URL` |
+| Containers *(optional)* | Docker. Compose uses `postgres:16-alpine`. |
+| Browser | Any modern browser. Microphone access is needed for voice. |
 
 **Hardware.** Text mode with BM25, TF-IDF or hybrid retrieval needs no GPU and no model downloads. Voice and the e5 retriever need `requirements-ml.txt`, about 4 GB of RAM, and a roughly 2.2 GB model download.
 
@@ -145,11 +146,11 @@ pip install -e .
 
 ### 2. Provide the knowledge base
 
-The app needs a passages file (`passages.jsonl`, one JSON object per line with `pid` and `text`) and, optionally, a CSV of officer-reviewed passage ids (column `pid`). By default it reads the bundled sample in `data/sample/`.
+The app needs a passages file (`passages.jsonl`, one JSON object per line with `pid` and `text`) and, optionally, a CSV of officer-reviewed passage ids (column `pid`). By default it reads the bundled sample in `data/sample/`, so you can run it immediately.
 
-> Passages are served only if their id appears in the reviewed-passages CSV. With no reviewed file and `MFASHA_SERVE_UNREVIEWED=false`, every question is referred with reason `passage_not_reviewed`. This is intentional.
+> **Review gate.** Passages are served only if their id appears in the reviewed-passages CSV. With no reviewed file and `MFASHA_SERVE_UNREVIEWED=false`, every question is referred with reason `passage_not_reviewed`. This is intentional.
 
-To use the full knowledge base, choose one of:
+To use the full knowledge base, choose one option:
 
 ```bash
 # Option A: build from the public dataset (needs internet)
@@ -163,7 +164,7 @@ python scripts/import_notebook_artifacts.py --drive "/path/to/Mfasha chatbot"
 
 Then point the app at the files:
 
-```
+```bash
 MFASHA_KNOWLEDGE_PATH=data/processed/passages.jsonl
 MFASHA_REVIEWED_PATH=data/processed/officer_reviewed_passages.csv
 MFASHA_LABELS_PATH=data/processed/category_labels_officer.csv     # optional
@@ -178,13 +179,15 @@ cp .env.example .env               # Windows PowerShell: Copy-Item .env.example 
 uvicorn mfasha.api.main:create_app --factory --port 8000 --env-file .env
 ```
 
+> **Heads-up.** `.env.example` is set up for the *full* configuration (`MFASHA_RETRIEVER=embedding`, `MFASHA_ENABLE_STT=true`, `data/processed/` paths). For a light first run with no model downloads, change those to `MFASHA_RETRIEVER=hybrid` and `MFASHA_ENABLE_STT=false`, and remove the three path lines to use the bundled sample.
+
 | URL | Purpose |
 |---|---|
 | http://localhost:8000 | Welcome page (farmers go to `chat.html`, officers to `officer.html`) |
 | http://localhost:8000/docs | Interactive API documentation |
 | http://localhost:8000/api/health | Health check |
 
-`make run` starts the same app with `--reload` but does not read `.env`; set variables in your shell or use the command above.
+`make run` starts the same app with `--reload` but does not read `.env`. Set variables in your shell or use the command above.
 
 ### Optional: voice and the fine-tuned retriever
 
@@ -192,14 +195,14 @@ uvicorn mfasha.api.main:create_app --factory --port 8000 --env-file .env
 pip install -r requirements-ml.txt
 ```
 
-```
+```bash
 MFASHA_ENABLE_STT=true
 MFASHA_RETRIEVER=embedding
 ```
 
 Models are looked up under `models/` (not tracked by Git): `kinya-e5-large/best`, `mms-kin-adapter`, `classifier.joblib` and `referral_threshold.json`. If a folder is missing, the app falls back to the Hugging Face model named in configuration or, for the classifier, trains a small one at startup. The start-up message `no trained classifier ... training a small one` is a notice, not an error.
 
-To load the fine-tuned retriever directly from the Hub, set `MFASHA_EMBEDDING_MODEL=carine01/kinya-e5-large`. If the repository is private, export a Hugging Face **read** token as `HF_TOKEN` first.
+To load the fine-tuned retriever straight from the Hub, set `MFASHA_EMBEDDING_MODEL=carine01/kinya-e5-large`. If the repository is private, export a Hugging Face **read** token as `HF_TOKEN` first.
 
 ### Optional: Docker
 
@@ -224,15 +227,15 @@ All settings are environment variables, defined in `src/mfasha/config.py` (templ
 | `MFASHA_MODELS_DIR` | `models/` | Folder with fine-tuned models |
 | `MFASHA_REFERRAL_THRESHOLD` / `MFASHA_REFERRAL_MARGIN` | `0.20` / `0.02` | Referral rule parameters (overridden by `models/referral_threshold.json` if present) |
 | `MFASHA_USE_AGREEMENT` | `true` | Enable the classifier/retriever agreement rule |
-| `MFASHA_SERVE_UNREVIEWED` | `false` | Allow passages without officer sign-off (keep `false` for the pilot) |
+| `MFASHA_SERVE_UNREVIEWED` | `false` | Allow passages without officer sign-off. Keep `false` for the pilot. |
 | `MFASHA_ENABLE_STT` | `false` | Enable speech-to-text (needs `requirements-ml.txt`) |
 | `MFASHA_STT_MODEL` | `facebook/mms-1b-all` | Hugging Face model id for speech-to-text |
 | `MFASHA_API_KEY` | empty (disabled) | Administrator API key for `X-API-Key` access |
-| `MFASHA_SECRET_KEY` | random per start | Signs officer tokens; set it so officers stay signed in across restarts |
+| `MFASHA_SECRET_KEY` | random per start | Signs officer tokens. Set it so officers stay signed in across restarts. |
 | `MFASHA_OFFICER_CODE` | empty (sign-up closed) | Sign-up code required to create an officer account |
 | `MFASHA_CORS_ORIGINS` | `*` | Comma-separated allowed origins |
 
-Fixed limits: questions up to 500 characters; audio up to 5,000,000 bytes and 30 seconds.
+**Fixed limits:** questions up to 500 characters; audio up to 5,000,000 bytes and 30 seconds.
 
 **Tuning the off-topic threshold.** With the embedding retriever, similarity scores tend to be high even for unrelated questions, so the default `0.20` is permissive. Ask one clearly on-topic and one off-topic question, compare their `retrieval_score` values in the API response or officer review screen, and set `MFASHA_REFERRAL_THRESHOLD` between the two.
 
@@ -241,7 +244,7 @@ Fixed limits: questions up to 500 characters; audio up to 5,000,000 bytes and 30
 The site opens on a welcome page that asks who the visitor is:
 
 - **Farmer.** Goes straight to the chat. No account or login.
-- **Officer.** Goes to `officer.html` to **create an account** (tab *Fungura konti*) or **sign in** (tab *Injira*) with a phone number and a 4 to 6 digit PIN. Creating an account requires the sign-up code set as `MFASHA_OFFICER_CODE`; with no code set, sign-up is closed.
+- **Officer.** Goes to `officer.html` to **create an account** (tab *Fungura konti*) or **sign in** (tab *Injira*) with a phone number and a 4 to 6 digit PIN. Creating an account requires the sign-up code set as `MFASHA_OFFICER_CODE`. With no code set, sign-up is closed.
 
 Administrators can also manage officers from the command line (the PIN is requested without echo):
 
@@ -257,22 +260,22 @@ Running `add` again for an existing phone number resets that officer's PIN.
 
 ## API reference
 
-Paths are relative to the app root. On the hosted deployment the API sits under `/mfasha` (for example `/mfasha/api/ask/text`).
+Paths are relative to the app root. On the hosted deployment the API sits under `/mfasha` (for example `/mfasha/api/ask/text`). Interactive docs are served at `/docs`, and a snapshot of the hosted schema is in `docs/api/hf_openapi.json`.
 
 | Method and path | Access | Purpose |
 |---|---|---|
 | `GET /api/health` | Public | Status, passage counts, active components |
-| `POST /api/ask/text` | Farmer | JSON `{question, with_audio}`; returns an answer |
-| `POST /api/ask/voice` | Farmer | Multipart WAV (`audio`, `with_audio`); returns an answer and the transcription |
-| `POST /api/feedback` | Farmer | Rating 1-5 and useful yes/no for an answer |
-| `POST /api/officer/register` | Sign-up code | Create an officer account; returns a 12-hour token |
-| `POST /api/officer/login` | Public | Phone number + PIN; returns a 12-hour token |
+| `POST /api/ask/text` | Farmer | JSON `{question, with_audio}`. Returns an answer. |
+| `POST /api/ask/voice` | Farmer | Multipart WAV (`audio`, `with_audio`). Returns an answer and the transcription. |
+| `POST /api/feedback` | Farmer | Rating 1 to 5 and useful yes/no for an answer |
+| `POST /api/officer/register` | Sign-up code | Create an officer account. Returns a 12-hour token. |
+| `POST /api/officer/login` | Public | Phone number and PIN. Returns a 12-hour token. |
 | `GET /api/officer/answers` | Officer or admin | Queue of answers to review |
 | `GET /api/officer/answers/{id}` | Officer or admin | One answer with its question |
-| `POST /api/officer/reviews` | Officer (Bearer) or admin (`X-API-Key`) | Correct / partially correct / incorrect, plus relevant / clear / safe |
+| `POST /api/officer/reviews` | Officer (Bearer) or admin (`X-API-Key`) | Correct, partially correct or incorrect, plus relevant / clear / safe |
 | `GET /api/admin/stats` | Officer or admin | Referral rate, latency, ratings, officer-correct rate |
 
-**Example request**
+**Example**
 
 ```bash
 curl -X POST http://localhost:8000/api/ask/text \
@@ -291,7 +294,7 @@ The response contains `status` (`answered` or `referred`), `answer`, `referral_r
 | `401` | Wrong API key, PIN or sign-up code |
 | `404` | Unknown `answer_id` |
 | `413` | Audio too large |
-| `422` | Invalid audio or question too long |
+| `422` | Invalid audio, or question too long |
 | `429` | Too many wrong PINs or codes |
 | `503` | Speech not enabled, API-key access disabled, or sign-up closed |
 
@@ -300,11 +303,14 @@ The response contains `status` (`answered` or `referred`), `answer`, `referral_r
 The hosted version has two parts:
 
 ```
-browser -> Vercel (mfasha-chatbot.vercel.app) -> rewrite -> Hugging Face Space (FastAPI + models)
+browser ─▶ Vercel (mfasha-chatbot.vercel.app) ─▶ rewrite ─▶ Hugging Face Space (FastAPI + models)
 ```
 
 - **Hugging Face Space** `carine01/mfasha-kinyarwanda-agri-bot` runs the backend, the model and the web pages. Its entry point (`hf_app.py` in this repository) mounts the API under `/mfasha` and keeps a small Gradio app at `/` for the platform's ZeroGPU health check.
-- **Vercel** is only a front door. A `vercel.json` forwards every request to the Space, giving a short URL with HTTPS (required for the microphone):
+- **Vercel** is only a front door. A `vercel.json` forwards every request to the Space, giving a short URL with HTTPS (required for the microphone).
+
+<details>
+<summary><b>vercel.json</b></summary>
 
 ```json
 {
@@ -322,9 +328,10 @@ Deploy it from a folder containing only `vercel.json`:
 npx vercel --prod
 ```
 
-### Space settings
+</details>
 
-Set under **Settings -> Variables and secrets**:
+<details>
+<summary><b>Space settings</b> (Settings → Variables and secrets)</summary>
 
 | Name | Type | Value |
 |---|---|---|
@@ -337,7 +344,10 @@ Set under **Settings -> Variables and secrets**:
 | `MFASHA_REVIEWED_PATH` | variable | `data/sample/officer_reviewed_passages.csv` |
 | `MFASHA_SERVE_UNREVIEWED` | variable | `false` |
 
-### Pushing to the Space
+</details>
+
+<details>
+<summary><b>Pushing to the Space</b></summary>
 
 The Space rejects binary files in a normal `git push`. Push code with git and upload images separately:
 
@@ -351,54 +361,56 @@ hf upload carine01/mfasha-kinyarwanda-agri-bot frontend/img frontend/img --repo-
 
 After an upload, run `git pull --rebase` before the next push.
 
-### Known limits of free hosting
+</details>
 
-- The Space **sleeps when idle**; the first request afterwards waits for the e5 model (about 2.2 GB) to download and load.
-- The SQLite database on a free Space is **wiped on every restart** (code push, secret change, wake from sleep), so officer accounts and logged answers are lost. For persistent data, set `DATABASE_URL` to a hosted PostgreSQL database.
-- A restart also ends officer sessions unless `MFASHA_SECRET_KEY` is set.
+> **Known limits of free hosting**
+> - The Space **sleeps when idle**. The first request afterwards waits for the e5 model (about 2.2 GB) to download and load.
+> - The SQLite database on a free Space is **wiped on every restart** (code push, secret change, wake from sleep), so officer accounts and logged answers are lost. For persistent data, set `DATABASE_URL` to a hosted PostgreSQL database.
+> - A restart also ends officer sessions unless `MFASHA_SECRET_KEY` is set.
 
 ## Repository structure
 
 ```
 .
-â”œâ”€â”€ src/mfasha/
-â”‚   â”œâ”€â”€ api/              FastAPI app factory (main.py), routes, request/response schemas
-â”‚   â”œâ”€â”€ classification/   keyword labeller, TF-IDF + LR/SVM question classifier
-â”‚   â”œâ”€â”€ domain/           data objects (Passage, PipelineResult, ReferralReason) and exceptions
-â”‚   â”œâ”€â”€ knowledge/        knowledge base and loader (reviewed flags, officer labels)
-â”‚   â”œâ”€â”€ nlp/              text cleaning and tokenising
-â”‚   â”œâ”€â”€ referral/         referral rules (chain of responsibility) and threshold tuning
-â”‚   â”œâ”€â”€ retrieval/        BM25 (from scratch), TF-IDF, hybrid fusion, dense e5 embeddings
-â”‚   â”œâ”€â”€ speech/           WAV helpers, MMS speech-to-text, "unavailable" null objects
-â”‚   â”œâ”€â”€ storage/          SQLAlchemy tables, database session, repository
-â”‚   â”œâ”€â”€ auth.py           PIN hashing, signed officer tokens, login throttle
-â”‚   â”œâ”€â”€ config.py         settings from environment variables
-â”‚   â”œâ”€â”€ factory.py        composition root: the only place that picks concrete classes
-â”‚   â”œâ”€â”€ interfaces.py     abstract Retriever, Classifier, SpeechToText, TextToSpeech
-â”‚   â””â”€â”€ pipeline.py       the pipeline with per-stage timing
-â”œâ”€â”€ frontend/             web app, no build step (index, chat, officer pages)
-â”œâ”€â”€ data/sample/          bundled sample knowledge base and reviewed-passage list
-â”œâ”€â”€ scripts/              prepare_data, train_classifier, evaluate_retrieval, benchmark,
-â”‚                         import_notebook_artifacts, add_officer, system test scripts
-â”œâ”€â”€ tests/                unit, integration and performance tests
-â”œâ”€â”€ Notebooks/            mfasha_notebook.ipynb (data prep, fine-tuning, ASR, end to end)
-â”œâ”€â”€ results/              evaluation outputs, plots, test logs, officer review sheets
-â”œâ”€â”€ docs/                 screenshots and the technical report (PDF)
-â”œâ”€â”€ hf_app.py             Hugging Face Space entry point
-â”œâ”€â”€ make_review.py        builds officer_reviewed_passages.csv from the review spreadsheet
-â”œâ”€â”€ results/benchmarks/   latency and throughput measurements
-â”œâ”€â”€ Dockerfile, docker-compose.yml, Makefile
-â”œâ”€â”€ pyproject.toml, requirements*.txt
-â””â”€â”€ .env.example
+├── src/mfasha/
+│   ├── api/              FastAPI app factory (main.py), routes, request/response schemas
+│   ├── classification/   keyword labeller, TF-IDF + LR/SVM question classifier
+│   ├── domain/           data objects (Passage, PipelineResult, ReferralReason) and exceptions
+│   ├── knowledge/        knowledge base and loader (reviewed flags, officer labels)
+│   ├── nlp/              text cleaning and tokenising
+│   ├── referral/         referral rules (chain of responsibility) and threshold tuning
+│   ├── retrieval/        BM25 (from scratch), TF-IDF, hybrid fusion, dense e5 embeddings
+│   ├── speech/           WAV helpers, MMS speech-to-text, "unavailable" null objects
+│   ├── storage/          SQLAlchemy tables, database session, repository
+│   ├── auth.py           PIN hashing, signed officer tokens, login throttle
+│   ├── config.py         settings from environment variables
+│   ├── factory.py        composition root: the only place that picks concrete classes
+│   ├── interfaces.py     abstract Retriever, Classifier, SpeechToText, TextToSpeech
+│   └── pipeline.py       the pipeline, with per-stage timing
+├── frontend/             web app, no build step (index, chat, officer pages)
+├── data/sample/          bundled sample knowledge base and reviewed-passage list
+├── scripts/              prepare_data, train_classifier, evaluate_retrieval, benchmark,
+│                         import_notebook_artifacts, add_officer, system test scripts
+├── tests/                unit, integration and performance tests
+├── Notebooks/            mfasha_notebook.ipynb (data prep, fine-tuning, ASR, end to end)
+├── results/              evaluation outputs, plots, benchmarks, test logs, review sheets
+├── docs/                 screenshots, API schema and the technical report (PDF)
+├── hf_app.py             Hugging Face Space entry point
+├── make_review.py        builds officer_reviewed_passages.csv from the review spreadsheet
+├── Dockerfile, docker-compose.yml, Makefile
+├── pyproject.toml, requirements*.txt
+└── .env.example
 ```
 
 Not tracked by Git (see `.gitignore`): `data/` (except `data/sample/`), `models/`, `.venv/`, `.env`, `*.pkl`, `*.wav`, model weight files.
 
 ## Results
 
-All figures come from files in `results/`, including `results/benchmarks/`. "Seen" test questions come from passages used in fine-tuning; "unseen" questions come from passages held out of training.
+All figures come from files in `results/`. "Seen" test questions come from passages used in fine-tuning. "Unseen" questions come from passages held out of training.
 
-### Retrieval (`results/retrieval_final_test_all_systems.csv`)
+### Retrieval
+
+Source: `results/retrieval_final_test_all_systems.csv`
 
 | System | Split | R@1 | R@5 | MRR@10 |
 |---|---|---|---|---|
@@ -409,40 +421,42 @@ All figures come from files in `results/`, including `results/benchmarks/`. "See
 | **e5 fine-tuned** ([`kinya-e5-large`](https://huggingface.co/carine01/kinya-e5-large)) | seen / unseen | **0.893 / 0.866** | **0.990 / 0.988** | **0.936 / 0.923** |
 | BM25 + e5 fine-tuned (w=2.0) | seen / unseen | 0.745 / 0.790 | 0.932 / 0.973 | 0.825 / 0.870 |
 
-The fine-tuned e5 model is the best system on both splits and is used by the hosted app (`MFASHA_RETRIEVER=embedding`). The **default** local retriever is `hybrid` (BM25 + TF-IDF, weights 0.6 / 0.4), which needs no model download; its accuracy on this test set is not reported in `results/`.
+Fine-tuning lifts unseen R@1 from 0.316 to 0.866. The fine-tuned e5 model is the best system on both splits and is used by the hosted app (`MFASHA_RETRIEVER=embedding`). The **default** local retriever is `hybrid` (BM25 + TF-IDF, weights 0.6 / 0.4), which needs no model download. Its accuracy on this test set is not reported in `results/`.
 
-### Speech-to-text (`results/asr_finetuned_test.csv`)
+### Speech-to-text
+
+Source: `results/asr_finetuned_test.csv`
 
 | System | WER | CER |
 |---|---|---|
 | MMS-1b-all (Kinyarwanda adapter) | 0.301 | 0.063 |
-| MMS adapter fine-tuned | **0.277** | **0.058** |
+| MMS adapter, fine-tuned | **0.277** | **0.058** |
 
-### Out-of-scope questions (`results/oos_results.csv`)
+### Out-of-scope questions
 
-Of 40 questions outside the knowledge base (non-agricultural, financial, legal, medical, and farming questions probably not covered), **all 40 were referred** and none answered.
+Source: `results/oos_results.csv`. Of 40 questions outside the knowledge base (non-agricultural, financial, legal, medical, and farming questions probably not covered), **all 40 were referred** and none answered.
 
-### Latency and throughput (`scripts/benchmark.py`)
+### Latency and throughput
 
-Machine: Windows 10, Python 3.13.3, 4 logical CPUs, 8 client threads. Speech-to-text was disabled, so these figures cover the text pipeline only.
+Source: `scripts/benchmark.py`. Machine: Windows 10, Python 3.13.3, 4 logical CPUs, 8 client threads. Speech-to-text was disabled, so these figures cover the text pipeline only.
 
 | Run | Passages | Retriever | p50 | p95 | Throughput |
 |---|---|---|---|---|---|
-| `results/benchmarks/benchmark_hybrid_941.json` | 941 | hybrid | 46.0 ms | 54.9 ms | 43.1 req/s |
-| `results/benchmarks/benchmark_embedding_941.json` | 941 | embedding | 716.1 ms | 1049.7 ms | 1.7 req/s |
-| `results/benchmarks/benchmark_laptop.json` | 12 | hybrid | 8.8 ms | 60.1 ms | 137.6 req/s |
-| `results/benchmarks/benchmark_light_60runs.json` | 12 | hybrid | 12.3 ms | 52.0 ms | 68.0 req/s |
+| `benchmark_hybrid_941.json` | 941 | hybrid | 46.0 ms | 54.9 ms | 43.1 req/s |
+| `benchmark_embedding_941.json` | 941 | embedding | 716.1 ms | 1049.7 ms | 1.7 req/s |
+| `benchmark_laptop.json` | 12 | hybrid | 8.8 ms | 60.1 ms | 137.6 req/s |
+| `benchmark_light_60runs.json` | 12 | hybrid | 12.3 ms | 52.0 ms | 68.0 req/s |
 
-The embedding run recorded one outlier of about 121 s (its p99 and max) whose cause was not investigated. Start-up took about 18 s with 941 passages versus under 0.3 s with 12.
+All files are in `results/benchmarks/`. The embedding run recorded one outlier of about 121 s (its p99 and max) whose cause was not investigated. Start-up took about 18 s with 941 passages, versus under 0.3 s with 12.
 
 ### Knowledge base and officer review
 
 - The benchmarked knowledge base contains **941 passages**.
-- `results/review_sheet_all_passages.xlsx` has one row per passage, all marked `correct`; `make_review.py` converts it into the reviewed-passage list the app uses.
+- `results/review_sheet_all_passages.xlsx` has one row per passage, all marked `correct`. `make_review.py` converts it into the reviewed-passage list the app uses.
 - `results/category_labels_draft.csv` holds the keyword labeller's draft categories. Its `officer_category` column is empty in the committed copy.
 - `results/officer_review_sheet.csv` (200 rows) is an unfilled review template.
 
-## Testing and code quality
+## Testing and quality
 
 ```bash
 make test       # unit and integration tests (pytest -m "not performance")
@@ -451,7 +465,7 @@ make cov        # tests with a coverage report
 make lint       # ruff check src tests scripts
 ```
 
-Without `make`, run `pytest -m "not performance"` and `ruff check src tests scripts` directly.
+Without `make`, run `pytest -m "not performance"` and `ruff check src tests scripts` directly. The most recent full run (`results/final_testing/pytest_log.txt`) recorded **76 passed**.
 
 | Suite | What it covers |
 |---|---|
@@ -459,15 +473,15 @@ Without `make`, run `pytest -m "not performance"` and `ruff check src tests scri
 | `tests/integration/` | The HTTP API and the full pipeline: answer, referral, empty input, unreviewed passages never served, voice with a fake STT, every retriever choice builds |
 | `tests/performance/` | Text pipeline latency budget |
 
-Integration tests use small fake STT classes (`tests/conftest.py`) so the suite runs offline. They read the knowledge base from `data/sample/`, so that folder must be present. Logs from the most recent full runs, including pytest, coverage, ruff, load and system tests, are kept in `results/final_testing/`, `results/unit_testing/` and `results/system_testing/`.
+Integration tests use small fake STT classes (`tests/conftest.py`) so the suite runs offline. They read the knowledge base from `data/sample/`, so that folder must be present. Logs from the most recent runs (pytest, coverage, ruff, load and system tests) are kept in `results/final_testing/`, `results/unit_testing/` and `results/system_testing/`.
 
 **Engineering practices**
 
-- **Linting:** ruff (rules E, F, I, B, UP; line length 110), configured in `pyproject.toml`.
-- **Layered architecture:** interfaces and dependency injection let components be swapped by configuration and replaced by fakes in tests.
-- **Separation of concerns:** thin HTTP routes, a pipeline that owns stage order but not stage logic, and single-purpose referral rule classes.
-- **Input validation and safety:** size and duration limits, constant-time key comparison, salted PIN hashes, login throttling, and answers rendered with `textContent` to prevent HTML injection.
-- **Reproducibility:** minimum versions declared, Dockerfile with a non-root user and health check, and results committed alongside the code.
+- **Layered architecture.** Interfaces and dependency injection let components be swapped by configuration and replaced by fakes in tests.
+- **Separation of concerns.** Thin HTTP routes, a pipeline that owns stage order but not stage logic, and single-purpose referral rule classes.
+- **Input validation and safety.** Size and duration limits, constant-time key comparison, salted PIN hashes, login throttling, and answers rendered with `textContent` to prevent HTML injection.
+- **Linting.** ruff (rules E, F, I, B, UP; line length 110), configured in `pyproject.toml`.
+- **Reproducibility.** Minimum versions declared, a Dockerfile with a non-root user and health check, and results committed alongside the code.
 
 ## Data and model sources
 
@@ -478,12 +492,12 @@ Integration tests use small fake STT classes (`tests/conftest.py`) so the suite 
 | [`carine01/kinya-e5-large`](https://huggingface.co/carine01/kinya-e5-large) | Fine-tuned retrieval model used by the hosted app | This project |
 | [`facebook/mms-1b-all`](https://huggingface.co/facebook/mms-1b-all) (adapter `kin`) | Speech-to-text | See model card |
 
-`results/candidate_audit.json` also lists the other candidate models and datasets that were audited (`C4IR-RW/kinyabert`, `C4IR-RW/kiny-colbert-free`, `C4IR-RW/kinya-flex-tts`).
+Third-party Python dependency licenses are listed in [`licenses.md`](licenses.md). `results/candidate_audit.json` also records the other candidate models and datasets that were audited (`C4IR-RW/kinyabert`, `C4IR-RW/kiny-colbert-free`, `C4IR-RW/kinya-flex-tts`).
 
 ---
 
 <div align="center">
 
-Built to give Rwandan farmers fast, trustworthy answers in Kinyarwanda, with an officer always in the loop.
+**Built to give Rwandan farmers fast, trustworthy answers in Kinyarwanda, with an officer always in the loop.**
 
 </div>
