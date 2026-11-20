@@ -53,14 +53,14 @@ voice ─▶ speech-to-text ─▶ preprocessing ─▶ classification ─▶ re
 
 | | |
 |---|---|
-| 🎙️ **Text and voice** | Type or speak. Speech is transcribed with MMS (`facebook/mms-1b-all`, Kinyarwanda adapter). |
-| ✅ **Verified answers only** | A passage is served only if an officer has signed it off. |
-| 🛡️ **Safe by design** | A chain of referral rules sends uncertain, ambiguous or off-topic questions to a human. All 40 out-of-scope test questions were referred. |
-| 🎯 **Fine-tuned retrieval** | A Kinyarwanda-tuned e5 model reaches R@1 of 0.87 to 0.89 on held-out questions ([results](#results)). |
-| 👩‍🌾 **Officer dashboard** | Officers sign in with a phone number and PIN, review logged answers, and mark them correct or incorrect. |
-| 📊 **Operational visibility** | Every answer is logged with per-stage latency. An admin endpoint reports referral rate, ratings and officer-correct rate. |
-| 🔌 **Swappable components** | Retrievers, classifier and speech-to-text sit behind interfaces and are chosen by configuration. |
-| 🪶 **No-build frontend** | Plain HTML, CSS and JavaScript in Kinyarwanda, with an English toggle. |
+|  **Text and voice** | Type or speak. Speech is transcribed with MMS (`facebook/mms-1b-all`, Kinyarwanda adapter). |
+|  **Verified answers only** | A passage is served only if an officer has signed it off. |
+| **Safe by design** | A chain of referral rules sends uncertain, ambiguous or off-topic questions to a human. All 40 out-of-scope test questions were referred. |
+|  **Fine-tuned retrieval** | A Kinyarwanda-tuned e5 model reaches R@1 of 0.87 to 0.89 on held-out questions ([results](#results)). |
+| **Officer dashboard** | Officers sign in with a phone number and PIN, review logged answers, and mark them correct or incorrect. |
+|  **Operational visibility** | Every answer is logged with per-stage latency. An admin endpoint reports referral rate, ratings and officer-correct rate. |
+|  **Swappable components** | Retrievers, classifier and speech-to-text sit behind interfaces and are chosen by configuration. |
+| **No-build frontend** | Plain HTML, CSS and JavaScript in Kinyarwanda, with an English toggle. |
 
 ## Screenshots
 
